@@ -10,6 +10,7 @@ import { switchStyles } from "./components/switch";
 import { linkStyles } from "./components/link";
 import { breakpoints } from "./foundations/breakpoints";
 import { globalStyles } from "./styles";
+
 export default extendTheme(
   { breakpoints }, // Breakpoints
   globalStyles,
@@ -21,5 +22,5 @@ export default extendTheme(
   inputStyles, // input styles
   textareaStyles, // textarea styles
   switchStyles, // switch styles
-  CardComponent // card component
+  CardComponent, // card component
 );

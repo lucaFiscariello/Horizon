@@ -1,8 +1,8 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 
-import {listProjectTemplates} from '../api';
-import type {ITemplatesContent} from '../api';
-import type {Visibility} from '../xsd/model';
+import {listProjectTemplates} from '../api/index.ts';
+import type {ITemplatesContent} from '../api/index.ts';
+import type {Visibility} from '../xsd/model.tsx';
 
 
 interface FormState {

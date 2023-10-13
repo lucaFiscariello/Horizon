@@ -8,8 +8,19 @@ import Project3 from "assets/img/profile/Project3.png";
 import Card from "components/card/Card.js";
 import React from "react";
 import Project from "views/admin/profile/components/Project";
+import {listProjects} from "opensand/api/index.ts"
+import {useDispatch,useSelector} from 'opensand/redux/index.ts';
+
 
 export default function Projects(props) {
+
+  const projects = useSelector((state) => state.project.projects);
+  const dispatch = useDispatch();
+
+  React.useEffect(() => {
+    dispatch(listProjects());
+  }, []);
+
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
   const textColorSecondary = "gray.400";
@@ -17,6 +28,20 @@ export default function Projects(props) {
     "0px 18px 40px rgba(112, 144, 176, 0.12)",
     "unset"
   );
+  
+  let project = "#/project/"
+
+  const projectsCards = projects.map((p, i) => (
+    <Project
+        boxShadow={cardShadow}
+        mb='20px'
+        image={Project1}
+        ranking={i}
+        link= {project.concat(p)}
+        title= {p}
+      />
+  ));
+
   return (
     <Card mb={{ base: "0px", "2xl": "20px" }}>
       <Text
@@ -31,54 +56,10 @@ export default function Projects(props) {
         Here you can find more details about your projects. Keep you user
         engaged by providing meaningful information.
       </Text>
-      <Project
-        boxShadow={cardShadow}
-        mb='20px'
-        image={Project1}
-        ranking='1'
-        link='#'
-        title='Project Fiscariello 1'
-      />
-      <Project
-        boxShadow={cardShadow}
-        mb='20px'
-        image={Project1}
-        ranking='2'
-        link='#'
-        title='Innesco'
-      />
-      <Project
-        boxShadow={cardShadow}
-        image={Project1}
-        mb='20px'
-        ranking='3'
-        link='#'
-        title='OpensatRange'
-      />
-      <Project
-        boxShadow={cardShadow}
-        image={Project1}
-        ranking='4'
-        mb='20px'
-        link='#'
-        title='Opensand'
-      />
-      <Project
-        boxShadow={cardShadow}
-        image={Project1}
-        mb='20px'
-        ranking='5'
-        link='#'
-        title='Surprise'
-      />
-      <Project
-        boxShadow={cardShadow}
-        image={Project1}
-        mb='20px'
-        ranking='6'
-        link='#'
-        title='Surprise New'
-      />
+
+
+      {projectsCards}
+
     </Card>
   );
 }

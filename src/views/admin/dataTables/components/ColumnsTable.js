@@ -44,8 +44,9 @@ export default function ColumnsTable(props) {
     prepareRow,
     initialState,
   } = tableInstance;
-  initialState.pageSize = 5;
+  initialState.pageSize = 20;
 
+  console.log(data)
   const textColor = useColorModeValue("secondaryGray.900", "white");
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.100");
   return (
@@ -54,16 +55,17 @@ export default function ColumnsTable(props) {
       w='100%'
       px='0px'
       overflowX={{ sm: "scroll", lg: "hidden" }}>
+
       <Flex px='25px' justify='space-between' mb='20px' align='center'>
         <Text
           color={textColor}
           fontSize='22px'
           fontWeight='700'
           lineHeight='100%'>
-          4-Column Table
+          Machines
         </Text>
-        <Menu />
       </Flex>
+      
       <Table {...getTableProps()} variant='simple' color='gray.500' mb='24px'>
         <Thead>
           {headerGroups.map((headerGroup, index) => (
@@ -74,6 +76,7 @@ export default function ColumnsTable(props) {
                   pe='10px'
                   key={index}
                   borderColor={borderColor}>
+
                   <Flex
                     justify='space-between'
                     align='center'
@@ -81,11 +84,13 @@ export default function ColumnsTable(props) {
                     color='gray.400'>
                     {column.render("Header")}
                   </Flex>
+
                 </Th>
               ))}
             </Tr>
           ))}
         </Thead>
+        
         <Tbody {...getTableBodyProps()}>
           {page.map((row, index) => {
             prepareRow(row);
@@ -101,7 +106,7 @@ export default function ColumnsTable(props) {
                         </Text>
                       </Flex>
                     );
-                  } else if (cell.column.Header === "PROGRESS") {
+                  } else if (cell.column.Header === "TYPE") {
                     data = (
                       <Flex align='center'>
                         <Text
@@ -109,22 +114,17 @@ export default function ColumnsTable(props) {
                           color={textColor}
                           fontSize='sm'
                           fontWeight='700'>
-                          {cell.value}%
+                          {cell.value}
                         </Text>
                       </Flex>
                     );
-                  } else if (cell.column.Header === "QUANTITY") {
+                  } else if (cell.column.Header === "IP") {
                     data = (
                       <Text color={textColor} fontSize='sm' fontWeight='700'>
                         {cell.value}
                       </Text>
                     );
-                  } else if (cell.column.Header === "DATE") {
-                    data = (
-                      <Text color={textColor} fontSize='sm' fontWeight='700'>
-                        {cell.value}
-                      </Text>
-                    );
+                  
                   }
                   return (
                     <Td

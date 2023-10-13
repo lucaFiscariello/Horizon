@@ -2,14 +2,14 @@ import {configureStore} from '@reduxjs/toolkit';
 import {useDispatch as useReduxDispatch, useSelector as useReduxSelector} from 'react-redux';
 import type {TypedUseSelectorHook} from 'react-redux';
 
-import actionReducer from './action';
-import errorReducer from './error';
-import formReducer from './form';
-import modelReducer from './model';
-import pingReducer from './ping';
-import projectReducer from './projects';
-import sshReducer from './ssh';
-import tabReducer from './tab';
+import actionReducer from './action.ts';
+import errorReducer from './error.ts';
+import formReducer from './form.ts';
+import modelReducer from './model.ts';
+import pingReducer from './ping.ts';
+import projectReducer from './projects.ts';
+import sshReducer from './ssh.ts';
+import tabReducer from './tab.ts';
 
 
 const store = configureStore({

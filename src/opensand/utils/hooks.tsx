@@ -1,13 +1,11 @@
 import React from 'react';
-import {useNavigate} from 'react-router-dom';
 import type {FormikProps} from 'formik';
 
 import {useSelector} from '../redux/index.ts';
 import type {ThunkConfig} from '../redux/index.ts';
-import {clearProjects} from '../redux/projects.ts';
 import type {IAction} from '../utils/actions.ts';
-import {newItem} from '../xsd/index.ts';
-import type {List, Component} from '../xsd/index.ts';
+import {newItem} from '../xsd/model.tsx';
+import type {List, Component} from '../xsd/model.tsx';
 
 
 export const useDidMount = () => {
@@ -68,16 +66,7 @@ export const useTimer = (timeout: number) => {
 
 
 declare type Dispatch = Pick<ThunkConfig, "dispatch">["dispatch"];
-export const useProject = (dispatch: Dispatch) => {
-    const navigate = useNavigate();
 
-    const goToProject = React.useCallback((projectName: string) => {
-        dispatch(clearProjects());
-        navigate("/project/" + projectName);
-    }, [dispatch, navigate]);
-
-    return goToProject;
-};
 
 
 export const useListMutators = (list: List, actions: IAction, form: FormikProps<Component>, prefix: string) => {

@@ -1,6 +1,7 @@
 {
   "homepage": "https://horizon-ui.com/horizon-ui-chakra",
   "name": "horizon-ui-chakra",
+  "proxy": "http://127.0.0.1:80/",
   "version": "1.0.1",
   "private": true,
   "dependencies": {

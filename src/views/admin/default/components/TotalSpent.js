@@ -20,11 +20,14 @@ import {
 } from "variables/charts";
 
 
-import React, { useState, useEffect } from 'react';
-import {print} from "opensand/api/index.ts"
+import {listProjects} from "opensand/api/index.ts"
+import {useDispatch,useSelector} from 'opensand/redux/index.ts';
+
+
 
 export default function TotalSpent(props) {
   const { ...rest } = props;
+
 
   // Chakra Color Mode
 
@@ -42,7 +45,6 @@ export default function TotalSpent(props) {
     { bg: "whiteAlpha.100" }
   );
 
-  print()
 
   return (
     <Card
