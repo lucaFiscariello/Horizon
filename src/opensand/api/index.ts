@@ -121,18 +121,30 @@ const doGetXSD = async (dispatch: Dispatch, filename?: string): Promise<Model> =
     }
 };
 
+///api/project/test/profile/gw
+///api/project/test/infrastructure/gw
+///api/project/test/topology
 
 const doGetXML = async (dispatch: Dispatch, project: string, xsd?: string, urlFragment?: string): Promise<Model> => {
     const dataModel = await doGetXSD(dispatch, xsd);
 
     const url = "/api/project/" + project + (urlFragment == null ? "" : "/" + urlFragment);
     const xml = await doFetch<IFileContent>(url, dispatch);
+
     try {
         return fromXML(dataModel, xml.content);
     } catch (err) {
         dispatch(newError("Cannot parse XML: " + err));
         throw err;
     }
+};
+
+const doGetXMLNoSave = async (dispatch: Dispatch, project: string, xsd?: string, urlFragment?: string) => {
+    const url = "/api/project/" + project + (urlFragment == null ? "" : "/" + urlFragment);
+    const xml = await doFetch<IFileContent>(url, dispatch);
+    
+    return xml.content
+
 };
 
 
@@ -146,7 +158,6 @@ const serializeXML = (model: Model, dispatch: Dispatch) => {
 };
 
 
-
 export const getXML = asyncThunk<Model, {project: string; xsd: string; urlFragment: string;}>(
     'model/getXML',
     async ({project, xsd, urlFragment}, {dispatch}) => {
@@ -154,9 +165,13 @@ export const getXML = asyncThunk<Model, {project: string; xsd: string; urlFragme
     },
 );
 
-export const print = () => {
-    console.log("caio a tutti tutti")
-}
+export const getXMLNoSave = asyncThunk<Model, {project: string; xsd: string; urlFragment: string;}>(
+    'model/getXML',
+    async ({project, xsd, urlFragment}, {dispatch}) => {
+        return  await doGetXMLNoSave(dispatch, project, xsd, urlFragment);
+    },
+);
+
 
 export const forceEntityInXML = asyncThunk<IApiSuccess, {project: string; xsd: string; loadUrl: string; saveUrl: string; entity: string;}>(
     'model/forceEntityInXML',

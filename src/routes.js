@@ -1,17 +1,14 @@
-import React from "react";
 
 import { Icon } from "@chakra-ui/react";
 import {
-  MdBarChart,
   MdPerson,
   MdHome,
   MdLock,
-  MdOutlineShoppingCart,
 } from "react-icons/md";
 
 // Admin Imports
-import MainDashboard from "views/admin/default";
-import Profile from "views/admin/profile";
+import MainDashboard from "views/admin/dashboard";
+import Projects from "views/admin/Projects";
 
 
 // Auth Imports
@@ -26,11 +23,11 @@ const routes = [
     component: MainDashboard,
   },
   {
-    name: "Project",
+    name: "Projects",
     layout: "/admin",
     path: "/profile",
     icon: <Icon as={MdPerson} width='20px' height='20px' color='inherit' />,
-    component: Profile,
+    component: Projects,
   },
   {
     name: "Sign In",
