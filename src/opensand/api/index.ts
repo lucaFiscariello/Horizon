@@ -106,6 +106,7 @@ const doFetch = async <T>(
         };
     }
 
+
     return await doApiCall<T>(url, configuration, dispatch);
 };
 

@@ -138,7 +138,5 @@ export async function getXmlProject(){
     const response = await fetch('api/project/test/infrastructure/st3');
     const jsonData = await response.json();
     const result = await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
-
-    console.log(result.model)
     
 }

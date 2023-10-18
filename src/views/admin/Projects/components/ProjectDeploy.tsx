@@ -389,7 +389,8 @@ const Project: React.FC<Props> = (props) => {
                         
                         
                         <FullScreenDialog></FullScreenDialog>
-                                    
+
+                              
                            
 						<Box>
 							<Footer />

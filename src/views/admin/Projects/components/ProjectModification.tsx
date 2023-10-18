@@ -405,7 +405,7 @@ const Project: React.FC<Props> = (props) => {
                             <div>
                                 <Formik  initialValues={model.root} onSubmit={handleSubmit}>
                                 {(formik: FormikProps<Component>) => {
-                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} ></Network>                    
+                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} nameProject={name}></Network>                    
                                 }}
                                 </Formik>
                             </div>

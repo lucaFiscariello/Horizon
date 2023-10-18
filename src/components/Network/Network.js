@@ -20,6 +20,8 @@ import createTheme from 'opensand/utils/theme.ts';
 import FullScreenDialog from 'components/Network/FullScreenDialog.js';
 import { getXmlProject, areAllSubnetsDefinited, getLinksConnection, getNodes, searchSubnets } from './subnet';
 import net from 'assets/img/opensand/net.png'
+import { ModelEntity } from './ModelEntity';
+import { ModelNetwork } from './ModelNetwork';
 
 
 // Dialog per eliminare un nodo
@@ -70,22 +72,29 @@ export default function Network(props) {
   const urlNET = net
 
   const [dataState, setData] = useState({});
+  const [clickNodes, setClickNodes] = useState([]);
   const [open, setOpen] = React.useState(false);
   const [openModify, setOpenModify] = React.useState(false);
   const [nodeName, setnodeName] = useState("");
   const [tooltip, setTooltip] = useState('');
   const [addListItem, removeListItem] = useListMutators(props.list, props.actions, props.form, "elements.0.element.elements.1.element");
 
-  React.useEffect(() => {
+  React.useEffect(async () => {
 
     const data = {"links":[],"nodes":[]}
     let nodes = []
     let links = []
     let subnets = []
 
+    let entityNetwork = new ModelNetwork(props.nameProject)
+    await entityNetwork.loadModel(props.nameMachines)
+    
+    let entity = entityNetwork.entities["gw"]
+    await entity.addSpot("Transparent","Transparent","10","10","10")
+
+
     subnets = searchSubnets(props.nameMachines)  
     nodes = getNodes(props.nameMachines)
-    getXmlProject()
 
     if(areAllSubnetsDefinited(subnets)){
       links = getLinksConnection(subnets)
@@ -119,9 +128,30 @@ export default function Network(props) {
     setnodeName(clickedNodeId)
   };
 
-  const onClickNode  = (nodeId) => {
-    setTooltip(`Mostra configurazioni del nodo ${nodeId}`);
-    setOpenModify(true)
+  const onClickNode  = (nodeId,node) => {
+
+    let sizeClick = 500
+    node.size = node.size == 400? sizeClick:400
+
+    if (node.size == sizeClick){
+
+      let tempNodes = clickNodes
+      tempNodes.push(nodeId)
+      setClickNodes(tempNodes)
+
+    }else{
+      
+      let tempNodes = clickNodes
+      const indiceElemento = tempNodes.indexOf(nodeId);
+
+      if (indiceElemento !== -1) {
+        tempNodes.splice(indiceElemento, 1);
+      }
+
+      setClickNodes(tempNodes)
+
+    }
+
   };
 
 
@@ -145,7 +175,7 @@ export default function Network(props) {
         <div className="main-container">
             
             <div className='white-box'>
-                <Graph id="graph" config={config} data={dataState} onDoubleClickNode={onDoubleClickNode} onClickNode={onClickNode} onClickGraph={onClickGraph} />
+                <Graph id="graph" config={config} data={dataState} onDoubleClickNode={onDoubleClickNode} onClickNode={onClickNode} onClickGraph={onClickGraph} />  
             </div>
               
         </div>
