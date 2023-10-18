@@ -68,7 +68,6 @@ export const useTimer = (timeout: number) => {
 declare type Dispatch = Pick<ThunkConfig, "dispatch">["dispatch"];
 
 
-
 export const useListMutators = (list: List, actions: IAction, form: FormikProps<Component>, prefix: string) => {
     const {onCreate, onDelete} = actions;
     const {values, setFieldValue, submitForm} = form;

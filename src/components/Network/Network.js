@@ -88,9 +88,16 @@ export default function Network(props) {
 
     let entityNetwork = new ModelNetwork(props.nameProject)
     await entityNetwork.loadModel(props.nameMachines)
-    
-    let entity = entityNetwork.entities["gw"]
-    await entity.addSpot("Transparent","Transparent","10","10","10")
+    let entity = entityNetwork.entities["sat"]
+    console.log(entity)
+
+    if(entity){
+      //await entity.loadXMLDefault()
+      await entity.addSpot("Transparent","Transparent","12","10","10")
+      console.log(entity)
+
+    }
+
 
 
     subnets = searchSubnets(props.nameMachines)  

@@ -1,4 +1,6 @@
+import { typeOf } from 'react-is';
 import xml2js from 'xml2js';
+
 
 export class ModelEntity {
 
@@ -25,18 +27,69 @@ export class ModelEntity {
 
         const response_inf = await fetch(this.urlInfrastructure)
         const jsonData_inf =  await response_inf.json();
+        if(!jsonData_inf.error){
+            const result_inf =  await xml2js.parseStringPromise(jsonData_inf.content, { explicitArray: false });
+            this.infrastructure = result_inf
+        }
+       
+        const response_tp = await fetch(this.urlTopology)
+        const jsonData_tp =  await response_tp.json();
+        if(!jsonData_tp.error){
+            const result_tp =  await xml2js.parseStringPromise(jsonData_tp.content, { explicitArray: false });
+            this.topology = result_tp
+        }
+
+        const response_pr = await fetch(this.urlProfile)
+        const jsonData_pr =  await response_pr.json();
+        if(!jsonData_pr.error){
+            const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
+            this.profile = result_pr
+        }
+
+        await this.loadXMLDefault()
+
+    }
+
+    // /api/project/test/template/topology/Default.xml
+    // /api/project/test/template/infrastructure/Default.xml
+    // http://localhost/api/project/ecco/template/profile_st/Default.xml
+    // http://localhost/api/project/ecco/template/profile_sat/Default.xml
+    // http://localhost/api/project/ecco/template/profile_gw/Default.xml
+
+
+    async loadXMLDefault() {
+        const urlTopologyDefault = "/api/project/test/template/topology/Default.xml"
+        const urlInfrastructureDefault = "/api/project/test/template/infrastructure/Default.xml"
+        let urlprofileDefault = ""
+
+        switch(this.type){
+            case "Satellite" :
+                urlprofileDefault = "/api/project/ecco/template/profile_sat/Default.xml"
+                break;
+            case "Gateway" :
+                urlprofileDefault = "/api/project/ecco/template/profile_gw/Default.xml"
+                break;
+            case "Terminal" :
+                urlprofileDefault = "/api/project/ecco/template/profile_st/Default.xml"
+                break;
+        }
+
+        const response_inf = await fetch(urlInfrastructureDefault)
+        const jsonData_inf =  await response_inf.json();
         const result_inf =  await xml2js.parseStringPromise(jsonData_inf.content, { explicitArray: false });
         this.infrastructure = result_inf
 
-        const response_tp = await fetch(this.urlTopology)
+        const response_tp = await fetch(urlTopologyDefault)
         const jsonData_tp =  await response_tp.json();
         const result_tp =  await xml2js.parseStringPromise(jsonData_tp.content, { explicitArray: false });
         this.topology = result_tp
 
-        const response_pr = await fetch(this.urlProfile)
+        const response_pr = await fetch(urlprofileDefault)
         const jsonData_pr =  await response_pr.json();
         const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
         this.profile = result_pr
+
+        await this.updateXml()
 
     }
 
@@ -125,7 +178,14 @@ export class ModelEntity {
 
     async addSpot(forward_regen_level,return_regen_level,gateway_id,sat_id_gw,sat_id_st){
         let allSpots = this.topology.model.root.frequency_plan.spots.item
-        let templateSpot = structuredClone(allSpots[0])
+        let templateSpot
+
+        if (Array.isArray(allSpots))
+            templateSpot= structuredClone(allSpots[0])
+        else
+            templateSpot= structuredClone(allSpots)
+
+        console.log(templateSpot)
 
         templateSpot.assignments.forward_regen_level = forward_regen_level
         templateSpot.assignments.gateway_id = gateway_id
@@ -133,9 +193,22 @@ export class ModelEntity {
         templateSpot.assignments.sat_id_gw = sat_id_gw
         templateSpot.assignments.sat_id_st = sat_id_st
 
-        allSpots.push(templateSpot)
+        if (Array.isArray(allSpots)){
+            allSpots.push(templateSpot)
+            console.log("sono array")
+        }
+        else{
+            allSpots = [templateSpot,allSpots]
+            console.log("no array")
+        }
+
+        console.log(typeOf(allSpots))
+        this.topology.model.root.frequency_plan.spots.item = allSpots
+
         await this.updateXml()
     }
+
+
 
 
 

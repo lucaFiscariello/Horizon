@@ -203,7 +203,7 @@ export const updateXML = asyncThunk<IApiSuccess, {project: string; xsd: string; 
         }
 
         const xml_data = serializeXML(root ? {...model, root} : model, dispatch);
-        const response = await doFetch<IApiSuccess>(`/api/project/${project}/${urlFragment}`, dispatch, "PUT", {xml_data});
+        const response = await doFetch<IApiSuccess>(`/api/project/${project}/${urlFragment}`, dispatch, "POST", {xml_data});
         dispatch(getXML({project, xsd, urlFragment}));
         return response;
     },

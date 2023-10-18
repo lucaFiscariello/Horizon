@@ -22,6 +22,7 @@
 
 // Chakra imports
 import { Box, Grid } from "@chakra-ui/react";
+import CreateProjectButton from "opensand/Model/CreateProjectButton.tsx";
 
 // Custom components
 
@@ -58,6 +59,7 @@ export default function Overview() {
      
         
       </Grid>
+      <CreateProjectButton></CreateProjectButton>
     </Box>
   );
 }

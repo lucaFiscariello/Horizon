@@ -9,13 +9,18 @@ export class ModelNetwork {
 
     async loadModel(entities) {
         
+        
         for (let entity of entities){
-            let entityname = entity["name"]
-            let entityModel = new ModelEntity(entityname,this.nameProject,entity["type"])
+            if(entity){
+                let entityname = entity["name"]
+                let entityModel = new ModelEntity(entityname,this.nameProject,entity["type"])
+    
+                await entityModel.loadXML()
+    
+                this.entities[entityname] = entityModel
 
-            await entityModel.loadXML()
+            }
 
-            this.entities[entityname] = entityModel
         }
 
     }
