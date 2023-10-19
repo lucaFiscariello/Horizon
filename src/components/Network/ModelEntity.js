@@ -1,7 +1,8 @@
-import { typeOf } from 'react-is';
 import xml2js from 'xml2js';
 
-
+/**
+ * Classe modella un'entità di una rete satellitare. Offre funzionalità per modificare e ottenere parametri dei tre xml: topology, infrastruttura, profile
+ */
 export class ModelEntity {
 
     constructor(nameEntity,nameProject,type) {        
@@ -23,41 +24,35 @@ export class ModelEntity {
                
     }
 
+    /**
+     * Carica i tre xml di un entità
+     */
     async loadXML() {
 
         const response_inf = await fetch(this.urlInfrastructure)
         const jsonData_inf =  await response_inf.json();
-        if(!jsonData_inf.error){
+
+        // Se la lettura dell'xml fallisce vuol dire che l'entità è appena stata creata. Pertanto è necessario creare gli xml di defaul
+        if(jsonData_inf.error){
+            await this.createXMLDefault()
+        }
+        else{
             const result_inf =  await xml2js.parseStringPromise(jsonData_inf.content, { explicitArray: false });
             this.infrastructure = result_inf
-        }
-       
-        const response_tp = await fetch(this.urlTopology)
-        const jsonData_tp =  await response_tp.json();
-        if(!jsonData_tp.error){
-            const result_tp =  await xml2js.parseStringPromise(jsonData_tp.content, { explicitArray: false });
-            this.topology = result_tp
-        }
 
-        const response_pr = await fetch(this.urlProfile)
-        const jsonData_pr =  await response_pr.json();
-        if(!jsonData_pr.error){
+            const response_pr = await fetch(this.urlProfile)
+            const jsonData_pr =  await response_pr.json();
             const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
             this.profile = result_pr
         }
 
-        await this.loadXMLDefault()
-
     }
 
-    // /api/project/test/template/topology/Default.xml
-    // /api/project/test/template/infrastructure/Default.xml
-    // http://localhost/api/project/ecco/template/profile_st/Default.xml
-    // http://localhost/api/project/ecco/template/profile_sat/Default.xml
-    // http://localhost/api/project/ecco/template/profile_gw/Default.xml
 
-
-    async loadXMLDefault() {
+    /**
+     * Crea gli xml di default per un entità. Questa funzione deve essere invocata appena viene creata una nuova entità.
+     */
+    async createXMLDefault() {
         const urlTopologyDefault = "/api/project/test/template/topology/Default.xml"
         const urlInfrastructureDefault = "/api/project/test/template/infrastructure/Default.xml"
         let urlprofileDefault = ""
@@ -79,11 +74,6 @@ export class ModelEntity {
         const result_inf =  await xml2js.parseStringPromise(jsonData_inf.content, { explicitArray: false });
         this.infrastructure = result_inf
 
-        const response_tp = await fetch(urlTopologyDefault)
-        const jsonData_tp =  await response_tp.json();
-        const result_tp =  await xml2js.parseStringPromise(jsonData_tp.content, { explicitArray: false });
-        this.topology = result_tp
-
         const response_pr = await fetch(urlprofileDefault)
         const jsonData_pr =  await response_pr.json();
         const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
@@ -92,7 +82,10 @@ export class ModelEntity {
         await this.updateXml()
 
     }
-
+    
+    /**
+     * Aggiorna gli xml in seguito a delle modifiche locali. Le modifiche sono passate al server opensand
+     */
     async updateXml(){
 
         const builder = new xml2js.Builder();
@@ -136,6 +129,7 @@ export class ModelEntity {
 
     }
 
+
     async setGatewayID(id){
         this.infrastructure.model.root.entity.entity_gw.entity_id = id
         await this.updateXml()
@@ -176,44 +170,24 @@ export class ModelEntity {
         await this.updateXml()
     }
 
-    async addSpot(forward_regen_level,return_regen_level,gateway_id,sat_id_gw,sat_id_st){
-        let allSpots = this.topology.model.root.frequency_plan.spots.item
-        let templateSpot
+    getID(){
 
-        if (Array.isArray(allSpots))
-            templateSpot= structuredClone(allSpots[0])
-        else
-            templateSpot= structuredClone(allSpots)
+        switch(this.type){
+            case "Satellite" :
+                return this.infrastructure.model.root.entity.entity_sat.entity_id
 
-        console.log(templateSpot)
+            case "Gateway" :
+                return this.infrastructure.model.root.entity.entity_gw.entity_id
 
-        templateSpot.assignments.forward_regen_level = forward_regen_level
-        templateSpot.assignments.gateway_id = gateway_id
-        templateSpot.assignments.return_regen_level = return_regen_level
-        templateSpot.assignments.sat_id_gw = sat_id_gw
-        templateSpot.assignments.sat_id_st = sat_id_st
-
-        if (Array.isArray(allSpots)){
-            allSpots.push(templateSpot)
-            console.log("sono array")
+            case "Terminal" :
+                return this.infrastructure.model.root.entity.entity_st.entity_id
+                
         }
-        else{
-            allSpots = [templateSpot,allSpots]
-            console.log("no array")
-        }
-
-        console.log(typeOf(allSpots))
-        this.topology.model.root.frequency_plan.spots.item = allSpots
-
-        await this.updateXml()
     }
-
-
-
-
-
     
 }
+
+
 
 
 

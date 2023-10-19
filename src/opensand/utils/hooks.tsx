@@ -6,6 +6,7 @@ import type {ThunkConfig} from '../redux/index.ts';
 import type {IAction} from '../utils/actions.ts';
 import {newItem} from '../xsd/model.tsx';
 import type {List, Component} from '../xsd/model.tsx';
+import { ModelEntity } from 'components/Network/ModelEntity.js';
 
 
 export const useDidMount = () => {
@@ -71,7 +72,6 @@ declare type Dispatch = Pick<ThunkConfig, "dispatch">["dispatch"];
 export const useListMutators = (list: List, actions: IAction, form: FormikProps<Component>, prefix: string) => {
     const {onCreate, onDelete} = actions;
     const {values, setFieldValue, submitForm} = form;
-
     const addListItem = React.useCallback(() => {
         const doAdd = (l: List, path: string, creator?: (lst: List) => Component | undefined) => {
             const item = creator ? creator(l) : newItem(l.pattern, l.elements.length);
@@ -79,6 +79,8 @@ export const useListMutators = (list: List, actions: IAction, form: FormikProps<
                 setFieldValue(path + ".elements", [...l.elements, item]);
             }
         };
+
+
         if (onCreate != null) {
             onCreate(values, doAdd, submitForm);
         } else {

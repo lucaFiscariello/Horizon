@@ -84,30 +84,17 @@ export default function Network(props) {
     const data = {"links":[],"nodes":[]}
     let nodes = []
     let links = []
-    let subnets = []
 
-    let entityNetwork = new ModelNetwork(props.nameProject)
-    await entityNetwork.loadModel(props.nameMachines)
-    let entity = entityNetwork.entities["sat"]
-    console.log(entity)
+    let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
 
-    if(entity){
-      //await entity.loadXMLDefault()
-      await entity.addSpot("Transparent","Transparent","12","10","10")
-      console.log(entity)
-
-    }
-
-
-
-    subnets = searchSubnets(props.nameMachines)  
-    nodes = getNodes(props.nameMachines)
-
-    if(areAllSubnetsDefinited(subnets)){
-      links = getLinksConnection(subnets)
-    }
-
-
+    await entityNetwork.loadXMLDefault()
+    await entityNetwork.loadModel()
+    //await entityNetwork.addSpot("Transparent","Transparent","10","10","50")
+    //let entity = entityNetwork.entities["sat2"]
+   
+    nodes = entityNetwork.getNodes()
+    links = entityNetwork.getLinks()
+    
     data.nodes = nodes
     data.links = links
     setData(data)
