@@ -86,6 +86,8 @@ export const useListMutators = (list: List, actions: IAction, form: FormikProps<
         } else {
             doAdd(list, prefix);
         }
+
+        
     }, [list, onCreate, setFieldValue, submitForm, values, prefix]);
 
     const removeListItem = React.useCallback((index: number) => {

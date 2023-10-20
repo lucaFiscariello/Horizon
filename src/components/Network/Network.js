@@ -79,22 +79,20 @@ export default function Network(props) {
   const [tooltip, setTooltip] = useState('');
   const [addListItem, removeListItem] = useListMutators(props.list, props.actions, props.form, "elements.0.element.elements.1.element");
 
+  let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
+
   React.useEffect(async () => {
 
     const data = {"links":[],"nodes":[]}
     let nodes = []
     let links = []
 
-    let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
-
     await entityNetwork.loadXMLDefault()
     await entityNetwork.loadModel()
-    //await entityNetwork.addSpot("Transparent","Transparent","10","10","50")
-    //let entity = entityNetwork.entities["sat2"]
    
     nodes = entityNetwork.getNodes()
     links = entityNetwork.getLinks()
-    
+
     data.nodes = nodes
     data.links = links
     setData(data)
@@ -125,7 +123,7 @@ export default function Network(props) {
   const onClickNode  = (nodeId,node) => {
 
     let sizeClick = 500
-    node.size = node.size == 400? sizeClick:400
+    node.size = (node.size == 400)? sizeClick:400
 
     if (node.size == sizeClick){
 
@@ -158,6 +156,27 @@ export default function Network(props) {
         addListItem()
   };
 
+  async function AggiungiSpot() {
+
+    await entityNetwork.loadXMLDefault()
+    await entityNetwork.loadModel()
+
+    let idSat = entityNetwork.getIDByListType(clickNodes,"Satellite") 
+    let idGw = entityNetwork.getIDByListType(clickNodes,"Gateway") 
+    let idSt = entityNetwork.getIDByListType(clickNodes,"Terminal") 
+
+    await entityNetwork.addSpot("Transparent","Transparent",idGw,idSat,idSat)
+    await entityNetwork.addRoute(idGw,idSt,idGw)
+
+    let data = {"links":[],"nodes":[]} 
+    data.nodes = entityNetwork.getNodes()
+    data.links = entityNetwork.getLinks()
+
+    setClickNodes([])
+    setData(data)
+
+  };
+
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const theme = React.useMemo(() => createTheme(prefersDarkMode), [prefersDarkMode]);
@@ -178,9 +197,9 @@ export default function Network(props) {
           <button className='button' onClick={AggiungiMacchina}>
             Add Machine
           </button>
-          <ThemeProvider theme={theme}>
-            <FullScreenDialog openModify={openModify}></FullScreenDialog>
-          </ThemeProvider>
+          <button className='button' onClick={AggiungiSpot}>
+            Add Spot
+          </button>
         </div>
 
 

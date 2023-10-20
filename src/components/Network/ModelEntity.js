@@ -53,19 +53,18 @@ export class ModelEntity {
      * Crea gli xml di default per un entità. Questa funzione deve essere invocata appena viene creata una nuova entità.
      */
     async createXMLDefault() {
-        const urlTopologyDefault = "/api/project/test/template/topology/Default.xml"
-        const urlInfrastructureDefault = "/api/project/test/template/infrastructure/Default.xml"
+        const urlInfrastructureDefault = "/api/project/"+this.nameProject+"/template/infrastructure/Default.xml"
         let urlprofileDefault = ""
 
         switch(this.type){
             case "Satellite" :
-                urlprofileDefault = "/api/project/ecco/template/profile_sat/Default.xml"
+                urlprofileDefault = "/api/project/"+this.nameProject+"/template/profile_sat/Default.xml"
                 break;
             case "Gateway" :
-                urlprofileDefault = "/api/project/ecco/template/profile_gw/Default.xml"
+                urlprofileDefault = "/api/project/"+this.nameProject+"/template/profile_gw/Default.xml"
                 break;
             case "Terminal" :
-                urlprofileDefault = "/api/project/ecco/template/profile_st/Default.xml"
+                urlprofileDefault = "/api/project/"+this.nameProject+"/template/profile_st/Default.xml"
                 break;
         }
 
@@ -102,18 +101,6 @@ export class ModelEntity {
 
         await fetch(this.urlInfrastructure,options)
 
-
-        const xmlStringTopology = builder.buildObject(this.topology);
-        const options_topology = {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              "Accept": "application/json"
-            },
-            body: JSON.stringify({"xml_data" : xmlStringTopology})
-        };
-
-        await fetch(this.urlTopology,options_topology)
 
         const xmlStringPrf = builder.buildObject(this.profile);
         const options_profile = {
@@ -182,6 +169,23 @@ export class ModelEntity {
             case "Terminal" :
                 return this.infrastructure.model.root.entity.entity_st.entity_id
                 
+        }
+    }
+
+    setID(id){
+
+        switch(this.type){
+            case "Satellite" :
+                this.infrastructure.model.root.entity.entity_sat.entity_id = id
+                break;
+
+            case "Gateway" :
+                this.infrastructure.model.root.entity.entity_gw.entity_id = id
+                break;
+
+            case "Terminal" :
+                this.infrastructure.model.root.entity.entity_st.entity_id = id
+                break;
         }
     }
     

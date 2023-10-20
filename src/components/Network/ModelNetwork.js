@@ -16,7 +16,8 @@ export class ModelNetwork {
         this.machines = machines
         this.urlTopology= this.urlTemplate + this.nameProject+ topologySTR
         this.topology={}
-        this.entities = {}           
+        this.entities = {} 
+        this.entitiesByName = {}          
     }
 
     /**
@@ -31,8 +32,9 @@ export class ModelNetwork {
                 let entityModel = new ModelEntity(entityname,this.nameProject,entity["type"])
     
                 await entityModel.loadXML()
-    
+                
                 this.entities[entityModel.getID()] = entityModel
+                this.entitiesByName[entityname] = entityModel
 
             }
 
@@ -40,8 +42,13 @@ export class ModelNetwork {
 
         const response = await fetch(this.urlTopology)
         const jsonData =  await response.json();
-        const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
-        this.topology = result
+
+        if(jsonData.error){
+            await this.createXMLDefault()
+        }else{
+            const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
+            this.topology = result
+        }
 
     }
 
@@ -70,10 +77,12 @@ export class ModelNetwork {
                 entity.infrastructure__template = defaultXml
                 entity.profile__template = defaultXml
             }
+            
+            result.model.root.configuration.entities.item = entities
         }
 
         result.model.root.configuration.topology__template = defaultXml
-        result.model.root.configuration.entities.item = entities
+
 
         //Aggiorno project.xml
         const xmlString = builder.buildObject(result);
@@ -90,8 +99,41 @@ export class ModelNetwork {
 
     }
 
+    /**
+     * Crea gli xml di default per la topologia. Questa funzione deve essere invocata appena viene creata una nuova rete.
+     */
+    async createXMLDefault() {
+        const urlTopologyDefault = "/api/project/"+this.nameProject+"/template/topology/Default.xml"
+       
+        const response = await fetch(urlTopologyDefault)
+        const jsonData =  await response.json();
+        const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
+        this.topology = result
+
+        //Creo uno spot di defaul con valori nulli
+        let templateSpot = this.topology.model.root.frequency_plan.spots.item
+        templateSpot.assignments.gateway_id = -1
+        templateSpot.assignments.sat_id_gw = -1
+        templateSpot.assignments.sat_id_st = -1
+
+        this.topology.model.root.frequency_plan.spots.item = templateSpot
+
+        //Creo una rotta di default con valori nulli
+        let item = new Object()
+        item.terminal_id = -1
+        item.gateway_id = -1
+        this.topology.model.root.st_assignment.assignments = new Object()
+        this.topology.model.root.st_assignment.assignments.item = item
+
+        await this.updateXml()
+
+    }
+
     getSpots() {
         let spots = this.topology.model.root.frequency_plan.spots.item
+
+        if(!spots)
+            return []
 
         if(!isIterable(spots))
             spots = [spots]
@@ -102,6 +144,9 @@ export class ModelNetwork {
     getRoutes(){
         let routes = this.topology.model.root.st_assignment.assignments.item
 
+        if(!routes)
+            return []
+
         if(!isIterable(routes))
             routes = [routes]
 
@@ -110,27 +155,42 @@ export class ModelNetwork {
 
     getLinks(){
         let links = []
-        let linkTemplateSat = {"source":"","target":""}
-    
+        let linkTemplateSat = {"source":"","target":"","color": ''}
+        let color = ["black","red","green","grey","blue"]
+        let mapColor = new Object()
+
         let routes = this.getRoutes()
         let spots = this.getSpots()
+
+        //Elimino il primo elemento della lista non valido
+        spots.shift()
+        routes.shift()
+
+        for(let spot in spots){
+
+            let link = structuredClone(linkTemplateSat)
+            link.source = this.getNameEntityById(spots[spot].assignments.sat_id_gw)
+            link.target = this.getNameEntityById(spots[spot].assignments.gateway_id)
+            link.color = color[spot]
+            links.push(link)
+
+            mapColor[spots[spot].assignments.gateway_id] = spot
+        }
 
         for( let route of routes){
             let link = structuredClone(linkTemplateSat)
             link.source = this.getNameEntityById(route.terminal_id)
             link.target = this.getNameEntityById(searchSatId(route.gateway_id,spots))
+            link.color = color[mapColor[route.gateway_id]]
             links.push(link)
         }
 
-        for(let spot of spots){
-            let link = structuredClone(linkTemplateSat)
-            link.source = this.getNameEntityById(spot.assignments.sat_id_gw)
-            link.target = this.getNameEntityById(spot.assignments.gateway_id)
-            links.push(link)
-        }
+        if(links.length==0)
+            return links
 
-        if(!links[0].source)
+        if(!links[0].source || !links[0].target)
             return []
+
 
         return links
 
@@ -152,6 +212,15 @@ export class ModelNetwork {
           }
     
         return nodes
+    }
+
+    getIDByListType(nameEntities,type){
+        
+        for(let name of  nameEntities){
+            let entity = this.entitiesByName[name]
+            if(entity.type == type)
+                return entity.getID()
+        }
     }
 
     getNameEntityById(id){
@@ -185,6 +254,7 @@ export class ModelNetwork {
 
 
     async addRoute(idGatewayDefault, terminalId, gatewayId ){
+       
         let item = new Object();
         let allItems = this.topology.model.root.st_assignment.assignments.item
         item.terminal_id = terminalId
@@ -198,7 +268,7 @@ export class ModelNetwork {
 
         this.topology.model.root.st_assignment.defaults.default_gateway=idGatewayDefault
         this.topology.model.root.st_assignment.assignments.item = allItems
-
+        
         await this.updateXml()
     }
 
