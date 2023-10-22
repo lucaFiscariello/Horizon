@@ -162,10 +162,6 @@ export class ModelNetwork {
         let routes = this.getRoutes()
         let spots = this.getSpots()
 
-        //Elimino il primo elemento della lista non valido
-        spots.shift()
-        routes.shift()
-
         for(let spot in spots){
 
             let link = structuredClone(linkTemplateSat)
@@ -245,6 +241,8 @@ export class ModelNetwork {
 
         if(isIterable(allSpots))
             allSpots = [...allSpots,templateSpot]
+        else if (allSpots.assignments.sat_id_gw == -1)
+            allSpots = templateSpot
         else
             allSpots = [allSpots,templateSpot]
 
@@ -263,8 +261,11 @@ export class ModelNetwork {
 
         if(isIterable(allItems))
             allItems = [...allItems,item]
+        else if (allItems.terminal_id == -1)
+            allItems = item
         else
             allItems = [allItems,item]
+
 
         this.topology.model.root.st_assignment.defaults.default_gateway=idGatewayDefault
         this.topology.model.root.st_assignment.assignments.item = allItems

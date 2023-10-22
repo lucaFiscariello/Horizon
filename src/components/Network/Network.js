@@ -89,6 +89,17 @@ export default function Network(props) {
 
     await entityNetwork.loadXMLDefault()
     await entityNetwork.loadModel()
+
+    if(props.nameMachines.length>0){
+      let name_new_entity = props.nameMachines[props.nameMachines.length-1].name
+
+      let new_entity = entityNetwork.entitiesByName[name_new_entity]
+      new_entity.setID(props.nameMachines.length-1)
+
+      console.log(new_entity)
+      await new_entity.updateXml()
+    }
+
    
     nodes = entityNetwork.getNodes()
     links = entityNetwork.getLinks()
@@ -152,7 +163,7 @@ export default function Network(props) {
   };
 
 
-  function AggiungiMacchina() {
+  async function AggiungiMacchina() {
         addListItem()
   };
 
