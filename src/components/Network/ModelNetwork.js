@@ -290,6 +290,124 @@ export class ModelNetwork {
         await this.updateXml()
     }
 
+    async removeRoute(entitySource, entityTarget){
+
+        let entity = this.entitiesByName[entitySource]
+        let st
+
+        if(entity.type == "Satellite"){
+            st = this.entitiesByName[entityTarget]
+        }else if (entity.type == "Terminal"){
+            st = entity
+        }else {
+            return
+        }
+
+        let allItems = this.topology.model.root.st_assignment.assignments.item
+
+        if(!isIterable(allItems)){
+            allItems.terminal_id = -1
+            allItems.gateway_id = -1
+            this.topology.model.root.st_assignment.assignments.item = allItems
+        } else{
+
+            let i
+            for(i in allItems){
+                if(allItems[i].terminal_id == st.getID()){
+                    break;
+                }
+
+            }
+            
+            allItems.splice(i, 1);
+            this.topology.model.root.st_assignment.assignments.item = allItems
+
+        }
+
+        await this.updateXml()
+    }
+
+    async removeSpot(entitySource, entityTarget){
+
+        let entity = this.entitiesByName[entitySource]
+        let gw_name
+        let gw
+        let sat
+
+        if(entity.type == "Satellite"){
+            gw = this.entitiesByName[entityTarget]
+            gw_name = entityTarget
+            sat = entity
+        }else if (entity.type == "Gateway"){
+            gw = entity
+            gw_name = entitySource
+            sat = this.entitiesByName[entityTarget]
+        }else {
+            return
+        }
+
+        let allItems = this.topology.model.root.frequency_plan.spots.item
+
+        if(!isIterable(allItems)){
+
+            allItems.assignments.gateway_id = -1
+            allItems.assignments.sat_id_gw = -1
+            allItems.assignments.sat_id_st = -1
+
+            this.topology.model.root.frequency_plan.spots.item = allItems
+        } else if(allItems.length){
+
+            let i
+            for(i in allItems){
+                if(allItems[i].assignments.gateway_id == gw.getID() && allItems[i].assignments.sat_id_gw == sat.getID() ){
+                    break;
+                }
+
+            }
+
+            allItems.splice(i, 1);
+            this.topology.model.root.frequency_plan.spots.item = allItems
+
+        }
+
+        await this.updateXml()
+        await this.removeAllRouteByGW(gw_name)
+
+
+    }
+
+    async removeAllRouteByGW(nameGW){
+
+        let entity = this.entitiesByName[nameGW]
+        let allItems = this.topology.model.root.st_assignment.assignments.item
+
+        if(!isIterable(allItems) && allItems.gateway_id == entity.getID()){
+
+            allItems.gateway_id = -1
+            allItems.terminal_id= -1
+
+            this.topology.model.root.st_assignment.assignments.item = allItems
+            await this.updateXml()
+
+        } else{
+
+            let i
+            for(i in allItems){
+                if(allItems[i].gateway_id == entity.getID() ){
+                    allItems.splice(i, 1);
+                }
+
+            }
+
+            this.topology.model.root.st_assignment.assignments.item = allItems
+            await this.updateXml()
+
+        }
+
+
+
+    }
+
     /**
      * Questa funzionalità permette di assegnare un nuovo id automaticamente alla creazione di una nuova entità.
      * L'assegnazione automatica degli id evita che vengano gestiti direttamente dal'utente.

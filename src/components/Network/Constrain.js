@@ -69,6 +69,18 @@ export async function addConnection(select_machines,modelNetwork) {
 
 }
 
+export async function removeConnection(source,target,modelNetwork) {
+
+    let map = count_entity([source,target],modelNetwork)
+
+    if(map.Satellite && map.Gateway)
+        await modelNetwork.removeSpot(source,target)
+    else if(map.Satellite && map.Terminal)
+        await modelNetwork.removeRoute(source,target)
+
+}
+
+
 /**
  *  Funzione che verifica se voglio connettere esattamente un gw, un sat e un st
  */

@@ -22,7 +22,7 @@ import { getXmlProject, areAllSubnetsDefinited, getLinksConnection, getNodes, se
 import net from 'assets/img/opensand/net.png'
 import { ModelEntity } from './ModelEntity';
 import { ModelNetwork } from './ModelNetwork';
-import { addConnection, verifyConstrains } from './Constrain';
+import { addConnection, removeConnection, verifyConstrains } from './Constrain';
 
 
 // Dialog per eliminare un nodo
@@ -154,6 +154,24 @@ export default function Network(props) {
     setTooltip('');
   };
 
+  const onClickLink = async function(source,target){
+
+    await entityNetwork.loadXMLDefault()
+    await entityNetwork.loadModel()
+
+    await removeConnection(source,target,entityNetwork)
+
+    let data = {"links":[],"nodes":[]} 
+    data.nodes = entityNetwork.getNodes()
+    data.links = entityNetwork.getLinks()
+
+    console.log(data.links)
+    setClickNodes([])
+    setData(data) 
+ 
+
+  }
+
 
   async function AggiungiMacchina() {
         addListItem()
@@ -188,7 +206,7 @@ export default function Network(props) {
         <div className="main-container">
             
             <div className='white-box'>
-                <Graph id="graph" config={config} data={dataState} onDoubleClickNode={onDoubleClickNode} onClickNode={onClickNode} onClickGraph={onClickGraph} />  
+                <Graph id="graph" config={config} data={dataState} onDoubleClickNode={onDoubleClickNode} onClickNode={onClickNode} onClickGraph={onClickGraph} onClickLink={onClickLink}/>  
             </div>
               
         </div>
