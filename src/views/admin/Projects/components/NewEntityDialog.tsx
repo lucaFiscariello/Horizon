@@ -15,6 +15,7 @@ import type {Parameter as ParameterType} from 'opensand/xsd/index.ts';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
+import { ModelNetwork } from 'components/Network/ModelNetwork';
 
 interface Values {
     name: ParameterType;
@@ -23,7 +24,7 @@ interface Values {
 
 
 const NewEntityDialog = (props: Props) => {
-    const {entityName, entityType, onValidate, onClose} = props;
+    const {entityName, entityType, onValidate, onClose} = props;    
 
     const nameParam = React.useMemo(() => {
         const cloned = {...entityName};
@@ -48,7 +49,7 @@ const NewEntityDialog = (props: Props) => {
         onClose();
     }, [onClose]);
 
-    const handleSubmit = React.useCallback((values: Values, helpers: FormikHelpers<Values>) => {
+    const handleSubmit = React.useCallback((values: Values, helpers: FormikHelpers<Values>): any => {
         onValidate(values.name.value, values.type.value);
         handleClose();
     }, [onValidate, handleClose]);
@@ -91,6 +92,8 @@ const NewEntityDialog = (props: Props) => {
 interface Props {
     entityName: ParameterType;
     entityType: ParameterType;
+    nameProject: any;
+    machines : any;
     onValidate: (entity: string, entityType: string) => void;
     onClose: () => void;
 }

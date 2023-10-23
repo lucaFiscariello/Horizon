@@ -72,14 +72,17 @@ export default function Network(props) {
   const urlNET = net
 
   const [dataState, setData] = useState({});
+  const [newEntity, setNewEntity] = useState(false);
   const [clickNodes, setClickNodes] = useState([]);
   const [open, setOpen] = React.useState(false);
+  const [refresh, setRefresh] = React.useState(false);
   const [openModify, setOpenModify] = React.useState(false);
   const [nodeName, setnodeName] = useState("");
   const [tooltip, setTooltip] = useState('');
   const [addListItem, removeListItem] = useListMutators(props.list, props.actions, props.form, "elements.0.element.elements.1.element");
 
   let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
+  
 
   React.useEffect(async () => {
 
@@ -88,25 +91,16 @@ export default function Network(props) {
     let links = []
 
     await entityNetwork.loadXMLDefault()
-    await entityNetwork.loadModel()
-
-    if(props.nameMachines.length>0){
-      let name_new_entity = props.nameMachines[props.nameMachines.length-1].name
-
-      let new_entity = entityNetwork.entitiesByName[name_new_entity]
-      new_entity.setID(props.nameMachines.length-1)
-
-      console.log(new_entity)
-      await new_entity.updateXml()
-    }
-
+    await entityNetwork.loadModel(newEntity)
    
     nodes = entityNetwork.getNodes()
     links = entityNetwork.getLinks()
 
     data.nodes = nodes
     data.links = links
+
     setData(data)
+    setNewEntity(false)
 
 
 
@@ -165,6 +159,8 @@ export default function Network(props) {
 
   async function AggiungiMacchina() {
         addListItem()
+        setNewEntity(true)
+        setRefresh(true)
   };
 
   async function AggiungiSpot() {

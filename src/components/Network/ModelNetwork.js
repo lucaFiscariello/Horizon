@@ -17,27 +17,39 @@ export class ModelNetwork {
         this.urlTopology= this.urlTemplate + this.nameProject+ topologySTR
         this.topology={}
         this.entities = {} 
-        this.entitiesByName = {}          
+        this.entitiesByName = {}
+        this.maxId = -1         
     }
 
     /**
      * Funzione che carica i file di configurazione di tutte le entità della rete 
      */
-    async loadModel() {
-        
+    async loadModel(newEntity) {
+    
         for (let entity of this.machines){
 
             if(entity){
                 let entityname = entity["name"]
                 let entityModel = new ModelEntity(entityname,this.nameProject,entity["type"])
-    
-                await entityModel.loadXML()
                 
-                this.entities[entityModel.getID()] = entityModel
+                await entityModel.loadXML()
+
+                let id = entityModel.getID()                
+                this.entities[id] = entityModel
                 this.entitiesByName[entityname] = entityModel
+
+                //L'id massimo serve per assegnare gli id automaticamente alle nuove entità create nella rete
+                if(id>this.maxId)
+                    this.maxId = id
+
 
             }
 
+
+        }
+
+        if(newEntity){
+            await this.addNewEntityId()
         }
 
         const response = await fetch(this.urlTopology)
@@ -273,6 +285,24 @@ export class ModelNetwork {
         await this.updateXml()
     }
 
+    /**
+     * Questa funzionalità permette di assegnare un nuovo id automaticamente alla creazione di una nuova entità.
+     * L'assegnazione automatica degli id evita che vengano gestiti direttamente dal'utente.
+     */ 
+    async addNewEntityId(){
+
+        let name_new_entity = this.machines[this.machines.length-1].name
+        let new_entity = this.entitiesByName[name_new_entity]
+        this.maxId = parseInt(this.maxId)+1
+        let new_id = this.maxId
+
+        new_entity.setID(new_id)
+        this.entities[new_id] = new_entity
+        this.entitiesByName[name_new_entity] = new_entity
+
+        await new_entity.updateXml()
+
+    }
 
 
     async updateXml(){

@@ -36,6 +36,7 @@ import NewEntityDialog from './NewEntityDialog.tsx';
 import createTheme from 'opensand/utils/theme.ts';
 import ColumnsTable from "components/dataTables/components/ColumnsTable";
 import { useEffect } from 'react';
+import { ModelNetwork } from 'components/Network/ModelNetwork.js';
 
 
 type SaveCallback = () => void;
@@ -124,12 +125,13 @@ const Project: React.FC<Props> = (props) => {
     const [nameMachs,setMachsName] = useState<string[]>([]);
     const [dataTables,setDataTables] = useState([])
     const [refresh,setRefresh] = useState(true);
+    const [modelNetwork,setModelNetwork] = useState({"model" : {}});
 
   
 
     // Scarica la lista delle macchine che verranno graficate nella tabella
     useEffect(() => {
-        
+ 
         let Allmachs = findMachinesName(model?.root)
         let AllDataTable = []
 
@@ -149,10 +151,9 @@ const Project: React.FC<Props> = (props) => {
             }
 
             setDataTables(AllDataTable)
+
         }
       }, [machs])
-
-
     
     const handleOpen = React.useCallback((root: Component, mutator: MutatorCallback, submitForm: SaveCallback) => {
         setNewEntityCreate(() => (entity: string, entityType: string) => {
@@ -278,6 +279,8 @@ const Project: React.FC<Props> = (props) => {
             setPingDestination(null);
         }
     }, [dispatch, name, source, pingDestination]);
+
+
     
     const { ...rest } = props;
 	// states and functions
@@ -417,6 +420,8 @@ const Project: React.FC<Props> = (props) => {
                                 <NewEntityDialog
                                     entityName={entityName}
                                     entityType={entityType}
+                                    nameProject = {name}
+                                    machines = {dataTables}
                                     onValidate={handleNewEntityCreate}
                                     onClose={handleClose}
                                 />
