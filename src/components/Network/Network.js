@@ -22,6 +22,7 @@ import { getXmlProject, areAllSubnetsDefinited, getLinksConnection, getNodes, se
 import net from 'assets/img/opensand/net.png'
 import { ModelEntity } from './ModelEntity';
 import { ModelNetwork } from './ModelNetwork';
+import { addConnection, verifyConstrains } from './Constrain';
 
 
 // Dialog per eliminare un nodo
@@ -75,7 +76,6 @@ export default function Network(props) {
   const [newEntity, setNewEntity] = useState(false);
   const [clickNodes, setClickNodes] = useState([]);
   const [open, setOpen] = React.useState(false);
-  const [refresh, setRefresh] = React.useState(false);
   const [openModify, setOpenModify] = React.useState(false);
   const [nodeName, setnodeName] = useState("");
   const [tooltip, setTooltip] = useState('');
@@ -101,8 +101,6 @@ export default function Network(props) {
 
     setData(data)
     setNewEntity(false)
-
-
 
   }, [props.nameMachines]);
 
@@ -160,20 +158,14 @@ export default function Network(props) {
   async function AggiungiMacchina() {
         addListItem()
         setNewEntity(true)
-        setRefresh(true)
   };
 
-  async function AggiungiSpot() {
+  async function AddConnection() {
 
     await entityNetwork.loadXMLDefault()
     await entityNetwork.loadModel()
 
-    let idSat = entityNetwork.getIDByListType(clickNodes,"Satellite") 
-    let idGw = entityNetwork.getIDByListType(clickNodes,"Gateway") 
-    let idSt = entityNetwork.getIDByListType(clickNodes,"Terminal") 
-
-    await entityNetwork.addSpot("Transparent","Transparent",idGw,idSat,idSat)
-    await entityNetwork.addRoute(idGw,idSt,idGw)
+    await addConnection(clickNodes,entityNetwork)
 
     let data = {"links":[],"nodes":[]} 
     data.nodes = entityNetwork.getNodes()
@@ -181,6 +173,7 @@ export default function Network(props) {
 
     setClickNodes([])
     setData(data)
+  
 
   };
 
@@ -204,8 +197,8 @@ export default function Network(props) {
           <button className='button' onClick={AggiungiMacchina}>
             Add Machine
           </button>
-          <button className='button' onClick={AggiungiSpot}>
-            Add Spot
+          <button className='button' onClick={AddConnection}>
+            Add Connection
           </button>
         </div>
 

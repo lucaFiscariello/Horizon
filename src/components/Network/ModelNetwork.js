@@ -182,15 +182,20 @@ export class ModelNetwork {
             link.color = color[spot]
             links.push(link)
 
+            //permette di associare ai link tra un sat-st-gw lo stesso colore
             mapColor[spots[spot].assignments.gateway_id] = spot
         }
 
         for( let route of routes){
-            let link = structuredClone(linkTemplateSat)
-            link.source = this.getNameEntityById(route.terminal_id)
-            link.target = this.getNameEntityById(searchSatId(route.gateway_id,spots))
-            link.color = color[mapColor[route.gateway_id]]
-            links.push(link)
+
+            //Aggiungo solo se gli id sono validi
+            if(route.terminal_id>0 && route.gateway_id>0){
+                let link = structuredClone(linkTemplateSat)
+                link.source = this.getNameEntityById(route.terminal_id)
+                link.target = this.getNameEntityById(searchSatId(route.gateway_id,spots))
+                link.color = color[mapColor[route.gateway_id]]
+                links.push(link)
+            }
         }
 
         if(links.length==0)

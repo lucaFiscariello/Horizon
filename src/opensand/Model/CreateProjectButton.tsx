@@ -9,6 +9,8 @@ import SingleFieldDialog from 'opensand/Model/SingleFieldDialog.tsx';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
+import "assets/css/style.css"
+
 
 const CreateProjectButton: React.FC<Props> = (props) => {
 
@@ -40,7 +42,7 @@ const CreateProjectButton: React.FC<Props> = (props) => {
         <ThemeProvider theme={theme}>
 
             <React.Fragment>
-                <Button color="primary" onClick={handleOpen}>Create</Button>
+                <button className="button" onClick={handleOpen}>Create</button>
                 <SingleFieldDialog
                     open={open}
                     title="New Project"

@@ -15,7 +15,6 @@ import type {Parameter as ParameterType} from 'opensand/xsd/index.ts';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
-import { ModelNetwork } from 'components/Network/ModelNetwork';
 
 interface Values {
     name: ParameterType;
