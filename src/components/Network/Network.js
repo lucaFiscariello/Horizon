@@ -112,10 +112,16 @@ export default function Network(props) {
   };
 
   const handleElimination = () =>{
-    const indice = dataState.nodes.findIndex(elemento => elemento.id == nodeName);
+
+    for(let name of clickNodes){
+      const indice = dataState.nodes.findIndex(elemento => elemento.id == name);
+      removeListItem(indice)
+
+    }
 
     handleClose()
-    removeListItem(indice)
+    setClickNodes([])
+
   }
     
   const onDoubleClickNode  = (clickedNodeId) => {
@@ -213,7 +219,10 @@ export default function Network(props) {
         
         <div className='center-div'>
           <button className='button' onClick={AggiungiMacchina}>
-            Add Machine
+            Add Entity
+          </button>
+          <button className='button' onClick={handleElimination}>
+            Delete Entity
           </button>
           <button className='button' onClick={AddConnection}>
             Add Connection
