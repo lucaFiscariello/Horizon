@@ -18,21 +18,13 @@ const Transition = React.forwardRef(function Transition(props, ref) {
 });
 
 export default function FullScreenDialog(props) {
-  const [open, setOpen] = React.useState(false);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
+  const open = props.open
+  const handleClose = props.handleClose
+  const nameEntity = props.nameEntity
 
   return (
     <div>
-      <Button variant="outlined" onClick={handleClickOpen}>
-        Open full-screen dialog
-      </Button>
+    
       <Dialog
         fullScreen
         open={open}
@@ -50,25 +42,14 @@ export default function FullScreenDialog(props) {
               <CloseIcon />
             </IconButton>
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-              Sound
+              Configure {nameEntity}
             </Typography>
-            <Button autoFocus color="inherit" onClick={handleClose}>
-              save
+            <Button color="inherit" onClick={handleClose}>
+              Save
             </Button>
           </Toolbar>
         </AppBar>
-        <List>
-          <ListItem button>
-            <ListItemText primary="Phone ringtone" secondary="Titania" />
-          </ListItem>
-          <Divider />
-          <ListItem button>
-            <ListItemText
-              primary="Default notification ringtone"
-              secondary="Tethys"
-            />
-          </ListItem>
-        </List>
+        
       </Dialog>
     </div>
   );

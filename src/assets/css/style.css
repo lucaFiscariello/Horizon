@@ -49,7 +49,7 @@
   display: block; /* Rende i bottoni elementi blocco */
   padding: 10px;
   text-align: center;
-  background-color: #422AFB;
+  background-color: #334380;
   color: white;
   border: none;
   cursor: pointer;
@@ -61,7 +61,7 @@
 }
 
 .button:hover {
-  background-color: #3b25e0; /* Cambia il colore al passaggio del mouse */
+  background-color: #1a2242; /* Cambia il colore al passaggio del mouse */
 }
 
 .space{

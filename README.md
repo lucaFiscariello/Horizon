@@ -17,15 +17,17 @@ resolve: \{
 
 Tutto è stato poi automatizzato nel file config-overrides.js
 
-# To DO
-- quando aggiungo un st a un gw gia collegato a un sat non ci deve essere cambiamento di colore
-- quando aggiungo un entità devo modificare automaticamente l'id
-- nell'infrastruttura devo aggiornare gli id delle altre entità. Meglio farlo nalla network entity
-- prevedi il caso in cui non c'è nessuno spot o nessun rotta quando ne aggiungi una
-- elimina progetto
-- doppio click sulla entità apre schermata configurazione
-- bottone eliminazione, eliminazione anche multipla delle entità
-- eliminazione di un nodo non permessa se prima non si elimina uno spot
-- eliminazione spot cliccando sul link
-- l'aggiunta di una nuova entità deve comportare l'aggiornamento immediato degli xml
+# Lanciare opensand server a mano
+- sudo apt-get install opensand 
+- opensand -g /var/opensand/www -> crea gli xsd
+- sudo python3 /var/opensand/opensand-conf/backend.py -> fa partire server http
 
+
+I file dei progetti sono salvati di default dal server in /var/opensand/www
+Ricorda la versione di node 18.16.1 -> installato tramite nvm
+
+# Lancio horizon
+- manca d3-drag
+- manca d3-force
+- manca d3-zoom
+- manca d3-shape
