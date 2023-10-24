@@ -6,18 +6,47 @@ import Project1 from "assets/img/profile/Project1.png";
 import Card from "components/card/Card.js";
 import React from "react";
 import Project from "views/admin/Projects/components/Project";
-import {listProjects} from "opensand/api/index.ts"
+import {deleteProject,listProjects} from "opensand/api/index.ts"
 import {useDispatch,useSelector} from 'opensand/redux/index.ts';
+
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+
+import useMediaQuery from '@mui/material/useMediaQuery';
+import {ThemeProvider} from '@mui/material/styles';
+import createTheme from 'opensand/utils/theme.ts';
 
 
 export default function Projects(props) {
 
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const theme = React.useMemo(() => createTheme(prefersDarkMode), [prefersDarkMode]);
+
+  const [deleteThis, setProjectToDelete] = React.useState(null);
   const projects = useSelector((state) => state.project.projects);
   const dispatch = useDispatch();
 
   React.useEffect(() => {
     dispatch(listProjects());
   }, []);
+
+  const clearDeleteProject = React.useCallback(() => {
+    setProjectToDelete(null);
+  }, []);
+
+  const handleDeleteProject = React.useCallback(() => {
+      setProjectToDelete((removable) => {
+          if (removable != null) {
+              dispatch(deleteProject({project: removable}));
+          }
+          return null;
+      });
+  }, [dispatch]);
+
 
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
@@ -40,6 +69,8 @@ export default function Projects(props) {
         link= {project.concat(p)}
         linkdeploy= {projectDeploy.concat(p)}
         title= {p}
+        onDelete={setProjectToDelete}
+        project={p}
       />
   ));
 
@@ -60,6 +91,22 @@ export default function Projects(props) {
 
 
       {projectsCards}
+
+      <ThemeProvider theme={theme}>
+
+          <Dialog open={deleteThis != null} onClose={clearDeleteProject}>
+                    <DialogTitle>Delete a project</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>You're about to delete project {deleteThis}!</DialogContentText>
+                        <DialogContentText>This action can't be reverted, are you sure?</DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={clearDeleteProject} color="primary">No, Keep it</Button>
+                        <Button onClick={handleDeleteProject} color="primary">Yes, Delete {deleteThis}</Button>
+                    </DialogActions>
+          </Dialog>
+       </ThemeProvider>
+
 
     </Card>
   );
