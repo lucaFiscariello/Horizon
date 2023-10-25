@@ -30,6 +30,7 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Slide from '@mui/material/Slide';
 import FullScreenDialog from './FullScreenDialog';
+import { test_osm } from 'osm/api/osmClient';
 
 
 
@@ -48,6 +49,11 @@ export default function Network(props) {
 
   let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
   
+  React.useEffect(async () => {
+
+    test_osm()
+
+  }, []);
 
   React.useEffect(async () => {
 

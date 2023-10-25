@@ -31,3 +31,5 @@ Ricorda la versione di node 18.16.1 -> installato tramite nvm
 - manca d3-force
 - manca d3-zoom
 - manca d3-shape
+- manca d3-brush
+- manca d3
