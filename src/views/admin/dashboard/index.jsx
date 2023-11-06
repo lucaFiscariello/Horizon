@@ -41,10 +41,21 @@ import {
 } from "views/admin/dashboard/variables/columnsData";
 import tableDataComplex from "views/admin/dashboard/variables/tableDataComplex.json";
 
+
+
+
 export default function UserReports() {
   // Chakra Color Mode
   const brandColor = useColorModeValue("brand.500", "white");
   const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
+
+  React.useEffect(async () => {
+
+    //test_osm()
+
+  }, []);
+    
+  
   return (
     <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
 

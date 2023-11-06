@@ -1,0 +1,1 @@
+sudo python3 /var/opensand/opensand-conf/backend.py
