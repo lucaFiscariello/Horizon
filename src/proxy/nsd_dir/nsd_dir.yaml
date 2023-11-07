@@ -1,0 +1,29 @@
+nsd:
+  nsd:
+  - description: A very simple network service that deploys 1 VM
+    designer: Canonical
+    df:
+    - id: default-df
+      vnf-profile:
+      - id: my_first_vnf
+        virtual-link-connectivity:
+        - constituent-cpd-id:
+          - constituent-base-element-id: my_first_vnf
+            constituent-cpd-id: vnf-mgmt-ext
+          virtual-link-profile-id: test
+        vnfd-id: my_first_vnf
+      - id: my_first_vnf2
+        virtual-link-connectivity:
+        - constituent-cpd-id:
+          - constituent-base-element-id: my_first_vnf
+            constituent-cpd-id: vnf-mgmt-ext
+          virtual-link-profile-id: test
+        vnfd-id: my_first_vnf
+    id: my_first_ns6
+    name: my_first_ns6
+    version: 1.0
+    virtual-link-desc:
+    - id: test
+      mgmt-network: true
+    vnfd-id:
+    - my_first_vnf

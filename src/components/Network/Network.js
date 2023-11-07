@@ -30,7 +30,9 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Slide from '@mui/material/Slide';
 import FullScreenDialog from './FullScreenDialog';
-import { test_osm } from 'osm/api/osmClient';
+import {
+  Link,
+} from "@chakra-ui/react";
 
 
 
@@ -39,6 +41,8 @@ export default function Network(props) {
 
   const netName = "NET"
   const urlNET = net
+  let projectDeploy = "#/deploy/"
+
 
   const [dataState, setData] = useState({});
   const [newEntity, setNewEntity] = useState(false);
@@ -48,12 +52,7 @@ export default function Network(props) {
   const [addListItem, removeListItem] = useListMutators(props.list, props.actions, props.form, "elements.0.element.elements.1.element");
 
   let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
-  
-  React.useEffect(async () => {
 
-    test_osm()
-
-  }, []);
 
   React.useEffect(async () => {
 
@@ -211,6 +210,13 @@ export default function Network(props) {
             <button className='button' onClick={AddConnection}>
               Add Connection
             </button>
+
+            <Link href={projectDeploy.concat(props.nameProject)}>
+              <button className='button'>
+                Deploy
+              </button>
+            </Link>
+           
           </div>
           
         </Stack>

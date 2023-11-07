@@ -4,8 +4,39 @@ const tar = require('tar');
 const app = express();
 const port = 3003; 
 
+let baseUrlOsm = "http://127.0.0.1:80"
+let baseUrlOpensand = "http://127.0.0.1:8888"
+
 // Middleware per il parsing del corpo delle richieste in formato JSON
 app.use(express.json());
+
+
+/********************** Middleware opensand **********************/
+
+app.use('/api/:value*', async (req, res) => {
+  let response = await forwarding_to_server(baseUrlOpensand,req)
+  const jsonData =  await response.json();
+  return res.json(jsonData);  
+});
+
+
+/********************** Middleware osm **********************/
+
+app.use('/osm/:value*', async (req, res,next) => {
+
+  if(req.method == "PUT" &&  req.originalUrl.includes("nsd_content")){
+
+    next()
+
+  }
+  else{
+
+    let response = await forwarding_to_server(baseUrlOsm,req)
+    const jsonData =  await response.json();
+    return res.json(jsonData);   // Esegui il passaggio successivo
+  
+  }
+ });
 
 app.put('/osm/nsd/v1/ns_descriptors/:id/nsd_content',async (req, res) => {
 
@@ -61,79 +92,22 @@ app.put('/osm/nsd/v1/ns_descriptors/:id/nsd_content',async (req, res) => {
           body:blob
         };
 
-        let response = await fetch(baseUrl+req.originalUrl,options_profile)
+        let response = await fetch(baseUrlOsm+req.originalUrl,options_profile)
         return res.json(response);
     }
   });
 
-  
-
-});
-
-app.post('/osm/admin/v1/tokens',async (req, res) => {
-    let response = await forwarding_to_server(req)
-    const jsonData =  await response.json();
-    return res.json(jsonData);
-});
-
-app.delete('/osm/admin/v1/tokens',async (req, res) => {
-  let response = await forwarding_to_server(req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);
-});
-
-app.get('/osm/vnfpkgm/v1/vnf_packages',async (req, res) => {
-  let response = await forwarding_to_server(req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);
-});
-
-app.get('/osm/nsd/v1/ns_descriptors',async (req, res) => {
-  let response = await forwarding_to_server(req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);
-});
-
-app.post('/osm/nsd/v1/ns_descriptors',async (req, res) => {
-  let response = await forwarding_to_server(req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);
-});
-
-app.get('/osm/nslcm/v1/ns_instances',async (req, res) => {
-  let response = await forwarding_to_server(req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);
-});
-
-app.get('/osm/nslcm/v1/ns_instances',async (req, res) => {
-  let response = await forwarding_to_server(req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);
-});
-
-app.post('/osm/nslcm/v1/ns_instances',async (req, res) => {
-  let response = await forwarding_to_server(req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);
-});
-
-app.patch('/osm/nsd/v1/ns_descriptors/:id',async (req, res) => {
-
-  let response = await forwarding_to_server(req)
-  return res.json(response);
 });
 
 
+/********************** Avvio server **********************/
 
-// Avvio del server
 app.listen(port, () => {
   console.log(`Server in ascolto sulla porta ${port}`);
 });
 
 
-let baseUrl = "http://127.0.0.1:80"
-async function forwarding_to_server(req){
+async function forwarding_to_server(baseUrl,req){
 
     let options_profile;
 
@@ -162,5 +136,7 @@ async function forwarding_to_server(req){
     return response
   
   }
+
+
   
 

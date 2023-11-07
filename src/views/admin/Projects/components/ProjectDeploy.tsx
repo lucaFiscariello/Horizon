@@ -21,7 +21,7 @@ import {getXsdName} from 'opensand/xsd/index.ts';
 import {isComponentElement, isListElement, isParameterElement, newItem} from 'opensand/xsd/model.tsx';
 import type {Component, Parameter, List} from 'opensand/xsd/index.ts';
 
-import { Portal, Box, useDisclosure } from '@chakra-ui/react';
+import { Portal, Box, useDisclosure,SimpleGrid } from '@chakra-ui/react';
 import Footer from 'components/footer/FooterAdmin.js';
 // Layout components
 import Navbar from 'components/navbar/NavbarAdmin.js';
@@ -30,7 +30,9 @@ import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useEffect } from 'react';
 import FullScreenDialog from 'grafana/grafanaClient.tsx';
-
+import Usage from 'views/admin/dashboard/components/Usage';
+import { DriverOsm } from 'osm/driverOsm';
+import { ModelNetwork } from 'components/Network/ModelNetwork';
 
 type SaveCallback = () => void;
 
@@ -111,7 +113,7 @@ const Project: React.FC<Props> = (props) => {
     const source = useSelector((state: { ping: { source: any; }; }) => state.ping.source);
 
     let name = useParams().id;
-    console.log(useParams())
+
     const dispatch = useDispatch();
     const [handleNewEntityCreate, setNewEntityCreate] = React.useState<((entity: string, entityType: string) => void) | undefined>(undefined);
     const [pingDestination, setPingDestination] = React.useState<string | null>(null);
@@ -121,7 +123,6 @@ const Project: React.FC<Props> = (props) => {
     const [refresh,setRefresh] = useState(true);
 
   
-
     // Scarica la lista delle macchine che verranno graficate nella tabella
     useEffect(() => {
         
@@ -140,6 +141,7 @@ const Project: React.FC<Props> = (props) => {
             }
 
             setDataTables(AllDataTable)
+
         }
       }, [machs])
 
@@ -346,14 +348,27 @@ const Project: React.FC<Props> = (props) => {
 		return activeNavbar;
 	};
 
+    const deploy = async () => {
+        let entityNetwork = new ModelNetwork(name,dataTables)
+        let driverOsm = new DriverOsm(entityNetwork)
+        await driverOsm.inizialize()
+
+        driverOsm.set_id(name)
+        driverOsm.set_name(name)
+
+        await driverOsm.create_NS()
+    }
+
+
     document.documentElement.dir = 'ltr';
 	const { onOpen } = useDisclosure();
 	document.documentElement.dir = 'ltr';
 
 
+
     return (
-        <Box>
-			<Box>
+    	<Box>
+            <Box>
 				<SidebarContext.Provider
 					value={{
 						toggleSidebar,
@@ -384,14 +399,21 @@ const Project: React.FC<Props> = (props) => {
 									fixed={fixed}
 									{...rest}
 								/>
+
 							</Box>
 						</Portal>
-                        
-                        
-                        <FullScreenDialog></FullScreenDialog>
+                                             
+                        <Box
+                              display="flex"
+                              justifyContent="center"
+                              alignItems="center"
+                              minHeight="100vh"
+                        >
+                            <button className='button' onClick={deploy}>
+                                Deploy
+                            </button>
+                        </Box>
 
-                              
-                           
 						<Box>
 							<Footer />
 						</Box>
