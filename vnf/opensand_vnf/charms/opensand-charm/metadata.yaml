@@ -1,0 +1,6 @@
+name: my-first-charm
+summary: A simple example proxy charm
+description: |
+  This is is an example charm used in OSM Hackfests
+series:
+  - focal

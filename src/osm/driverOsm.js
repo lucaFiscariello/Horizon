@@ -1,4 +1,4 @@
-import { delete_token, post_NS, post_NSD, post_NS_instatiate, post_token, put_NSD } from "./api/osmClient"
+import { delete_token, get_NSs, get_VNFDs, post_NS, post_NSD, post_NS_instatiate, post_token, put_NSD } from "./api/osmClient"
 import yaml from 'js-yaml';
 import { yaml_ns } from "./yaml/defaul-ns";
 import { yaml_vnf } from "./yaml/defaul-vnf";
@@ -76,7 +76,15 @@ export class DriverOsm {
         
     }
 
-    
+    async get_NSs(){
+        let nss = await get_NSs(this.token)
+        console.log(nss)
+    }    
+
+    async get_VNFs(){
+        let vnfs = await get_VNFDs(this.token)
+        console.log(vnfs)
+    }  
 
    
     

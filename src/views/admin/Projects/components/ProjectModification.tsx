@@ -37,6 +37,8 @@ import createTheme from 'opensand/utils/theme.ts';
 import ColumnsTable from "components/dataTables/components/ColumnsTable";
 import { useEffect } from 'react';
 import { ModelNetwork } from 'components/Network/ModelNetwork.js';
+import { get_NSs } from 'osm/api/osmClient.js';
+import { DriverOsm } from 'osm/driverOsm.js';
 
 
 type SaveCallback = () => void;
@@ -279,7 +281,6 @@ const Project: React.FC<Props> = (props) => {
             setPingDestination(null);
         }
     }, [dispatch, name, source, pingDestination]);
-
 
     
     const { ...rest } = props;

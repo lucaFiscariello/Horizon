@@ -1,0 +1,49 @@
+# Copyright ETSI OSM Contributors
+# See LICENSE file for licensing details.
+#
+# This is only an example, and you should edit to suit your needs.
+# If you don't need actions, you can remove the file entirely.
+# It ties in to the example _on_fortune_action handler in src/charm.py
+
+add-package:
+  description: "Adds software packages from apt."
+  params:
+    package:
+      description: "Names of packages to add, comma delimited."
+      type: string
+      default: ""
+  required:
+    - package
+
+announce:
+  description: "Sends a message to logged in users"
+  params:
+    message:
+      description: "Message to send"
+      type: string
+      default: ""
+  required:
+    - message
+
+cancel-reboot:
+  description: "Cancels any pending reboot commands."
+
+reboot:
+  description: "Reboots the server."
+  
+print:
+  description: "Create file."
+
+remove-package:
+  description: "Removes software packages from system."
+  params:
+    package:
+      description: "Names of packages to remove, comma delimited."
+      type: string
+      default: ""
+  required:
+    - package
+
+update-system:
+  description: "Updates all software to latest version."
+

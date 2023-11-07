@@ -12,4 +12,4 @@
     - id: test\n\
       mgmt-network: true\n\
     vnfd-id:\n\
-    - my_first_vnf"
+    - opensand"

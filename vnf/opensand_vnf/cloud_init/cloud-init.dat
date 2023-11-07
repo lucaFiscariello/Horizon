@@ -1,0 +1,11 @@
+#cloud-config
+hostname: ubuntu
+password: pass
+chpasswd: { expire: False }
+ssh_pwauth: True
+
+runcmd:
+  - curl -sS https://raw.githubusercontent.com/CNES/net4sat-packages/master/gpg/net4sat.gpg.key | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/net4sat.gpg >/dev/null
+  - echo "deb https://raw.githubusercontent.com/CNES/net4sat-packages/master/jammy/ jammy stable" | sudo tee /etc/apt/sources.list.d/net4sat.list
+  - sudo apt update -y
+  - sudo apt install opensand -y

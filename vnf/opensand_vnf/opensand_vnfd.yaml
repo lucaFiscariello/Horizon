@@ -1,0 +1,97 @@
+vnfd:
+  description: A VNF consisting of 1 VDU
+  df:
+  - id: default-df
+    instantiation-level:
+    - id: default-instantiation-level
+      vdu-level:
+      - number-of-instances: 1
+        vdu-id: opensand
+    vdu-profile:
+    - id: opensand
+      min-number-of-instances: 1
+    lcm-operations-configuration:
+      operate-vnf-op-config:
+        day1-2:
+        - config-access:
+            ssh-access:
+              default-user: ubuntu
+              required: true
+          id: opensand
+          execution-environment-list:
+          - id: native
+            juju:
+              charm: opensand-charm
+              proxy: false
+          config-primitive:
+          - name: add-package
+            execution-environment-ref: native
+            parameter:
+            - data-type: STRING
+              name: package
+          - name: announce
+            execution-environment-ref: native
+            parameter:
+            - data-type: STRING
+              name: message
+          - name: cancel-reboot
+            execution-environment-ref: native
+          - name: reboot
+            execution-environment-ref: native
+          - name: remove-package
+            execution-environment-ref: native
+            parameter:
+            - data-type: STRING
+              name: package
+          - name: update-system
+            execution-environment-ref: native
+          - name: print
+            execution-environment-ref: native
+
+  ext-cpd:
+  - id: vnf-mgmt-ext
+    int-cpd:
+      cpd: eth0
+      vdu-id: opensand
+  id: opensand
+  mgmt-cp: vnf-mgmt-ext
+
+  product-name: opensand
+  provider: Canonical
+  sw-image-desc:
+  - id: ubuntu22
+    image: ubuntu22
+    name: ubuntu22
+  vdu:
+  - cloud-init-file: cloud-init.dat
+    description: A single VM for performing operations
+    id: opensand
+    int-cpd:
+    - id: eth0
+      virtual-network-interface-requirement:
+      - name: eth0
+        position: 1
+        virtual-interface:
+          type: PARAVIRT
+    name: opensand
+    sw-image-desc: ubuntu22
+    virtual-compute-desc: opensand-compute
+    virtual-storage-desc:
+    - opensand-storage
+  version: 1.0
+  virtual-compute-desc:
+  - id: opensand-compute
+    virtual-cpu:
+      num-virtual-cpu: 1
+    virtual-memory:
+      size: 1.0
+  virtual-storage-desc:
+  - id: opensand-storage
+    size-of-storage: 10
+    
+   
+    
+    
+    
+    
+    
