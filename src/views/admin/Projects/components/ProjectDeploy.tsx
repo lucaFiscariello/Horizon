@@ -352,11 +352,9 @@ const Project: React.FC<Props> = (props) => {
         let entityNetwork = new ModelNetwork(name,dataTables)
         let driverOsm = new DriverOsm(entityNetwork)
         await driverOsm.inizialize()
-
-        driverOsm.set_id(name)
-        driverOsm.set_name(name)
-
-        await driverOsm.create_NS()
+        //await driverOsm.create_network()
+        let res = await driverOsm.load_xml()
+        console.log(res)
     }
 
 

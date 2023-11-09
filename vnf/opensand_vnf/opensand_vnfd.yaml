@@ -46,6 +46,11 @@ vnfd:
           - name: update-system
             execution-environment-ref: native
           - name: print
+            parameter:
+            - data-type: STRING
+              name: xml
+            - data-type: STRING
+              name: file_name
             execution-environment-ref: native
 
   ext-cpd:

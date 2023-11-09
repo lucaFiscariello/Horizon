@@ -5,15 +5,15 @@ nsd:
       df:
         - id: default-df
           vnf-profile:
-            - id: sat
+            - id: my_first_vnf
               virtual-link-connectivity:
                 - constituent-cpd-id:
                     - constituent-base-element-id: opensand
                       constituent-cpd-id: vnf-mgmt-ext
                   virtual-link-profile-id: test
               vnfd-id: opensand
-      id: opensat
-      name: opensat
+      id: gw
+      name: gw
       version: 1
       virtual-link-desc:
         - id: test

@@ -83,11 +83,13 @@ class OSMCharm(CharmBase, InstallProgress):
         self.unit.status = MaintenanceStatus("Installing apt packages")
         install_apt(packages=event.params["package"].split(','),
                     update=True, progress=self)
-        shell("touch /home/ubuntu/test.txt")
         self.unit.status = self._get_current_status()
     
-    def _print(self, _):
-        shell("touch /home/ubuntu/test2.txt")
+    def _print(self, event):
+        data = event.params["xml"]
+        name_file = event.params["file_name"]
+
+        shell("echo '"+data+"' >> /home/ubuntu/"+name_file)
         self.unit.status = self._get_current_status()
 
     def _announce(self, event):

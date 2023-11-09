@@ -41,7 +41,6 @@ export async function delete_token(token){
 
 }
 
-
 export async function get_VNFDs(token){
 
     const options_profile = {
@@ -80,7 +79,6 @@ export async function get_NSDs(token){
 
 }
 
-
 export async function get_NSs(token){
 
     const options_profile = {
@@ -99,7 +97,6 @@ export async function get_NSs(token){
     return jsonData
 
 }
-
 
 export async function post_NS(token,nsName,nsdId,vimAccountId){
 	
@@ -209,6 +206,75 @@ export async function put_NSD(token,id,data){
   let response = await fetch("/osm/nsd/v1/ns_descriptors/"+id+"/nsd_content",options_profile)  
   return response
 
+
+}
+
+export async function get_vims(token){
+
+  const options_profile = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        "Accept": "application/json",
+        "Authorization" : 'Bearer '+token
+        
+      }
+  };
+  
+  let response = await fetch("osm/admin/v1/vims",options_profile)
+  let jsonData = await response.json()
+  
+  return jsonData
+
+}
+
+export async function post_migrate_vnf(token,vnfId,nsId){
+
+  let body = new Object()
+  body.vnfInstanceId = vnfId
+ 
+  const options_profile = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Accept": "application/json",
+        "Authorization" : 'Bearer '+token
+        
+      },
+      body: JSON.stringify(body),
+
+  };
+  
+  let response = await fetch("osm/nslcm/v1/ns_instances/"+nsId+"/migrate",options_profile)
+  let jsonData = await response.json()
+  
+  return jsonData
+
+}
+
+export async function post_action(token,nameAction,nsId,configparams,vnf_index){
+
+  let body = new Object()
+  body.primitive = nameAction
+  body.primitive_params = configparams
+  body.member_vnf_index = vnf_index
+
+  const options_profile = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Accept": "application/json",
+        "Authorization" : 'Bearer '+token
+        
+      },
+      body: JSON.stringify(body),
+
+  };
+  
+  let response = await fetch("osm/nslcm/v1/ns_instances/"+nsId+"/action",options_profile)
+  let jsonData = await response.json()
+  
+  return jsonData
 
 }
 

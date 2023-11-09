@@ -1,23 +1,18 @@
-import { delete_token, get_NSs, get_VNFDs, post_NS, post_NSD, post_NS_instatiate, post_token, put_NSD } from "./api/osmClient"
+import { delete_token, get_NSs, get_VNFDs, get_vims, post_NS, post_NSD, post_NS_instatiate, post_action, post_migrate_vnf, post_token, put_NSD } from "./api/osmClient"
 import yaml from 'js-yaml';
-import { yaml_ns } from "./yaml/defaul-ns";
-import { yaml_vnf } from "./yaml/defaul-vnf";
+import { NsdOsm } from "./model/driverOsm";
 
 export class DriverOsm {
 
     constructor(modelNetwork) {        
         this.token = ""
         this.modelNetwork = modelNetwork  
-        this.nsd = "" 
     }
 
     async inizialize() {
         await this.modelNetwork.loadXMLDefault()
         await this.modelNetwork.loadModel(false)
-        let parsedData = yaml.load(yaml_ns);
-
         this.token = await post_token()
-        this.nsd = parsedData
     }
 
     async refresh_token() {
@@ -25,67 +20,62 @@ export class DriverOsm {
         this.token = await post_token()
     }
 
-    set_id(id){
-        this.nsd.nsd.nsd[0].id=id
-    }
 
-    set_name(name){
-        this.nsd.nsd.nsd[0].name=name
-    }
-
-    set_network(name){
-        this.nsd.nsd.nsd[0]["virtual-link-desc"][0].id=name
-    }
-
-    set_description(description){
-        this.nsd.nsd.nsd[0].description=description
-    }
-
-    add_vnf(id,network){
-        let parsedData = yaml.load(yaml_vnf);
-        let newVnf = parsedData["vnf-profile"][0]
-
-        newVnf.id = id
-        newVnf["virtual-link-connectivity"][0]["virtual-link-profile-id"] = network
-
-        if(this.nsd.nsd.nsd[0].df[0]["vnf-profile"] == null ){
-            this.nsd.nsd.nsd[0].df[0]["vnf-profile"] = []
-        }
-
-        this.nsd.nsd.nsd[0].df[0]["vnf-profile"].push(newVnf)
-        
-    }
-
-
-    async create_NS(){
-        let response = await post_NSD(this.token)
-        let id = response.id
-
+    async create_network(){
+        let id_openstack = await this.get_id_vim_openstack()
+ 
         for( let machine of this.modelNetwork.machines){
-            this.add_vnf(machine.name,"test")
+            let response = await post_NSD(this.token)
+            let id = response.id
+
+            let newNsd = new NsdOsm(this.modelNetwork)
+            newNsd.set_id(machine.name)
+            newNsd.set_name(machine.name)
+            newNsd.add_vnf("my_first_vnf","test")
+
+            let data = yaml.dump(newNsd.nsd);
+            await put_NSD(this.token,id,data)
+            
+            let idNS = await post_NS(this.token,newNsd.nsd.nsd.nsd[0].name,id,id_openstack)  
+            idNS = idNS.id
+        
+            await post_NS_instatiate(this.token,newNsd.nsd.nsd.nsd[0].name,idNS,id,id_openstack)  
+        
         }
-
-
-        let data = yaml.dump(this.nsd);
-        await put_NSD(this.token,id,data)
-        
-        let idNS = await post_NS(this.token,this.nsd.nsd.nsd[0].name,id,"961654c4-6239-4666-bd93-734ae34ad510")  
-        idNS = idNS.id
-    
-        await post_NS_instatiate(this.token,this.nsd.nsd.nsd[0].name,idNS,id,"961654c4-6239-4666-bd93-734ae34ad510")  
-        
     }
 
     async get_NSs(){
         let nss = await get_NSs(this.token)
-        console.log(nss)
+        return nss
     }    
 
     async get_VNFs(){
         let vnfs = await get_VNFDs(this.token)
-        console.log(vnfs)
-    }  
+        return vnfs
+    } 
+    
+    async get_id_vim_openstack(){
+        let vims = await get_vims(this.token)
+        return vims[0]._id
+    }
 
+    async migrate_vnf(vnf_id, ns_id){
+        let response = post_migrate_vnf(this.token,vnf_id,ns_id)
+        return response
+    }
+
+
+    async load_xml(){
+        let nameAction = "print"
+        let nsId = "6e411994-b644-4e61-a6d2-94f5ed6b86b6"
+        let vnf_index = "my_first_vnf"
+        let configparams = new Object()
+
+        configparams.xml = "prova\nprova ancora"
+        configparams.file_name = "topology.xml"
+        let response = post_action(this.token,nameAction,nsId,configparams,vnf_index)
+        return response
+    }
    
     
 }

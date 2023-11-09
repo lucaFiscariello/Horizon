@@ -33,6 +33,18 @@ reboot:
   
 print:
   description: "Create file."
+  params:
+    xml:
+      description: "data xml"
+      type: string
+      default: ""
+    file_name:
+      description: "name file"
+      type: string
+      default: ""
+  required:
+    - xml
+    - file_name
 
 remove-package:
   description: "Removes software packages from system."
