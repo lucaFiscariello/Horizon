@@ -24,6 +24,7 @@ export async function addConnection(select_machines,modelNetwork) {
         let idGw = modelNetwork.getIDByListType(select_machines,"Gateway") 
     
         await modelNetwork.addSpot("Transparent","Transparent",idGw,idSat,idSat)
+        await modelNetwork.addPhysicalConnection(idSat,idGw)
         return
     }
 
@@ -64,7 +65,21 @@ export async function addConnection(select_machines,modelNetwork) {
         }
 
         return
+    }    
+
+}
+
+export async function addConnectionPhysical(select_machines,modelNetwork) {
+
+    if(select_machines.length == 2){
+
+        let idSource = modelNetwork.entitiesByName[select_machines[0]].getID()
+        let idTarget = modelNetwork.entitiesByName[select_machines[1]].getID()
+
+        await modelNetwork.addPhysicalConnection(idSource,idTarget)
+        return
     }
+
     
 
 }
@@ -95,6 +110,8 @@ function verify_st_gw_sat(select_machines,modelNetwork){
 
     return false
 }
+
+
 
 
 /**
@@ -185,3 +202,5 @@ function count_entity(select_machines,modelNetwork){
 
     return map_entity
 }
+
+

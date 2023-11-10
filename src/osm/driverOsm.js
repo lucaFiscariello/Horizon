@@ -1,6 +1,6 @@
 import { delete_token, get_NSs, get_VNFDs, get_vims, post_NS, post_NSD, post_NS_instatiate, post_action, post_migrate_vnf, post_token, put_NSD } from "./api/osmClient"
 import yaml from 'js-yaml';
-import { NsdOsm } from "./model/driverOsm";
+import { NsdOsm } from "./model/NsdOsm";
 
 export class DriverOsm {
 
@@ -31,7 +31,7 @@ export class DriverOsm {
             let newNsd = new NsdOsm(this.modelNetwork)
             newNsd.set_id(machine.name)
             newNsd.set_name(machine.name)
-            newNsd.add_vnf("my_first_vnf","test")
+            newNsd.add_vnf("opensand","test")
 
             let data = yaml.dump(newNsd.nsd);
             await put_NSD(this.token,id,data)
@@ -65,14 +65,15 @@ export class DriverOsm {
     }
 
 
-    async load_xml(){
-        let nameAction = "print"
-        let nsId = "6e411994-b644-4e61-a6d2-94f5ed6b86b6"
-        let vnf_index = "my_first_vnf"
-        let configparams = new Object()
+    async load_xml(nameAction,nsId,vnf_index,file_name,data_file){
+        //let nameAction = "print"
+        //let nsId = "6e411994-b644-4e61-a6d2-94f5ed6b86b6"
+        //let vnf_index = "my_first_vnf"
 
-        configparams.xml = "prova\nprova ancora"
-        configparams.file_name = "topology.xml"
+        let configparams = new Object()
+        configparams.xml = data_file
+        configparams.file_name = file_name
+
         let response = post_action(this.token,nameAction,nsId,configparams,vnf_index)
         return response
     }

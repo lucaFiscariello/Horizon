@@ -4,36 +4,18 @@ import "assets/css/style.css"
 import config from "./config";
 import { useState } from 'react';
 import { Button, Stack } from '@mui/material';
-import PropTypes from 'prop-types';
-import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
-import Typography from '@mui/material/Typography';
 import {useListMutators} from 'opensand/utils/hooks.tsx';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
-import { getXmlProject, areAllSubnetsDefinited, getLinksConnection, getNodes, searchSubnets } from './subnet';
 import net from 'assets/img/opensand/net.png'
 import { ModelNetwork } from './ModelNetwork';
-import { addConnection, removeConnection } from './Constrain';
-
-import ListItemText from '@mui/material/ListItemText';
-import ListItem from '@mui/material/ListItem';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
+import { addConnection, addConnectionPhysical, removeConnection } from './Constrain';
 import Slide from '@mui/material/Slide';
 import FullScreenDialog from './FullScreenDialog';
 import {
   Link,
 } from "@chakra-ui/react";
-import { DriverOsm } from 'osm/driverOsm';
 
 
 
@@ -55,17 +37,17 @@ export default function Network(props) {
   let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
 
 
-  React.useEffect(async () => {
+  React.useEffect(async ()  => {
 
     const data = {"links":[],"nodes":[]}
     let nodes = []
     let links = []
 
     await entityNetwork.loadXMLDefault()
-    await entityNetwork.loadModel(newEntity)
+    await entityNetwork.loadModel(newEntity,newEntity)
    
-    nodes = entityNetwork.getNodes()
-    links = entityNetwork.getLinks()
+    nodes = entityNetwork.getNodesPhysical()
+    links = entityNetwork.getLinksPhysical()
 
     data.nodes = nodes
     data.links = links
@@ -83,11 +65,15 @@ export default function Network(props) {
     setOpen(false);
   };
 
-  const handleElimination = () =>{
+  const handleElimination = async () =>{
 
     for(let name of clickNodes){
+      await entityNetwork.loadModel()
+      await entityNetwork.deletePhysicalEntity(name)
+
       const indice = dataState.nodes.findIndex(elemento => elemento.id == name);
       removeListItem(indice)
+
 
     }
 
@@ -133,10 +119,9 @@ export default function Network(props) {
     await entityNetwork.loadXMLDefault()
     await entityNetwork.loadModel()
 
-
     let data = {"links":[],"nodes":[]} 
-    data.nodes = entityNetwork.getNodes()
-    data.links = entityNetwork.getLinks()
+    data.nodes = entityNetwork.getNodesPhysical()
+    data.links = entityNetwork.getLinksPhysical()
 
     setClickNodes([])
     setData(data) 
@@ -147,11 +132,11 @@ export default function Network(props) {
     await entityNetwork.loadXMLDefault()
     await entityNetwork.loadModel()
 
-    await removeConnection(source,target,entityNetwork)
+    await entityNetwork.deletePhysicalLink(source,target)
 
     let data = {"links":[],"nodes":[]} 
-    data.nodes = entityNetwork.getNodes()
-    data.links = entityNetwork.getLinks()
+    data.nodes = entityNetwork.getNodesPhysical()
+    data.links = entityNetwork.getLinksPhysical()
 
     setClickNodes([])
     setData(data) 
@@ -161,7 +146,7 @@ export default function Network(props) {
 
 
   async function AggiungiMacchina() {
-      addListItem()
+      await addListItem()
       setNewEntity(true)
   };
 
@@ -170,11 +155,11 @@ export default function Network(props) {
     await entityNetwork.loadXMLDefault()
     await entityNetwork.loadModel()
 
-    await addConnection(clickNodes,entityNetwork)
+    await addConnectionPhysical(clickNodes,entityNetwork)
 
     let data = {"links":[],"nodes":[]} 
-    data.nodes = entityNetwork.getNodes()
-    data.links = entityNetwork.getLinks()
+    data.nodes = entityNetwork.getNodesPhysical()
+    data.links = entityNetwork.getLinksPhysical()
 
     setClickNodes([])
     setData(data)

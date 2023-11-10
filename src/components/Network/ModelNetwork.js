@@ -24,7 +24,7 @@ export class ModelNetwork {
     /**
      * Funzione che carica i file di configurazione di tutte le entità della rete 
      */
-    async loadModel(newEntity) {
+    async loadModel(newEntity,newphysicalNode) {
     
         for (let entity of this.machines){
 
@@ -52,6 +52,7 @@ export class ModelNetwork {
             await this.addNewEntityId()
         }
 
+
         const response = await fetch(this.urlTopology)
         const jsonData =  await response.json();
 
@@ -60,6 +61,18 @@ export class ModelNetwork {
         }else{
             const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
             this.topology = result
+        }
+
+        if(newphysicalNode){
+            let name_new_entity = this.machines[this.machines.length-1].name
+            let new_entity = this.entitiesByName[name_new_entity]
+            let entity = new Object()
+
+            entity.name = name_new_entity
+            entity.type = new_entity.type
+            entity.id = new_entity.getID()
+
+            await this.addPhysicalEntity(entity)
         }
 
     }
@@ -209,6 +222,44 @@ export class ModelNetwork {
 
     }
 
+    getLinksPhysical(){
+       
+        const link = this.topology.model.root.physicaConnection
+        if(!link)
+            return []
+
+        if(!isIterable(link))
+            return [link]
+
+        return link
+    
+    }
+
+    getNodesPhysical(){
+
+        const urlSat = sat
+        let nodes = []
+        let allNodes = this.topology.model.root.physicalEntities
+    
+        if(!allNodes)
+            return nodes
+
+        if(!isIterable(allNodes))
+            allNodes=[allNodes]
+
+        for(let nodeInfo of allNodes){
+            let templateNode = {"id":"","name":"","svg":"","size":400,"labelPosition": 'bottom', "x":Math.floor(Math.random() * 800) + 100,"y":Math.floor(Math.random() * 300) + 100}
+            templateNode.id = nodeInfo.entity.name
+            templateNode.name = nodeInfo.entity.name
+            templateNode.svg = urlSat
+          
+            nodes.push(templateNode)
+        
+          }
+    
+        return nodes
+    }
+
     getNodes(){
 
         const urlSat = sat
@@ -226,6 +277,7 @@ export class ModelNetwork {
     
         return nodes
     }
+
 
     getIDByListType(nameEntities,type){
         
@@ -286,7 +338,94 @@ export class ModelNetwork {
 
         this.topology.model.root.st_assignment.defaults.default_gateway=idGatewayDefault
         this.topology.model.root.st_assignment.assignments.item = allItems
+        await this.updateXml()
+    }
+
+    async addPhysicalEntity(entity){
+        let item = new Object();
+        item.entity = entity
+
+        if(!this.topology.model.root.physicalEntities){
+            this.topology.model.root.physicalEntities = [item]
+        }else if (isIterable(this.topology.model.root.physicalEntities)){
+            this.topology.model.root.physicalEntities = [...this.topology.model.root.physicalEntities,item]
+        }else{
+            this.topology.model.root.physicalEntities = [this.topology.model.root.physicalEntities,item]
+        }
+
+        await this.updateXml()
+    }
+
+    async deletePhysicalEntity(name){
         
+        if(!this.topology.model.root.physicalEntities)
+            return 
+
+        if(!isIterable(this.topology.model.root.physicalEntities)){
+            this.topology.model.root.physicalEntities = null
+        } else{
+
+            let i
+            let allItems = this.topology.model.root.physicalEntities
+            for(i in allItems){
+                if(allItems[i].name == name){
+                    break;
+                }
+
+            }
+            
+            allItems.splice(i, 1);
+            this.topology.model.root.physicalEntities = allItems
+
+        }
+
+
+        await this.updateXml()
+    }
+
+    async deletePhysicalLink(source,target){
+        
+    
+        if(!this.topology.model.root.physicaConnection)
+            return 
+
+        if(!isIterable(this.topology.model.root.physicaConnection)){
+            this.topology.model.root.physicaConnection = null
+        } else{
+
+            let i
+            let allItems = this.topology.model.root.physicaConnection
+            for(i in allItems){
+                if(allItems[i].source == source && allItems[i].target== target ){
+                    break;
+                }
+
+            }
+            
+            allItems.splice(i, 1);
+            this.topology.model.root.physicaConnection = allItems
+
+        }
+
+
+        await this.updateXml()
+    }
+
+    async addPhysicalConnection(source, destination){
+       
+        let connection = new Object();        
+        connection.source = this.getNameEntityById(source)
+        connection.target = this.getNameEntityById(destination)
+        connection.color = "black"
+
+        if(!this.topology.model.root.physicaConnection){
+            this.topology.model.root.physicaConnection = [connection]
+        }else if (isIterable(this.topology.model.root.physicaConnection)){
+            this.topology.model.root.physicaConnection = [...this.topology.model.root.physicaConnection,connection]
+        }else{
+            this.topology.model.root.physicaConnection = [this.topology.model.root.physicaConnection,connection]
+        }
+
         await this.updateXml()
     }
 
