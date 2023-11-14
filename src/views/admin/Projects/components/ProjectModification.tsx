@@ -127,7 +127,8 @@ const Project: React.FC<Props> = (props) => {
     const [nameMachs,setMachsName] = useState<string[]>([]);
     const [dataTables,setDataTables] = useState([])
     const [refresh,setRefresh] = useState(true);
-    const [modelNetwork,setModelNetwork] = useState({"model" : {}});
+    const [createOnlyGW,setCreateOnlyGW] = useState(false);
+    const [nameGW,setNameGw] = useState("");
 
   
 
@@ -205,6 +206,7 @@ const Project: React.FC<Props> = (props) => {
     const handleClose = React.useCallback(() => {
         setNewEntityCreate(undefined);
         setRefresh(!refresh)
+        setCreateOnlyGW(false)
     }, []);
 
     const handleSubmit = React.useCallback((values: Component, helpers: FormikHelpers<Component>) => {
@@ -409,7 +411,7 @@ const Project: React.FC<Props> = (props) => {
                             <div>
                                 <Formik  initialValues={model.root} onSubmit={handleSubmit}>
                                 {(formik: FormikProps<Component>) => {
-                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} nameProject={name}></Network>                    
+                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} nameProject={name} setCreateOnlyGW={setCreateOnlyGW} ></Network>                    
                                 }}
                                 </Formik>
                             </div>
@@ -425,9 +427,14 @@ const Project: React.FC<Props> = (props) => {
                                     machines = {dataTables}
                                     onValidate={handleNewEntityCreate}
                                     onClose={handleClose}
+                                    createOnlyGW = {createOnlyGW}
+                                    setNameGw = {setNameGw}
+
                                 />
                             
                             )}
+
+                            
 
                         </div>
                         

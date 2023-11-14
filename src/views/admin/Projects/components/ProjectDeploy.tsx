@@ -29,10 +29,8 @@ import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useEffect } from 'react';
-import FullScreenDialog from 'grafana/grafanaClient.tsx';
-import Usage from 'views/admin/dashboard/components/Usage';
 import { DriverOsm } from 'osm/driverOsm';
-import { ModelNetwork } from 'components/Network/ModelNetwork';
+import { ModelNetwork } from 'components/Network/model/ModelNetwork';
 
 type SaveCallback = () => void;
 

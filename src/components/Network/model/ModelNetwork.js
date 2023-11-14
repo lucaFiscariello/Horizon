@@ -71,6 +71,7 @@ export class ModelNetwork {
             entity.name = name_new_entity
             entity.type = new_entity.type
             entity.id = new_entity.getID()
+            entity.mapping = [name_new_entity]
 
             await this.addPhysicalEntity(entity)
         }
@@ -427,6 +428,80 @@ export class ModelNetwork {
         }
 
         await this.updateXml()
+    }
+
+    async addMappingPhysicalVirual(entityPhisycalName, entityVirtualName){
+       
+
+        if(!isIterable(this.topology.model.root.physicalEntities)){
+
+            let entity = this.topology.model.root.physicalEntities.entity
+
+            if(entity.name == entityPhisycalName ){
+
+                if(typeof entity.mapping !== "string"){
+                    entity.mapping = [...entity.mapping,entityVirtualName]
+                }else{
+
+                    entity.mapping = [entity.mapping,entityVirtualName]
+                }
+            }
+        } else{
+
+            for(let entity of this.topology.model.root.physicalEntities){
+
+                if(entity.entity.name == entityPhisycalName ){
+    
+                    if(typeof entity.entity.mapping !== "string"){
+                        entity.entity.mapping = [...entity.entity.mapping,entityVirtualName]
+                    }else{
+    
+                        entity.entity.mapping = [entity.entity.mapping,entityVirtualName]
+                    }
+                
+                    break;
+                }
+    
+            }
+        }
+
+        await this.updateXml()
+
+    }
+
+    async getPhisicalMapping(entityPhisycalName){
+       
+
+        if(!isIterable(this.topology.model.root.physicalEntities)){
+
+            let entity = this.topology.model.root.physicalEntities.entity
+
+            if(entity.name == entityPhisycalName ){
+
+                if(typeof entity.mapping === "string"){
+                    return [entity.mapping] 
+                }else{
+                    return entity.mapping
+                }
+            }
+        } else{
+
+            for(let entity of this.topology.model.root.physicalEntities){
+
+                if(entity.entity.name == entityPhisycalName ){
+    
+                    if(typeof entity.entity.mapping === "string"){
+                        return [entity.entity.mapping] 
+                    }else{
+                        return entity.entity.mapping
+                    }
+                
+                }
+    
+            }
+        }
+
+
     }
 
     async removeRoute(entitySource, entityTarget){

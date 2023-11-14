@@ -3,19 +3,20 @@ import { Graph } from "react-d3-graph";
 import "assets/css/style.css"
 import config from "./config";
 import { useState } from 'react';
-import { Button, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import {useListMutators} from 'opensand/utils/hooks.tsx';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
 import net from 'assets/img/opensand/net.png'
-import { ModelNetwork } from './ModelNetwork';
-import { addConnection, addConnectionPhysical, removeConnection } from './Constrain';
+import { ModelNetwork } from './model/ModelNetwork';
+import { addConnectionPhysical } from './Constrain';
 import Slide from '@mui/material/Slide';
-import FullScreenDialog from './FullScreenDialog';
+import FullScreenDialogConfigGW from './virtualization-config/GW/FullScreenDialogGW';
 import {
   Link,
 } from "@chakra-ui/react";
+import FullScreenDialogConfigST from './virtualization-config/ST/FullScreenDialogST';
 
 
 
@@ -32,6 +33,7 @@ export default function Network(props) {
   const [clickNodes, setClickNodes] = useState([]);
   const [open, setOpen] = React.useState(false);
   const [nodeName, setnodeName] = useState("");
+  const [typeNodeClicked, setTypeNodeClicked] = useState("");
   const [addListItem, removeListItem] = useListMutators(props.list, props.actions, props.form, "elements.0.element.elements.1.element");
 
   let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
@@ -83,6 +85,12 @@ export default function Network(props) {
     
   const onDoubleClickNode  = (clickedNodeId) => {
     handleClickOpen()
+
+    for(let machine of props.nameMachines){
+      if ( machine.name == clickedNodeId )
+        setTypeNodeClicked(machine.type)
+    }
+  
     setnodeName(clickedNodeId)
   };
 
@@ -209,7 +217,8 @@ export default function Network(props) {
 
         <ThemeProvider theme={theme}>
 
-        {open && <FullScreenDialog open={open} handleClose={handleClose} nameEntity = {nodeName}></FullScreenDialog> }
+        {open && typeNodeClicked == 'Gateway' && <FullScreenDialogConfigGW open={open} handleClose={handleClose} nameEntity = {nodeName} modelNetwork={entityNetwork} setCreateOnlyGW = {props.setCreateOnlyGW} addListItem={addListItem} nameGw = {props.nameGw}></FullScreenDialogConfigGW> }
+        {open && typeNodeClicked != 'Gateway' && <FullScreenDialogConfigST open={open} handleClose={handleClose} nameEntity = {nodeName} modelNetwork={entityNetwork}></FullScreenDialogConfigST> }
 
         </ThemeProvider>
 

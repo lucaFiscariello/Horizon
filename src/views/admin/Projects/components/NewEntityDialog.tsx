@@ -49,8 +49,15 @@ const NewEntityDialog = (props: Props) => {
     }, [onClose]);
 
     const handleSubmit = React.useCallback((values: Values, helpers: FormikHelpers<Values>): any => {
-        onValidate(values.name.value, values.type.value);
+        if(props.createOnlyGW){
+            onValidate(values.name.value, "Gateway");
+            props.setNameGw(values.name.value)
+        }
+        else
+            onValidate(values.name.value, values.type.value);
+
         handleClose();
+
     }, [onValidate, handleClose]);
 
 
@@ -71,7 +78,9 @@ const NewEntityDialog = (props: Props) => {
                                     Please give a name and select the role of your machine!
                                 </DialogContentText>
                                 <Parameter parameter={formik.values.name} prefix="name" form={formik} actions={noActions} autosave={false} />
-                                <Parameter parameter={formik.values.type} prefix="type" form={formik} actions={noActions} autosave={false} />
+
+                                {(!props.createOnlyGW && <Parameter parameter={formik.values.type} prefix="type" form={formik} actions={noActions} autosave={false} />                                )}
+
                             </DialogContent>
                             <DialogActions>
                                 <Button onClick={handleClose} color="primary">Cancel</Button>
@@ -95,6 +104,8 @@ interface Props {
     machines : any;
     onValidate: (entity: string, entityType: string) => void;
     onClose: () => void;
+    createOnlyGW:any
+    setNameGw:any
 }
 
 
