@@ -1,16 +1,15 @@
-import { ModelEntity } from "./ModelEntity";
-import xml2js from 'xml2js';
-import sat from 'assets/img/opensand/sat.png'
+const  ModelEntity  = require("./ModelEntity");
+const  xml2js  = require("xml2js");
 
 
 /**
  * Classe che modella una rete satellitare. Mantiene il riferimento alla lista delle entità che compongono la rete. Ogni entità mantiene a sua volta
  * i riferimenti agli xml di configurazione delle entità.
  */
-export class ModelNetwork {
+class ModelNetwork {
 
     constructor(nameProject,machines) {   
-        this.urlTemplate = "api/project/"
+        this.urlTemplate = "http://127.0.0.1:8888/api/project/"
         let topologySTR = "/topology"
         this.nameProject = nameProject
         this.machines = machines
@@ -24,11 +23,13 @@ export class ModelNetwork {
     /**
      * Funzione che carica i file di configurazione di tutte le entità della rete 
      */
-    async loadModel(newEntity,newphysicalNode) {
+    async loadModel() {
     
         for (let entity of this.machines){
 
             if(entity){
+
+                console.log("load entity: "+entity["name"])
                 let entityname = entity["name"]
                 let entityModel = new ModelEntity(entityname,this.nameProject,entity["type"])
                 
@@ -47,32 +48,15 @@ export class ModelNetwork {
 
         }
 
-        if(newEntity){
-            await this.addNewEntityId()
-        }
-
-
         const response = await fetch(this.urlTopology)
         const jsonData =  await response.json();
 
         if(jsonData.error){
+            console.log("creo default topology per progetto: "+this.nameProject)
             await this.createXMLDefault()
         }else{
             const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
             this.topology = result
-        }
-
-        if(newphysicalNode){
-            let name_new_entity = this.machines[this.machines.length-1].name
-            let new_entity = this.entitiesByName[name_new_entity]
-            let entity = new Object()
-
-            entity.name = name_new_entity
-            entity.type = new_entity.type
-            entity.id = new_entity.getID()
-            entity.mapping = [name_new_entity]
-
-            await this.addPhysicalEntity(entity)
         }
 
     }
@@ -83,7 +67,7 @@ export class ModelNetwork {
      */
     async loadXMLDefault() {
 
-        let url = "/api/project/" + this.nameProject
+        let url = "http://127.0.0.1:8888/api/project/" + this.nameProject
         let defaultXml = "Default.xml"
         let builder = new xml2js.Builder();
         let entities;
@@ -96,6 +80,8 @@ export class ModelNetwork {
 
         // Modifico i parametri infrastructure__template, profile__template,topology__template
         entities = result.model.root.configuration.entities.item
+
+        console.log("carico xml deafult per entità nel progetto : "+this.nameProject)
 
         if(isIterable(entities)){
             for(let entity of entities){
@@ -128,11 +114,12 @@ export class ModelNetwork {
      * Crea gli xml di default per la topologia. Questa funzione deve essere invocata appena viene creata una nuova rete.
      */
     async createXMLDefault() {
-        const urlTopologyDefault = "/api/project/"+this.nameProject+"/template/topology/Default.xml"
+        const urlTopologyDefault = "http://127.0.0.1:8888/api/project/"+this.nameProject+"/template/topology/Default.xml"
        
         const response = await fetch(urlTopologyDefault)
         const jsonData =  await response.json();
 
+        
         if(jsonData.error)
             return
 
@@ -153,10 +140,12 @@ export class ModelNetwork {
         item.gateway_id = -1
         this.topology.model.root.st_assignment.assignments = new Object()
         this.topology.model.root.st_assignment.assignments.item = item
-
+        
         await this.updateXml()
 
     }
+
+  
 
     getSpots() {
         let spots = this.topology.model.root.frequency_plan.spots.item
@@ -228,6 +217,9 @@ export class ModelNetwork {
 
     getLinksPhysical(){
        
+        if(!this.topology.model)
+            return []
+
         const link = this.topology.model.root.physicaConnection
         if(!link)
             return []
@@ -241,8 +233,12 @@ export class ModelNetwork {
 
     getNodesPhysical(){
 
-        const urlSat = sat
+        const urlSat = ""
         let nodes = []
+
+        if(!this.topology.model)
+            return nodes
+
         let allNodes = this.topology.model.root.physicalEntities
     
         if(!allNodes)
@@ -255,24 +251,6 @@ export class ModelNetwork {
             let templateNode = {"id":"","name":"","svg":"","size":400,"labelPosition": 'bottom', "x":Math.floor(Math.random() * 800) + 100,"y":Math.floor(Math.random() * 300) + 100}
             templateNode.id = nodeInfo.entity.name
             templateNode.name = nodeInfo.entity.name
-            templateNode.svg = urlSat
-          
-            nodes.push(templateNode)
-        
-          }
-    
-        return nodes
-    }
-
-    getNodes(){
-
-        const urlSat = sat
-        let nodes = []
-    
-        for(let nodeInfo of this.machines){
-            let templateNode = {"id":"","name":"","svg":"","size":400,"labelPosition": 'bottom', "x":Math.floor(Math.random() * 800) + 100,"y":Math.floor(Math.random() * 300) + 100}
-            templateNode.id = nodeInfo["name"]
-            templateNode.name = nodeInfo["name"]
             templateNode.svg = urlSat
           
             nodes.push(templateNode)
@@ -389,7 +367,8 @@ export class ModelNetwork {
 
     async deletePhysicalLink(source,target){
         
-    
+        console.log("eliminazione link fisici: "+source+" "+target)
+
         if(!this.topology.model.root.physicaConnection)
             return 
 
@@ -400,7 +379,7 @@ export class ModelNetwork {
             let i
             let allItems = this.topology.model.root.physicaConnection
             for(i in allItems){
-                if(allItems[i].source == source && allItems[i].target== target ){
+                if((allItems[i].source == source && allItems[i].target== target) || (allItems[i].source == target && allItems[i].source== target)){
                     break;
                 }
 
@@ -417,6 +396,8 @@ export class ModelNetwork {
 
     async addPhysicalConnection(source, destination){
        
+        console.log("add link fisici: "+source+" "+destination)
+
         let connection = new Object();        
         connection.source = this.getNameEntityById(source)
         connection.target = this.getNameEntityById(destination)
@@ -635,9 +616,8 @@ export class ModelNetwork {
      * Questa funzionalità permette di assegnare un nuovo id automaticamente alla creazione di una nuova entità.
      * L'assegnazione automatica degli id evita che vengano gestiti direttamente dal'utente.
      */ 
-    async addNewEntityId(){
+    async addNewEntityId(name_new_entity){
 
-        let name_new_entity = this.machines[this.machines.length-1].name
         let new_entity = this.entitiesByName[name_new_entity]
         this.maxId = parseInt(this.maxId)+1
         let new_id = this.maxId
@@ -688,3 +668,5 @@ function searchSatId(idGateway, spots){
             return spot.assignments.sat_id_gw
     }
 }
+
+module.exports = ModelNetwork

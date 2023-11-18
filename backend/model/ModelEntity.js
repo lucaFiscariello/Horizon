@@ -1,12 +1,12 @@
-import xml2js from 'xml2js';
+const  xml2js  = require("xml2js");
 
 /**
  * Classe modella un'entità di una rete satellitare. Offre funzionalità per modificare e ottenere parametri dei tre xml: topology, infrastruttura, profile
  */
-export class ModelEntity {
+class ModelEntity {
 
     constructor(nameEntity,nameProject,type) {        
-        this.urlTemplate = "api/project/"
+        this.urlTemplate = "http://127.0.0.1:8888/api/project/"
         this.nameProject = nameProject
         this.nameEntity = nameEntity;
         this.type = type
@@ -53,18 +53,18 @@ export class ModelEntity {
      * Crea gli xml di default per un entità. Questa funzione deve essere invocata appena viene creata una nuova entità.
      */
     async createXMLDefault() {
-        const urlInfrastructureDefault = "/api/project/"+this.nameProject+"/template/infrastructure/Default.xml"
+        const urlInfrastructureDefault = this.urlTemplate+this.nameProject+"/template/infrastructure/Default.xml"
         let urlprofileDefault = ""
 
         switch(this.type){
             case "Satellite" :
-                urlprofileDefault = "/api/project/"+this.nameProject+"/template/profile_sat/Default.xml"
+                urlprofileDefault = this.urlTemplate+this.nameProject+"/template/profile_sat/Default.xml"
                 break;
             case "Gateway" :
-                urlprofileDefault = "/api/project/"+this.nameProject+"/template/profile_gw/Default.xml"
+                urlprofileDefault = this.urlTemplate+this.nameProject+"/template/profile_gw/Default.xml"
                 break;
             case "Terminal" :
-                urlprofileDefault = "/api/project/"+this.nameProject+"/template/profile_st/Default.xml"
+                urlprofileDefault = this.urlTemplate+this.nameProject+"/template/profile_st/Default.xml"
                 break;
         }
 
@@ -191,6 +191,8 @@ export class ModelEntity {
     
 }
 
+
+module.exports = ModelEntity
 
 
 

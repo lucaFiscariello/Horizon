@@ -6,6 +6,7 @@ const port = 3003;
 
 let baseUrlOsm = "http://127.0.0.1:80"
 let baseUrlOpensand = "http://127.0.0.1:8888"
+let baseUrlModel = "http://127.0.0.1:3004"
 
 // Middleware per il parsing del corpo delle richieste in formato JSON
 app.use(express.json());
@@ -17,6 +18,20 @@ app.use('/api/:value*', async (req, res) => {
   let response = await forwarding_to_server(baseUrlOpensand,req)
   const jsonData =  await response.json();
   return res.json(jsonData);  
+});
+
+/********************** Middleware Model Network **********************/
+
+app.use('/model/:value*', async (req, res) => {
+  let response = await forwarding_to_server(baseUrlModel,req)
+
+  try {
+    const jsonData = await response.json();
+    return res.json(jsonData);  
+
+  } catch (error) {
+    return res.json(response);  
+  }
 });
 
 

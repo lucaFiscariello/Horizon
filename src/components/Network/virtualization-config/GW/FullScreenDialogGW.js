@@ -24,37 +24,38 @@ export default function FullScreenDialogConfigGW(props) {
   const handleClose = props.handleClose
   const nameEntity = props.nameEntity
   const [allGW, setAllGW] = React.useState([]);
+  const [newEntity, setNewEntity] = React.useState(false);
+
 
   let modelNetwork = props.modelNetwork
 
-  React.useEffect(async ()  => {
-
-    await modelNetwork.loadXMLDefault()
-    await modelNetwork.loadModel()
-
-    let virtualGWs = await modelNetwork.getPhisicalMapping(nameEntity)
-    setAllGW(virtualGWs)
-    
-
-  }, []);
 
   const handleOnClickDelete = (toDelete) => {
     const updatedList = allGW.filter((string) => string !== toDelete);
     setAllGW(updatedList);
   };
 
-  const handleOnClickAdd = async () => {
 
-    await modelNetwork.loadXMLDefault()
+
+  const handleOnClickAdd = () => {
+
+    setNewEntity(true)
+    props.setCreateOnlyGW(true)
+    props.addListItem()
+  
+  };
+
+  React.useEffect(async ()  => {
+
+    props.handleSetgwPhysical(props.nameEntity)
+    await modelNetwork.loadXMLDefault(newEntity)
     await modelNetwork.loadModel()
 
-    await props.setCreateOnlyGW(true)
-    await props.addListItem()
+    let virtualGWs = await modelNetwork.getPhisicalMapping(nameEntity)
+    setAllGW(virtualGWs)
 
-    setAllGW([...allGW,"newGW"])
+  }, []);
 
-
-  };
 
   const ExpandedContents = allGW.map((title) => (
     <ExpandedContent title={title} handleDelete = {handleOnClickDelete}  />

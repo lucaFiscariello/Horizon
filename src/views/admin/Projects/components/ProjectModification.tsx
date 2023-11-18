@@ -36,9 +36,8 @@ import NewEntityDialog from './NewEntityDialog.tsx';
 import createTheme from 'opensand/utils/theme.ts';
 import ColumnsTable from "components/dataTables/components/ColumnsTable";
 import { useEffect } from 'react';
-import { ModelNetwork } from 'components/Network/ModelNetwork.js';
-import { get_NSs } from 'osm/api/osmClient.js';
-import { DriverOsm } from 'osm/driverOsm.js';
+import { ModelNetwork } from 'components/Network/model/ModelNetwork.js';
+
 
 
 type SaveCallback = () => void;
@@ -128,7 +127,8 @@ const Project: React.FC<Props> = (props) => {
     const [dataTables,setDataTables] = useState([])
     const [refresh,setRefresh] = useState(true);
     const [createOnlyGW,setCreateOnlyGW] = useState(false);
-    const [nameGW,setNameGw] = useState("");
+    const [newPhysicalEntity,setNewPhysicalEntity] = useState("");
+    const [gwPhysical,setGwPhysical] = useState("");
 
   
 
@@ -203,10 +203,10 @@ const Project: React.FC<Props> = (props) => {
     }, [dispatch]);
 
 
-    const handleClose = React.useCallback(() => {
+    const handleClose = React.useCallback(async () => {
         setNewEntityCreate(undefined);
-        setRefresh(!refresh)
         setCreateOnlyGW(false)
+
     }, []);
 
     const handleSubmit = React.useCallback((values: Component, helpers: FormikHelpers<Component>) => {
@@ -214,7 +214,6 @@ const Project: React.FC<Props> = (props) => {
             dispatch(updateProject({project: name, root: values}));
         }
         helpers.setSubmitting(false);
-        
     }, [dispatch, name]);
 
     const handleDeleteEntity = React.useCallback((root: Component, mutator: (l: List, path: string) => void) => {
@@ -361,12 +360,37 @@ const Project: React.FC<Props> = (props) => {
 		return activeNavbar;
 	};
 
+
+    const handleNewGw = async (gwVirtual:any)=>{ 
+
+        let entityNetwork = new ModelNetwork(name,dataTables)
+        await entityNetwork.loadXMLDefault()
+        await entityNetwork.loadModel()
+
+        await entityNetwork.addMappingPhysicalVirual(gwPhysical,gwVirtual)
+        setGwPhysical("")
+
+   
+    }
+
+
+    const handleSetgwPhysical = async (gwPhysical:any)=>{ 
+       setGwPhysical(gwPhysical)
+    }
+
+    const handleNewPhysicalEntity = async (entity:any)=>{ 
+        setNewPhysicalEntity(entity)
+     }
+
+    
+
     document.documentElement.dir = 'ltr';
 	const { onOpen } = useDisclosure();
 	document.documentElement.dir = 'ltr';
 
     const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
     const theme = React.useMemo(() => createTheme(prefersDarkMode), [prefersDarkMode]);
+
 
     return (
         <Box>
@@ -411,7 +435,7 @@ const Project: React.FC<Props> = (props) => {
                             <div>
                                 <Formik  initialValues={model.root} onSubmit={handleSubmit}>
                                 {(formik: FormikProps<Component>) => {
-                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} nameProject={name} setCreateOnlyGW={setCreateOnlyGW} ></Network>                    
+                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} nameProject={name} setCreateOnlyGW={setCreateOnlyGW} setGwPhysical={setGwPhysical} handleSetgwPhysical={handleSetgwPhysical} newPhysicalEntity={newPhysicalEntity}  ></Network>                    
                                 }}
                                 </Formik>
                             </div>
@@ -428,8 +452,8 @@ const Project: React.FC<Props> = (props) => {
                                     onValidate={handleNewEntityCreate}
                                     onClose={handleClose}
                                     createOnlyGW = {createOnlyGW}
-                                    setNameGw = {setNameGw}
-
+                                    handleNewGw={handleNewGw}
+                                    setNewPhysicalEntity = {handleNewPhysicalEntity}
                                 />
                             
                             )}

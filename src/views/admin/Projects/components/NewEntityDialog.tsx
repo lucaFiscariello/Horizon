@@ -15,6 +15,8 @@ import type {Parameter as ParameterType} from 'opensand/xsd/index.ts';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
+import { setIdNewNode } from 'clientModel/clientModel';
+import { addPhysicalEntity } from 'clientModel/clientModel';
 
 interface Values {
     name: ParameterType;
@@ -48,16 +50,24 @@ const NewEntityDialog = (props: Props) => {
         onClose();
     }, [onClose]);
 
-    const handleSubmit = React.useCallback((values: Values, helpers: FormikHelpers<Values>): any => {
+    const handleSubmit = React.useCallback(async (values: Values, helpers: FormikHelpers<Values>): any => {
+
         if(props.createOnlyGW){
             onValidate(values.name.value, "Gateway");
-            props.setNameGw(values.name.value)
         }
         else
             onValidate(values.name.value, values.type.value);
 
+
         handleClose();
 
+
+        await setIdNewNode(props.nameProject,values.name.value)
+        await addPhysicalEntity(props.nameProject,values.name.value,values.type.value)
+        props.setNewPhysicalEntity(values.name.value)
+
+
+       
     }, [onValidate, handleClose]);
 
 
@@ -104,8 +114,10 @@ interface Props {
     machines : any;
     onValidate: (entity: string, entityType: string) => void;
     onClose: () => void;
-    createOnlyGW:any
-    setNameGw:any
+    createOnlyGW:any;
+    handleNewGw : any
+    setNewPhysicalEntity :any
+    
 }
 
 

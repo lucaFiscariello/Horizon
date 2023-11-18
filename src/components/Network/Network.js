@@ -17,6 +17,12 @@ import {
   Link,
 } from "@chakra-ui/react";
 import FullScreenDialogConfigST from './virtualization-config/ST/FullScreenDialogST';
+import { inizializeModel } from 'clientModel/clientModel';
+import { getPhysicalNode } from 'clientModel/clientModel';
+import { getPhysicalLinks } from 'clientModel/clientModel';
+import { deletePhysicalNode } from 'clientModel/clientModel';
+import { deletePhysicalLink } from 'clientModel/clientModel';
+import { addPhysicalLink } from 'clientModel/clientModel';
 
 
 
@@ -35,9 +41,13 @@ export default function Network(props) {
   const [nodeName, setnodeName] = useState("");
   const [typeNodeClicked, setTypeNodeClicked] = useState("");
   const [addListItem, removeListItem] = useListMutators(props.list, props.actions, props.form, "elements.0.element.elements.1.element");
+  
+  const {nameMachines,nameProject,newPhysicalEntity} = props;
+  let entities = React.useMemo(() => nameMachines, [nameMachines]);
+  const projectName = React.useMemo(() => nameProject, [nameProject]);
+  const newPhysicalEntityUpdate = React.useMemo(() => newPhysicalEntity, [newPhysicalEntity]);
 
-  let entityNetwork = new ModelNetwork(props.nameProject,props.nameMachines)
-
+  let entityNetwork = new ModelNetwork(props.nameProject,entities)
 
   React.useEffect(async ()  => {
 
@@ -45,19 +55,17 @@ export default function Network(props) {
     let nodes = []
     let links = []
 
-    await entityNetwork.loadXMLDefault()
-    await entityNetwork.loadModel(newEntity,newEntity)
-   
-    nodes = entityNetwork.getNodesPhysical()
-    links = entityNetwork.getLinksPhysical()
+    await inizializeModel(projectName,entities)
 
+    nodes = await getPhysicalNode(projectName)
+    links = await getPhysicalLinks(projectName)
+    console.log(links)
     data.nodes = nodes
     data.links = links
 
     setData(data)
-    setNewEntity(false)
 
-  }, [props.nameMachines]);
+  }, [newPhysicalEntityUpdate,entities,clickNodes]);
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -70,12 +78,14 @@ export default function Network(props) {
   const handleElimination = async () =>{
 
     for(let name of clickNodes){
-      await entityNetwork.loadModel()
-      await entityNetwork.deletePhysicalEntity(name)
 
+      await deletePhysicalNode(props.nameProject,name)
       const indice = dataState.nodes.findIndex(elemento => elemento.id == name);
       removeListItem(indice)
 
+      entities = entities.filter(function (entity) {
+        return entity.name !== name;
+      });
 
     }
 
@@ -123,56 +133,25 @@ export default function Network(props) {
 
   const onClickGraph = async function(event) {
     setClickNodes([]);
-
-    await entityNetwork.loadXMLDefault()
-    await entityNetwork.loadModel()
-
-    let data = {"links":[],"nodes":[]} 
-    data.nodes = entityNetwork.getNodesPhysical()
-    data.links = entityNetwork.getLinksPhysical()
-
-    setClickNodes([])
-    setData(data) 
   };
 
   const onClickLink = async function(source,target){
 
-    await entityNetwork.loadXMLDefault()
-    await entityNetwork.loadModel()
-
-    await entityNetwork.deletePhysicalLink(source,target)
-
-    let data = {"links":[],"nodes":[]} 
-    data.nodes = entityNetwork.getNodesPhysical()
-    data.links = entityNetwork.getLinksPhysical()
-
+    await deletePhysicalLink(props.nameProject,source,target)
     setClickNodes([])
-    setData(data) 
  
-
   }
 
 
   async function AggiungiMacchina() {
-      await addListItem()
-      setNewEntity(true)
+      addListItem()
   };
 
   async function AddConnection() {
 
-    await entityNetwork.loadXMLDefault()
-    await entityNetwork.loadModel()
-
-    await addConnectionPhysical(clickNodes,entityNetwork)
-
-    let data = {"links":[],"nodes":[]} 
-    data.nodes = entityNetwork.getNodesPhysical()
-    data.links = entityNetwork.getLinksPhysical()
-
+    await addPhysicalLink(props.nameProject,clickNodes)
     setClickNodes([])
-    setData(data)
   
-
   };
 
 
@@ -217,10 +196,10 @@ export default function Network(props) {
 
         <ThemeProvider theme={theme}>
 
-        {open && typeNodeClicked == 'Gateway' && <FullScreenDialogConfigGW open={open} handleClose={handleClose} nameEntity = {nodeName} modelNetwork={entityNetwork} setCreateOnlyGW = {props.setCreateOnlyGW} addListItem={addListItem} nameGw = {props.nameGw}></FullScreenDialogConfigGW> }
+        {open && typeNodeClicked == 'Gateway' && <FullScreenDialogConfigGW open={open} handleClose={handleClose} handleCloseAddGw = {props.handleCloseAddGw} nameEntity = {nodeName} modelNetwork={entityNetwork} setCreateOnlyGW = {props.setCreateOnlyGW} addListItem={addListItem} ></FullScreenDialogConfigGW> }
         {open && typeNodeClicked != 'Gateway' && <FullScreenDialogConfigST open={open} handleClose={handleClose} nameEntity = {nodeName} modelNetwork={entityNetwork}></FullScreenDialogConfigST> }
 
-        </ThemeProvider>
+        </ThemeProvider> 
 
         </div>
 
