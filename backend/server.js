@@ -78,6 +78,44 @@ app.delete('/model/project/:id/node/:idNode/physical',async (req, res) => {
 
 });
 
+app.get('/model/project/:id/node/:idNode/physical/mapping',async (req, res) => {
+
+    console.log("get mapping nodo fisico "+req.params.idNode)
+
+    let nameProject = req.params.id
+    let virtualEntity = []
+    let response = new Object()
+
+    if(!global.modelNetwork)
+        return res.json(response.virtualEntity=[])
+
+    if(nameProject == global.modelNetwork.nameProject){
+        virtualEntity = await global.modelNetwork.getPhisicalMapping(req.params.idNode)
+    }
+   
+    return res.json(response.virtualEntity=virtualEntity)
+
+});
+
+app.post('/model/project/:id/node/:idNode/physical/mapping/virtual/:idNodeVirt',async (req, res) => {
+
+    console.log("post mapping nodo fisico virtuale "+req.params.idNode+" "+req.params.idNodeVirt)
+
+    let nameProject = req.params.id
+    let nameEntityPhysical = req.params.idNode
+    let nameEntityVirtual = req.params.idNodeVirt
+
+    if(!global.modelNetwork)
+        return res.json()
+
+    if(nameProject == global.modelNetwork.nameProject){
+        await global.modelNetwork.addMappingPhysicalVirual(nameEntityPhysical,nameEntityVirtual)
+    }
+   
+    return res.json()
+
+});
+
 app.delete('/model/project/:id/link/physical',async (req, res) => {
 
     let nameProject = req.params.id

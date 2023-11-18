@@ -102,6 +102,7 @@ export default function Network(props) {
     }
   
     setnodeName(clickedNodeId)
+    props.handleSetgwPhysical(clickedNodeId)
   };
 
   const onClickNode  = (nodeId,node) => {
@@ -196,7 +197,7 @@ export default function Network(props) {
 
         <ThemeProvider theme={theme}>
 
-        {open && typeNodeClicked == 'Gateway' && <FullScreenDialogConfigGW open={open} handleClose={handleClose} handleCloseAddGw = {props.handleCloseAddGw} nameEntity = {nodeName} modelNetwork={entityNetwork} setCreateOnlyGW = {props.setCreateOnlyGW} addListItem={addListItem} ></FullScreenDialogConfigGW> }
+        {open && typeNodeClicked == 'Gateway' && <FullScreenDialogConfigGW open={open} handleClose={handleClose} handleCloseAddGw = {props.handleCloseAddGw} nameEntity = {nodeName} entities={entities} setCreateOnlyGW = {props.setCreateOnlyGW} addListItem={addListItem} projectName = {projectName} entities={entities}></FullScreenDialogConfigGW> }
         {open && typeNodeClicked != 'Gateway' && <FullScreenDialogConfigST open={open} handleClose={handleClose} nameEntity = {nodeName} modelNetwork={entityNetwork}></FullScreenDialogConfigST> }
 
         </ThemeProvider> 

@@ -435,7 +435,7 @@ const Project: React.FC<Props> = (props) => {
                             <div>
                                 <Formik  initialValues={model.root} onSubmit={handleSubmit}>
                                 {(formik: FormikProps<Component>) => {
-                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} nameProject={name} setCreateOnlyGW={setCreateOnlyGW} setGwPhysical={setGwPhysical} handleSetgwPhysical={handleSetgwPhysical} newPhysicalEntity={newPhysicalEntity}  ></Network>                    
+                                    return <Network nameMachines={dataTables} form={formik} list={machs} actions={{onCreate: handleOpen, onDelete: handleDeleteEntity}} nameProject={name} setCreateOnlyGW={setCreateOnlyGW} handleSetgwPhysical={handleSetgwPhysical} newPhysicalEntity={newPhysicalEntity}  ></Network>                    
                                 }}
                                 </Formik>
                             </div>
@@ -452,8 +452,7 @@ const Project: React.FC<Props> = (props) => {
                                     onValidate={handleNewEntityCreate}
                                     onClose={handleClose}
                                     createOnlyGW = {createOnlyGW}
-                                    handleNewGw={handleNewGw}
-                                    setNewPhysicalEntity = {handleNewPhysicalEntity}
+                                    nameGwPhysical={gwPhysical}
                                 />
                             
                             )}

@@ -17,6 +17,7 @@ import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
 import { setIdNewNode } from 'clientModel/clientModel';
 import { addPhysicalEntity } from 'clientModel/clientModel';
+import { addPhysicalMapping } from 'clientModel/clientModel';
 
 interface Values {
     name: ParameterType;
@@ -54,17 +55,21 @@ const NewEntityDialog = (props: Props) => {
 
         if(props.createOnlyGW){
             onValidate(values.name.value, "Gateway");
+            await addPhysicalMapping(props.nameProject,props.nameGwPhysical,values.name.value)
         }
-        else
+        else{
             onValidate(values.name.value, values.type.value);
+            await addPhysicalEntity(props.nameProject,values.name.value,values.type.value)
+        }
 
 
         handleClose();
 
-
         await setIdNewNode(props.nameProject,values.name.value)
-        await addPhysicalEntity(props.nameProject,values.name.value,values.type.value)
-        props.setNewPhysicalEntity(values.name.value)
+
+
+
+
 
 
        
@@ -88,7 +93,6 @@ const NewEntityDialog = (props: Props) => {
                                     Please give a name and select the role of your machine!
                                 </DialogContentText>
                                 <Parameter parameter={formik.values.name} prefix="name" form={formik} actions={noActions} autosave={false} />
-
                                 {(!props.createOnlyGW && <Parameter parameter={formik.values.type} prefix="type" form={formik} actions={noActions} autosave={false} />                                )}
 
                             </DialogContent>
@@ -115,8 +119,7 @@ interface Props {
     onValidate: (entity: string, entityType: string) => void;
     onClose: () => void;
     createOnlyGW:any;
-    handleNewGw : any
-    setNewPhysicalEntity :any
+    nameGwPhysical:any
     
 }
 

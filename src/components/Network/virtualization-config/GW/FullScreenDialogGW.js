@@ -14,6 +14,8 @@ import CardContent from '@mui/material/CardContent';
 import ExpandedContent from './ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { inizializeModel } from 'clientModel/clientModel';
+import { getPhysicalMapping } from 'clientModel/clientModel';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -25,9 +27,6 @@ export default function FullScreenDialogConfigGW(props) {
   const nameEntity = props.nameEntity
   const [allGW, setAllGW] = React.useState([]);
   const [newEntity, setNewEntity] = React.useState(false);
-
-
-  let modelNetwork = props.modelNetwork
 
 
   const handleOnClickDelete = (toDelete) => {
@@ -47,14 +46,11 @@ export default function FullScreenDialogConfigGW(props) {
 
   React.useEffect(async ()  => {
 
-    props.handleSetgwPhysical(props.nameEntity)
-    await modelNetwork.loadXMLDefault(newEntity)
-    await modelNetwork.loadModel()
-
-    let virtualGWs = await modelNetwork.getPhisicalMapping(nameEntity)
+    await inizializeModel(props.projectName, props.entities)
+    let virtualGWs = await getPhysicalMapping(props.projectName,props.nameEntity)
     setAllGW(virtualGWs)
 
-  }, []);
+  }, [props.entities]);
 
 
   const ExpandedContents = allGW.map((title) => (

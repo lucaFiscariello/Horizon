@@ -43,6 +43,39 @@ export async function getPhysicalNode(nameProject){
 
 }
 
+export async function getPhysicalMapping(nameProject,nameEntity){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/node/"+nameEntity+"/physical/mapping",options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
+export async function addPhysicalMapping(nameProject,nameEntityPhysical,nameEntityVirt){
+
+  console.log("aggiungo  mapping : "+nameEntityPhysical+" "+nameEntityVirt )
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/node/"+nameEntityPhysical+"/physical/mapping/virtual/"+nameEntityVirt,options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
 export async function deletePhysicalNode(nameProject,nameEntity){
 
     const options_profile = {
