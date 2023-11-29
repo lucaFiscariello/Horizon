@@ -195,5 +195,29 @@ export async function addPhysicalEntity(nameProject,nameNode,typeNode){
 
 }
 
+export async function getSpots(nameProject,nameSat){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/node/"+nameSat+"/spots",options_profile)
+  const jsonData =  await response.json();
+
+  console.log(jsonData)
+
+  if(!jsonData)
+      return []
+
+
+  return jsonData
+ 
+
+}
+
 
 

@@ -96,8 +96,8 @@ function EnhancedTableHead(props) {
             </Tooltip>
         ) : (
             <Tooltip title="Add" style={{marginLeft:"0px"}}>
-            <IconButton>
-                    <AddCircleOutlineRounded></AddCircleOutlineRounded>
+            <IconButton onClick={props.handleOpensNewSpot}>
+                    <AddCircleOutlineRounded ></AddCircleOutlineRounded>
             </IconButton>
             </Tooltip>
         )}
@@ -197,6 +197,7 @@ export default function TableSpot() {
     [order, orderBy, page, rowsPerPage],
   );
 
+
   return (
     <Box >
       <Paper sx={{  mb: 2 }}>
@@ -264,6 +265,10 @@ export default function TableSpot() {
           </Table>
         </TableContainer>
       </Paper>
+
+
+
+
     </Box>
   );
 }

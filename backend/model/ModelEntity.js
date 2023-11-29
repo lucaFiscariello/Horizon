@@ -24,35 +24,11 @@ class ModelEntity {
                
     }
 
-    /**
-     * Carica i tre xml di un entità
-     */
-    async loadXML() {
-
-        const response_inf = await fetch(this.urlInfrastructure)
-        const jsonData_inf =  await response_inf.json();
-        
-        // Se la lettura dell'xml fallisce vuol dire che l'entità è appena stata creata. Pertanto è necessario creare gli xml di defaul
-        if(jsonData_inf.error){
-            await this.createXMLDefault()
-        }
-        else{
-            const result_inf =  await xml2js.parseStringPromise(jsonData_inf.content, { explicitArray: false });
-            this.infrastructure = result_inf
-
-            const response_pr = await fetch(this.urlProfile)
-            const jsonData_pr =  await response_pr.json();
-            const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
-            this.profile = result_pr
-        }
-
-    }
-
 
     /**
      * Crea gli xml di default per un entità. Questa funzione deve essere invocata appena viene creata una nuova entità.
      */
-    async createXMLDefault() {
+    async createEntity() {
         const urlInfrastructureDefault = this.urlTemplate+this.nameProject+"/template/infrastructure/Default.xml"
         let urlprofileDefault = ""
 
@@ -78,7 +54,26 @@ class ModelEntity {
         const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
         this.profile = result_pr
 
+        this.setType()
+
         await this.updateXml()
+
+    }
+
+    /**
+     * Carica i tre xml di un entità
+     */
+    async loadXML() {
+
+        const response_inf = await fetch(this.urlInfrastructure)
+        const jsonData_inf =  await response_inf.json();
+        const result_inf =  await xml2js.parseStringPromise(jsonData_inf.content, { explicitArray: false });
+        this.infrastructure = result_inf
+
+        const response_pr = await fetch(this.urlProfile)
+        const jsonData_pr =  await response_pr.json();
+        const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
+        this.profile = result_pr
 
     }
     
@@ -116,47 +111,6 @@ class ModelEntity {
 
     }
 
-
-    async setGatewayID(id){
-        this.infrastructure.model.root.entity.entity_gw.entity_id = id
-        await this.updateXml()
-    }
-
-    async setGatewayIP(ip){
-        this.infrastructure.model.root.entity.entity_gw.emu_address = ip
-        await this.updateXml()
-    }
-
-    async setGatewayMAC(mac){
-        this.infrastructure.model.root.entity.entity_gw.mac_address = mac
-        await this.updateXml()
-    }
-
-    async setTerminalID(id){
-        this.infrastructure.model.root.entity.entity_st.entity_id = id
-        await this.updateXml()
-    }
-
-    async setGatewayIP(ip){
-        this.infrastructure.model.root.entity.entity_st.emu_address = ip
-        await this.updateXml()
-    }
-
-    async setGatewayMAC(mac){
-        this.infrastructure.model.root.entity.entity_st.mac_address = mac
-        await this.updateXml()
-    }
-
-    async setSatelliteID(id){
-        this.infrastructure.model.root.entity.entity_sat.entity_id = id
-        await this.updateXml()
-    }
-
-    async setSatelliteIP(ip){
-        this.infrastructure.model.root.entity.entity_sat.emu_address = ip
-        await this.updateXml()
-    }
-
     getID(){
 
         switch(this.type){
@@ -172,7 +126,77 @@ class ModelEntity {
         }
     }
 
-    setID(id){
+    getIP(){
+
+        switch(this.type){
+            case "Satellite" :
+                return this.infrastructure.model.root.entity.entity_sat.emu_address
+
+            case "Gateway" :
+                return this.infrastructure.model.root.entity.entity_gw.emu_address
+
+            case "Terminal" :
+                return this.infrastructure.model.root.entity.entity_st.emu_address
+                
+        }
+    }
+
+    getMAC(){
+
+        switch(this.type){
+            case "Satellite" :
+                return this.infrastructure.model.root.entity.entity_sat.mac_address
+
+            case "Gateway" :
+                return this.infrastructure.model.root.entity.entity_gw.mac_address
+
+            case "Terminal" :
+                return this.infrastructure.model.root.entity.entity_st.mac_address
+                
+        }
+    }
+
+    async setIP(ip){
+
+        switch(this.type){
+            case "Satellite" :
+                this.infrastructure.model.root.entity.entity_sat.emu_address = ip
+                break;
+
+            case "Gateway" :
+                this.infrastructure.model.root.entity.entity_gw.emu_address = ip
+                break;
+
+            case "Terminal" :
+                this.infrastructure.model.root.entity.entity_st.emu_address = ip
+                break;
+        }
+
+        await this.updateXml()
+
+    }
+
+    async setMAC(mac){
+
+        switch(this.type){
+            case "Satellite" :
+                this.infrastructure.model.root.entity.entity_sat.mac_address = mac
+                break;
+
+            case "Gateway" :
+                this.infrastructure.model.root.entity.entity_gw.mac_address = mac
+                break;
+
+            case "Terminal" :
+                this.infrastructure.model.root.entity.entity_st.mac_address = mac
+                break;
+        }
+
+        await this.updateXml()
+
+    }
+
+    async setID(id){
 
         switch(this.type){
             case "Satellite" :
@@ -187,9 +211,149 @@ class ModelEntity {
                 this.infrastructure.model.root.entity.entity_st.entity_id = id
                 break;
         }
+
+        await this.updateXml()
+
+    }
+
+    async setType(){
+    
+        this.infrastructure.model.root.entity.entity_type = this.type
+        await this.updateXml()
+
+    }
+
+    async addEntity(type,ip,mac,id){
+
+        let entity = new Object()
+        let item = new Object()
+
+        entity.entity_id = id
+        entity.emu_adress = ip
+        entity.mac_adress = mac
+
+        item.item = entity
+
+
+        let entities
+        switch(type){
+            case "Satellite" :
+                entities = this.infrastructure.model.root.infrastructure.satellites
+                break;
+
+            case "Gateway" :
+                entities = this.infrastructure.model.root.infrastructure.gateways
+                break;
+
+            case "Terminal" :
+                entities = this.infrastructure.model.root.infrastructure.terminals
+                break;
+        }
+
+
+        if (entities == ''){
+            entities = item
+        } else if(!isIterable(entities.item)){
+            entities.item = [entities.item,entity]
+        }else{
+            entities.item = [...entities.item,entity]
+        }
+
+        
+        switch(type){
+            case "Satellite" :
+                this.infrastructure.model.root.infrastructure.satellites = entities
+                break;
+
+            case "Gateway" :
+                this.infrastructure.model.root.infrastructure.gateways = entities
+                break;
+
+            case "Terminal" :
+                this.infrastructure.model.root.infrastructure.terminals = entities
+                break;
+        }
+
+
+        this.updateXml()
+
+
+    }
+
+    async modifyEntity(type,ip,mac,id){
+
+        let entity = new Object()
+        let item = new Object()
+
+        entity.entity_id = id
+        entity.emu_adress = ip
+        entity.mac_adress = mac
+
+        item.item = entity
+
+
+        let entities
+        switch(type){
+            case "Satellite" :
+                entities = this.infrastructure.model.root.infrastructure.satellites
+                break;
+
+            case "Gateway" :
+                entities = this.infrastructure.model.root.infrastructure.gateways
+                break;
+
+            case "Terminal" :
+                entities = this.infrastructure.model.root.infrastructure.terminals
+                break;
+        }
+
+
+        if (entities == ''){
+            entities = item
+        } else if(!isIterable(entities.item)){
+
+            if(entities.item.entity_id == id){
+                entities.item = entity
+            }
+
+        }else{
+
+            for(let oldEntityId in entities.item){
+                if(entities.item[oldEntityId].entity_id==id)
+                    entities.item[oldEntityId]= entity
+            }
+        }
+
+        
+        switch(type){
+            case "Satellite" :
+                this.infrastructure.model.root.infrastructure.satellites = entities
+                break;
+
+            case "Gateway" :
+                this.infrastructure.model.root.infrastructure.gateways = entities
+                break;
+
+            case "Terminal" :
+                this.infrastructure.model.root.infrastructure.terminals = entities
+                break;
+        }
+
+
+        this.updateXml()
+
+
     }
     
+    
 }
+
+function isIterable(obj) {
+    if(obj)
+        return typeof obj[Symbol.iterator] === 'function';
+    
+    return false
+  }
 
 
 module.exports = ModelEntity

@@ -7,21 +7,49 @@ import { styled } from '@mui/material/styles';
 import "assets/css/styleDialog.css"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import TextField from '@mui/material/TextField';
 import { Stack } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SingleSpotCard from './SingleSpotCard';
+import { Dialog, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import AddSpotDialog from './DialogAddSPot';
+import { getSpots } from 'clientModel/clientModel';
 
 
 
 
 export default function ExpandedContent(props) {
   const [expanded, setExpanded] = React.useState(false);
+  const [openDialogSpot, setOpenDialogSpot] = React.useState(false);
+  const [allSpots, setAllSpots] = React.useState([]);
+
+
+  React.useEffect(async ()  => {
+
+    let spots = await getSpots(props.nameProject,"gw")
+    setAllSpots(spots)
+
+  }, []);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
+
+  const handleClose = React.useCallback(() => {
+    setOpenDialogSpot(false)
+
+  });
+
+  const handleOpen = React.useCallback(() => {
+    setOpenDialogSpot(true);
+
+  });
+
+  const handeSetNameSpot = React.useCallback((spotName) => {
+    setAllSpots([...allSpots,spotName])
+    handleClose()
+
+  });
 
 
   const ExpandMore = styled((props) => {
@@ -35,13 +63,14 @@ export default function ExpandedContent(props) {
     }),
   }));
 
-  const allSpots = ["Spot1", "Spot2","Spot3"]
-  const ExpandedSpots = allSpots.map((title) => (
-    <SingleSpotCard title={title} />
+  const spotName = "Spot"
+  const ExpandedSpots = allSpots.map((spot,index) => (
+    <SingleSpotCard title={spotName.concat(index)} />
   ));
 
   return (
 
+    <div>
     <Card className="section">
 
         <CardContent>
@@ -78,7 +107,7 @@ export default function ExpandedContent(props) {
                     <Typography variant="h7" component="div">
                         Spot
                     </Typography>
-                    <IconButton >
+                    <IconButton onClick={handleOpen}>
                         <AddCircleOutlineIcon />
                     </IconButton>
               
@@ -87,12 +116,18 @@ export default function ExpandedContent(props) {
                 {ExpandedSpots}
 
 
+                <AddSpotDialog open={openDialogSpot} handleClose={handleClose} handeSetNameSpot={handeSetNameSpot}></AddSpotDialog>
             </Collapse>
 
         </CardContent>
 
+
         
       </Card>
+
+
+      </div>
     
   );
 }
+

@@ -54,7 +54,7 @@ export default function FullScreenDialogConfigGW(props) {
 
 
   const ExpandedContents = allGW.map((title) => (
-    <ExpandedContent title={title} handleDelete = {handleOnClickDelete}  />
+    <ExpandedContent title={title} handleDelete = {handleOnClickDelete} nameProject={props.projectName}  />
   ));
 
 

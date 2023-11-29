@@ -8,6 +8,7 @@ import "assets/css/styleDialog.css"
 import DeleteIcon from '@mui/icons-material/Delete';
 import TableSpot from './Table';
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
+import AlertDialog from './DialogAddSPot';
 
 
 
@@ -62,6 +63,7 @@ export default function SingleSpotCard(props) {
 
 
             </div>
+
 
    
     
