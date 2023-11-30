@@ -241,11 +241,10 @@ app.get('/test',async (req, res) => {
     //await model.addEntity("Satellite","127.0.0.2","00:00:00:00:00:02",9)
 
 
-    //await network.createXMLDefault()
-    //await network.loadXMLDefault()
+    await network.createXMLDefault()
+    await network.loadXMLDefault()
     await network.loadModel()
-
-    /*
+    
     await network.addEntity("gw","Gateway")
     await network.addEntity("gw2","Gateway")
     await network.addEntity("st","Terminal")
@@ -261,6 +260,7 @@ app.get('/test',async (req, res) => {
 
     gw = network.entitiesByName["gw"]
     sat = network.entitiesByName["sat"]
+    st = network.entitiesByName["st"]
 
     entity.name = gw.nameEntity
     entity.type = gw.type
@@ -276,15 +276,22 @@ app.get('/test',async (req, res) => {
     await network.addPhysicalEntity(entitysat)
     await network.addMappingPhysicalVirual("gw","gw2")
     await network.addPhysicalConnection(sat.getID(),gw.getID())
+    await network.addPhysicalConnection(st.getID(),gw.getID())
 
-    */
-   
+
     gw = network.entitiesByName["gw"]
     sat = network.entitiesByName["sat"]
     st = network.entitiesByName["st"]
 
     await network.addSpot("Transparent","Transparent",gw.getID(),sat.getID(),gw.getID())
     await network.addRoute(gw.getID(), st.getID(),gw.getID())
+
+    //await network.deletePhysicalLink("gw","gw2")
+    //await network.deleteAllPhysicalLinkEntity("gw")
+    //await network.deletePhysicalEntity(gw.nameEntity)
+
+    //await network.removeRoute(gw.nameEntity, st.nameEntity)
+    //await network.removeSpot(gw.nameEntity,sat.nameEntity)
 
     let entities = await network.getEntities()
     let link =  network.getLinksPhysical()
@@ -299,8 +306,6 @@ app.get('/test',async (req, res) => {
     console.log(mapping)
     console.log(spot)
     console.log(route)
-
-
 
 
     /*

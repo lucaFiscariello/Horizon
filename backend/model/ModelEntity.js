@@ -344,6 +344,68 @@ class ModelEntity {
 
 
     }
+
+    async deleteEntity(id,type){
+
+        let entities
+        switch(type){
+            case "Satellite" :
+                entities = this.infrastructure.model.root.infrastructure.satellites
+                break;
+
+            case "Gateway" :
+                entities = this.infrastructure.model.root.infrastructure.gateways
+                break;
+
+            case "Terminal" :
+                entities = this.infrastructure.model.root.infrastructure.terminals
+                break;
+        }
+
+
+        if (entities == ''){
+            return
+        } else if(!isIterable(entities.item)){
+
+            if(entities.item.entity_id == id){
+                entities = ''
+            }
+
+        }else{
+
+
+            let i
+            for(i in entities.item){
+                if(entities.item[i].entity_id == id){
+                    break;
+                }
+
+            }
+            
+            entities.item.splice(i, 1);            
+            
+        }
+
+        
+        switch(type){
+            case "Satellite" :
+                this.infrastructure.model.root.infrastructure.satellites = entities
+                break;
+
+            case "Gateway" :
+                this.infrastructure.model.root.infrastructure.gateways = entities
+                break;
+
+            case "Terminal" :
+                this.infrastructure.model.root.infrastructure.terminals = entities
+                break;
+        }
+
+
+        this.updateXml()
+
+
+    }
     
     
 }

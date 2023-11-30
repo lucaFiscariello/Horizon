@@ -39,7 +39,7 @@ class ModelNetwork {
 
         const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
         this.topology = result
-
+        this.topology.model.root.frequency_plan.spots.item.assignments.gateway_id = -1
         await this.updateXml()
 
     }
@@ -221,7 +221,6 @@ class ModelNetwork {
         }
     }
 
-
     async addPhysicalEntity(entity){
         let item = new Object();
         item.entity = entity
@@ -277,62 +276,6 @@ class ModelNetwork {
 
         await this.updateXml()
 
-    }
-
-    async deletePhysicalEntity(name){
-        
-        if(!this.topology.model.root.physicalEntities)
-            return 
-
-        if(!isIterable(this.topology.model.root.physicalEntities)){
-            this.topology.model.root.physicalEntities = null
-        } else{
-
-            let i
-            let allItems = this.topology.model.root.physicalEntities
-            for(i in allItems){
-                if(allItems[i].name == name){
-                    break;
-                }
-
-            }
-            
-            allItems.splice(i, 1);
-            this.topology.model.root.physicalEntities = allItems
-
-        }
-
-
-        await this.updateXml()
-    }
-
-    async deletePhysicalLink(source,target){
-        
-        console.log("eliminazione link fisici: "+source+" "+target)
-
-        if(!this.topology.model.root.physicaConnection)
-            return 
-
-        if(!isIterable(this.topology.model.root.physicaConnection)){
-            this.topology.model.root.physicaConnection = null
-        } else{
-
-            let i
-            let allItems = this.topology.model.root.physicaConnection
-            for(i in allItems){
-                if((allItems[i].source == source && allItems[i].target== target) || (allItems[i].source == target && allItems[i].source== target)){
-                    break;
-                }
-
-            }
-            
-            allItems.splice(i, 1);
-            this.topology.model.root.physicaConnection = allItems
-
-        }
-
-
-        await this.updateXml()
     }
 
     async addPhysicalConnection(source, destination){
@@ -392,7 +335,6 @@ class ModelNetwork {
 
 
     }
-
 
 
     getSpots() {
@@ -508,9 +450,6 @@ class ModelNetwork {
         return nodes
     }
 
-
-
-
     getIDByListType(nameEntities,type){
         
         for(let name of  nameEntities){
@@ -540,9 +479,10 @@ class ModelNetwork {
         templateSpot.assignments.sat_id_gw = sat_id_gw
         templateSpot.assignments.sat_id_st = sat_id_st
 
+            
         if(isIterable(allSpots))
             allSpots = [...allSpots,templateSpot]
-        else if (allSpots.assignments.sat_id_gw == -1)
+        else if (allSpots.assignments.gateway_id == -1)
             allSpots = templateSpot
         else
             allSpots = [allSpots,templateSpot]
@@ -554,31 +494,164 @@ class ModelNetwork {
     async addRoute(idGatewayDefault, terminalId, gatewayId ){
        
         let item = new Object();
+        let route = new Object();
+
         let allItems = this.topology.model.root.st_assignment.assignments.item
-        item.terminal_id = terminalId
-        item.gateway_id = gatewayId
+        route.terminal_id = terminalId
+        route.gateway_id = gatewayId
+        item.item = route
 
+        console.log(this.topology.model.root.st_assignment)
 
-        if(!allItems)
+        if(this.topology.model.root.st_assignment.assignments == '')
             this.topology.model.root.st_assignment.assignments = item
-        else if(isIterable(allItems))
+        else if(isIterable(allItems)){
             allItems = [...allItems,item]
-        else
+            this.topology.model.root.st_assignment.assignments.item = allItems
+        }
+        else{
             allItems = [allItems,item]
+            this.topology.model.root.st_assignment.assignments.item = allItems
+        }
 
 
         this.topology.model.root.st_assignment.defaults.default_gateway=idGatewayDefault
-        this.topology.model.root.st_assignment.assignments.item = allItems
         await this.updateXml()
     }
 
+    async deleteEntity(nameEntity){
+     
+        let entityToDelete = this.entitiesByName[nameEntity]
+
+        if(entityToDelete.type == "Gateway")
+            this.removeAllRouteByGW(nameEntity)
+
+        for(let entityInfo of this.machines){
+            let entity = this.entitiesByName[entityInfo.entity_name]
+            await entity.deleteEntity(entityToDelete.getID(),entityToDelete.type)
+        }
+            
+    }
+
+    /**
+     * La rimozione di un entità fisica comporta l'eliminazione delle entità virtuali ad esse associate.
+     * Comporta anche la rimozine di tutti i link fisici.
+     */
+    async deletePhysicalEntity(name){
+        
+        if(!this.topology.model.root.physicalEntities)
+            return 
+
+        await this.deleteAllPhysicalLinkEntity(name)
+
+        if(!isIterable(this.topology.model.root.physicalEntities)){
+
+            for(let virtualEntityname of this.topology.model.root.physicalEntities.entity.mapping){
+                await this.deleteEntity(virtualEntityname)
+            }
+
+            this.topology.model.root.physicalEntities = null
+
+
+        } else{
+
+            let i
+            let allItems = this.topology.model.root.physicalEntities
+
+            for(i in allItems){
+                if(allItems[i].entity.name == name){
+
+                    for(let virtualEntityname of allItems[i].entity.mapping){
+                        await this.deleteEntity(virtualEntityname)
+                    }
+
+                    break;
+                }
+
+            }
+            
+            allItems.splice(i, 1);
+            this.topology.model.root.physicalEntities = allItems
+
+        }
+
+
+        await this.updateXml()
+    }
+
+    async deletePhysicalLink(source,target){
+        
+        if(!this.topology.model.root.physicaConnection)
+            return 
+
+        if(!isIterable(this.topology.model.root.physicaConnection)){
+            this.topology.model.root.physicaConnection = null
+        } else{
+
+            let i
+            let allItems = this.topology.model.root.physicaConnection
+            for(i in allItems){
+                if((allItems[i].source == source && allItems[i].target== target) || (allItems[i].source == target && allItems[i].source== target)){
+                    break;
+                }
+
+            }
+            
+            allItems.splice(i, 1);
+            this.topology.model.root.physicaConnection = allItems
+
+        }
+
+
+        await this.updateXml()
+    }
+
+    /**
+     * Rimuove tutti i link fisici associati a un entità. Questa funzionalità deve essere
+     * invocata quando un entità fisica viene rimossa.
+     */
+    async deleteAllPhysicalLinkEntity(name){
+        
+        if(!this.topology.model.root.physicalEntities)
+            return 
+
+        if(!isIterable(this.topology.model.root.physicalEntities)){
+
+            for(let virtualEntityname of this.topology.model.root.physicalEntities.entity.mapping){
+                await this.deletePhysicalLink(virtualEntityname,name)
+            }
+
+            this.topology.model.root.physicalEntities = null
+        } else{
+
+            let i
+            let allItems = this.topology.model.root.physicalEntities
+
+            for(i in allItems){
+                if(allItems[i].entity.name == name){
+
+                    for(let virtualEntityname of allItems[i].entity.mapping){
+                        await this.deletePhysicalLink(virtualEntityname,name)
+                    }
+
+                    break;
+                }
+
+            }
+    
+        }
+
+
+        await this.updateXml()
+
+    }
 
     async removeRoute(entitySource, entityTarget){
 
         let entity = this.entitiesByName[entitySource]
         let st
 
-        if(entity.type == "Satellite"){
+        if(entity.type == "Gateway"){
             st = this.entitiesByName[entityTarget]
         }else if (entity.type == "Terminal"){
             st = entity
@@ -589,9 +662,7 @@ class ModelNetwork {
         let allItems = this.topology.model.root.st_assignment.assignments.item
 
         if(!isIterable(allItems)){
-            allItems.terminal_id = -1
-            allItems.gateway_id = -1
-            this.topology.model.root.st_assignment.assignments.item = allItems
+            this.topology.model.root.st_assignment.assignments = ""
         } else{
 
             let i
@@ -610,6 +681,9 @@ class ModelNetwork {
         await this.updateXml()
     }
 
+    /**
+     * La rimozione di uno spot comporta la rimozione di tutte le rotte associate
+     */
     async removeSpot(entitySource, entityTarget){
 
         let entity = this.entitiesByName[entitySource]
@@ -659,17 +733,21 @@ class ModelNetwork {
 
     }
 
+    /**
+     * Rimuove tutte le rotte associate a un gateway. Questa funzionalità deve essere
+     * invocata quando si elimina uno spot oppure quando si elimina un gateway fisico o viertuale
+     */
     async removeAllRouteByGW(nameGW){
 
         let entity = this.entitiesByName[nameGW]
         let allItems = this.topology.model.root.st_assignment.assignments.item
 
+        if(this.topology.model.root.st_assignment.assignments == "")
+            return 
+
         if(!isIterable(allItems) && allItems.gateway_id == entity.getID()){
 
-            allItems.gateway_id = -1
-            allItems.terminal_id= -1
-
-            this.topology.model.root.st_assignment.assignments.item = allItems
+            this.topology.model.root.st_assignment.assignments = ""
             await this.updateXml()
 
         } else{
@@ -691,24 +769,14 @@ class ModelNetwork {
 
     }
 
+
     /**
-     * Questa funzionalità permette di assegnare un nuovo id automaticamente alla creazione di una nuova entità.
-     * L'assegnazione automatica degli id evita che vengano gestiti direttamente dal'utente.
-     */ 
-    async addNewEntityId(name_new_entity){
-
-        let new_entity = this.entitiesByName[name_new_entity]
-        this.maxId = parseInt(this.maxId)+1
-        let new_id = this.maxId
-
-        new_entity.setID(new_id)
-        this.entities[new_id] = new_entity
-        this.entitiesByName[name_new_entity] = new_entity
-
-        await new_entity.updateXml()
-
+     * Rimuove tutti gli spot associati a un gw o a un satellite
+     */
+    async removeAllSpotEntity(name_entity){
+        let allItems = this.topology.model.root.frequency_plan.spots.item
+        console.log(allItems)
     }
-
 
     async updateXml(){
 
