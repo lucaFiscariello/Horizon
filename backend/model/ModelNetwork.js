@@ -24,7 +24,7 @@ class ModelNetwork {
         this.maxId = 0         
     }
 
-        /**
+    /**
      * Crea gli xml di default per la topologia. Questa funzione deve essere invocata appena viene creata una nuova rete.
      */
     async createXMLDefault() {
@@ -103,18 +103,27 @@ class ModelNetwork {
      * Funzione che carica i file di configurazione di tutte le entità della rete 
      */
     async loadModel() {
-    
-        //Carico topologia
-        let response = await fetch(this.urlTopology)
-        let jsonData =  await response.json();
-        let result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
-        this.topology = result
 
         //carico progetto
-        response = await fetch(this.urlProject)
+        let response = await fetch(this.urlProject)
+        let jsonData =  await response.json();
+        let result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
+        this.profile = result
+
+        
+        // Se ancora non è stata creato il topology.xml , carico quello di default
+        if(!this.profile.model.root.configuration.topology__template){
+            await this.createXMLDefault()
+            await this.loadXMLDefault()
+        }
+
+
+        //Carico topologia
+        response = await fetch(this.urlTopology)
         jsonData =  await response.json();
         result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
-        this.profile = result
+        this.topology = result
+
 
         this.machines = this.getEntities()
 
@@ -144,6 +153,10 @@ class ModelNetwork {
     }
 
 
+    /**
+     * Aggiunge una nuova entità alla rete. L'aggiunta di una nuova entità comporta la modifica
+     * del file project.xml
+     */
     async addEntity(name,type) {
         
         await this.loadModel()
@@ -195,6 +208,10 @@ class ModelNetwork {
         return []
     }
 
+    /**
+     * La configurazione di un entità comporta la l'aggiunta delle informazioni associate a quella
+     * entità in tutti gli infrastructure.xml degli altri file.
+     */
     async configureEntity(nameEntity,ip,mac){
      
         let entity = this.entitiesByName[nameEntity]
@@ -519,12 +536,19 @@ class ModelNetwork {
         await this.updateXml()
     }
 
+    /**
+     * L'eliminazione di un entità comporta l'eliminazione di tutti gli spot e di tutte le rotte associate
+     * a tale entità.
+    */
     async deleteEntity(nameEntity){
      
         let entityToDelete = this.entitiesByName[nameEntity]
 
-        if(entityToDelete.type == "Gateway")
-            this.removeAllRouteByGW(nameEntity)
+        if(entityToDelete.type == "Gateway" || entityToDelete.type == "Terminal" )
+            this.removeAllRouteByEntity(nameEntity)
+
+        if(entityToDelete.type == "Gateway" || entityToDelete.type == "Satellite")
+            this.removeAllSpotEntity(nameEntity)
 
         for(let entityInfo of this.machines){
             let entity = this.entitiesByName[entityInfo.entity_name]
@@ -728,7 +752,7 @@ class ModelNetwork {
         }
 
         await this.updateXml()
-        await this.removeAllRouteByGW(gw_name)
+        await this.removeAllRouteByEntity(gw_name)
 
 
     }
@@ -737,25 +761,25 @@ class ModelNetwork {
      * Rimuove tutte le rotte associate a un gateway. Questa funzionalità deve essere
      * invocata quando si elimina uno spot oppure quando si elimina un gateway fisico o viertuale
      */
-    async removeAllRouteByGW(nameGW){
+    async removeAllRouteByEntity(name){
 
-        let entity = this.entitiesByName[nameGW]
+        let entity = this.entitiesByName[name]
         let allItems = this.topology.model.root.st_assignment.assignments.item
 
         if(this.topology.model.root.st_assignment.assignments == "")
             return 
 
-        if(!isIterable(allItems) && allItems.gateway_id == entity.getID()){
+        if(!isIterable(allItems) && (allItems.gateway_id == entity.getID() || allItems.terminal_id == entity.getID() )){
 
             this.topology.model.root.st_assignment.assignments = ""
             await this.updateXml()
 
         } else{
 
-            let i
-            for(i in allItems){
-                if(allItems[i].gateway_id == entity.getID() ){
+            for(let i=0; i< allItems.length ; i++){
+                if(allItems[i].gateway_id == entity.getID() || allItems[i].terminal_id == entity.getID() ){
                     allItems.splice(i, 1);
+                    i = i-1
                 }
 
             }
@@ -769,13 +793,38 @@ class ModelNetwork {
 
     }
 
-
     /**
-     * Rimuove tutti gli spot associati a un gw o a un satellite
+     * Rimuove tutti gli spot associati a un gw o a un satellite. Deve essere invocata quando
+     * viene eliminato un gateway o un satellite.
      */
     async removeAllSpotEntity(name_entity){
         let allItems = this.topology.model.root.frequency_plan.spots.item
-        console.log(allItems)
+        let entity = this.entitiesByName[name_entity]
+
+        if(!isIterable(allItems)){
+            allItems = [allItems]
+        }
+
+       
+        for( let idSpot = 0 ; idSpot < allItems.length; idSpot++ ){
+
+            if(allItems[idSpot].assignments.gateway_id == entity.getID() || allItems[idSpot].assignments.sat_id_gw == entity.getID()){
+                 
+                // Non cancello l'ultimo spot, assegno un id di gateway non valido
+                if(allItems.length == 1){
+                    allItems[idSpot].assignments.gateway_id = -1
+                    break;
+                }
+
+                allItems.splice(idSpot, 1);   
+                idSpot =  idSpot-1          
+            }
+
+        }
+        
+
+        this.topology.model.root.frequency_plan.spots.item = allItems
+        this.updateXml()
     }
 
     async updateXml(){
