@@ -22,6 +22,10 @@
 
 // Chakra imports
 import { Box, Grid } from "@chakra-ui/react";
+import { configureEntity } from "clientModel/clientModel";
+import { addPhysicalEntity } from "clientModel/clientModel";
+import { modifyEntity } from "clientModel/clientModel";
+import { addEntity } from "clientModel/clientModel";
 import CreateProjectButton from "opensand/Model/CreateProjectButton.tsx";
 
 // Custom components
@@ -60,6 +64,18 @@ export default function Overview() {
         
       </Grid>
       <CreateProjectButton></CreateProjectButton>
+      <button onClick={async () => {
+
+        await addEntity("test","sat","Satellite")
+        await configureEntity("test","sat","127.0.0.1","00:00:00:00:00:01")
+        await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
+
+
+        await addPhysicalEntity("test","gw","Gateway")
+        await configureEntity("test","gw","130.0.0.1","00:00:00:00:00:01")
+
+
+        }} >  test </button>
     </Box>
   );
 }

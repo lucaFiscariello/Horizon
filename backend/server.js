@@ -1,5 +1,6 @@
 const express = require('express');
-const ModelNetwork = require("./model/ModelNetwork")
+const ModelNetwork = require("./model/ModelNetwork");
+const { mode } = require('@chakra-ui/theme-tools');
 const app = express();
 const port = 3004; 
 
@@ -9,19 +10,61 @@ global.modelNetwork ;
 // Middleware per il parsing del corpo delle richieste in formato JSON
 app.use(express.json());
 
-app.post('/model/project/:id/inizialize',async (req, res) => {
+app.post('/model/project/:id/entity',async (req, res) => {
 
-    global.modelNetwork = new ModelNetwork(req.params.id)
-    await global.modelNetwork.loadModel()
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.addEntity(req.body.nameEntity,req.body.type)
     
-    return res.json(global.modelNetwork)
+    return res.json(modelNetwork)
+
+});
+
+app.post('/model/project/:id/entity/:nameEntity/configure',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.configureEntity( req.params.nameEntity,req.body.ip,req.body.mac)
+    
+    return res.json(modelNetwork)
+
+});
+
+app.post('/model/project/:id/entity/:nameEntity/modify',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.modifyEntity( req.params.nameEntity,req.body.ip,req.body.mac)
+    
+    return res.json(modelNetwork)
+
+});
+
+app.post('/model/project/:id/entity/physical',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    let entity = new Object()
+
+    await modelNetwork.loadModel()
+    await modelNetwork.addEntity(req.body.name,req.body.type)
+    
+    entity.name = req.body.name
+    entity.type = req.body.type
+    entity.id = modelNetwork.entitiesByName[req.body.name].getID()
+    entity.mapping = [req.body.name]
+
+    await modelNetwork.addPhysicalEntity(entity)
+    return res.json(modelNetwork)
 
 });
 
 
 
-app.get('/model/project/:id/node/physical',async (req, res) => {
 
+
+
+
+app.get('/model/project/:id/entity/physical',async (req, res) => {
 
     let nameProject = req.params.id
     let response = new Object()

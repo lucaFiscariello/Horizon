@@ -1,5 +1,94 @@
 import sat from 'assets/img/opensand/sat.png'
 
+
+
+export async function addEntity(project,nameEntity,type){
+
+  let body = new Object()
+  body.nameEntity = nameEntity
+  body.type = type
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body:JSON.stringify(body)
+  };
+
+  let response = await fetch("/model/project/"+project+"/entity",options_profile)
+  return response;
+
+}
+
+export async function configureEntity(project,nameEntity,ip,mac){
+
+  let body = new Object()
+  body.ip = ip
+  body.mac = mac
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body:JSON.stringify(body)
+  };
+
+  let response = await fetch("/model/project/"+project+"/entity/"+nameEntity+"/configure",options_profile)
+  return response;
+
+}
+
+export async function modifyEntity(project,nameEntity,ip,mac){
+
+  let body = new Object()
+  body.ip = ip
+  body.mac = mac
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body:JSON.stringify(body)
+  };
+
+  let response = await fetch("/model/project/"+project+"/entity/"+nameEntity+"/modify",options_profile)
+  return response;
+
+}
+
+export async function addPhysicalEntity(nameProject,nameNode,typeNode){
+
+  let body = new Object()
+
+  body.name = nameNode
+  body.type = typeNode
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body:JSON.stringify(body)
+
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/entity/physical",options_profile)
+  const jsonData =  await response.json();
+  return jsonData
+
+}
+
+
+
+
+
 export async function inizializeModel(name, entities){
 
     let body = new Object()
@@ -173,27 +262,6 @@ export async function setIdNewNode(nameProject,nameNode){
 
 }
 
-export async function addPhysicalEntity(nameProject,nameNode,typeNode){
-
-    let body = new Object()
-    body.name = nameNode
-    body.type = typeNode
-
-    const options_profile = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "Accept": "application/json",
-      },
-      body:JSON.stringify(body)
-
-    };
-
-    let response = await fetch("/model/project/"+nameProject+"/node/"+nameNode+"/physical",options_profile)
-    const jsonData =  await response.json();
-    return jsonData
-
-}
 
 export async function getSpots(nameProject,nameSat){
 

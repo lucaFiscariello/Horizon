@@ -21,7 +21,7 @@ class ModelNetwork {
 
         this.entities = {} 
         this.entitiesByName = {}
-        this.maxId = 0         
+        this.maxId = 1        
     }
 
     /**
@@ -131,7 +131,7 @@ class ModelNetwork {
         for (let entity of this.machines){
 
             if(entity){
-
+                
                 let entityname = entity.entity_name
                 let entityModel = new ModelEntity(entityname,this.nameProject,entity.entity_type)
                 
@@ -179,21 +179,21 @@ class ModelNetwork {
         }
 
         this.profile.model.root.platform.machines = machines
-        this.updateXml()
+        await this.updateXml()
 
         // creo xml di deafult per la nuova entità
         let newEntity = new ModelEntity(name,this.nameProject,type)
         await newEntity.createEntity()
         await newEntity.loadXML()
 
+        //Aggiorno id massimo 
+        this.maxId = Number(this.maxId) + 1
+
         // aggiorna variabili di istanza
         await newEntity.setID(this.maxId)   
         this.entities[this.maxId] = newEntity
         this.entitiesByName[name] = newEntity
         this.machines = this.getEntities()
-
-        //Aggiorno id massimo 
-        this.maxId = this.maxId +1
 
     }
 
@@ -219,9 +219,14 @@ class ModelNetwork {
         await entity.setMAC(mac)
 
 
+        // Aggiorno infrastructure xml di tutte le entità
         for(let entityInfo of this.machines){
             let oldEntity = this.entitiesByName[entityInfo.entity_name]
+
             await oldEntity.addEntity(entity.type, entity.getIP(), entity.getMAC(), entity.getID())
+
+            if(entity.getID() != oldEntity.getID())
+                await entity.addEntity(oldEntity.type, oldEntity.getIP(), oldEntity.getMAC(),oldEntity.getID())
         }
             
     }
