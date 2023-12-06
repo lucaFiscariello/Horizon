@@ -24,6 +24,14 @@
 import { Box, Grid } from "@chakra-ui/react";
 import { configureEntity } from "clientModel/clientModel";
 import { addPhysicalEntity } from "clientModel/clientModel";
+import { addPhysicalMapping } from "clientModel/clientModel";
+import { addRoute } from "clientModel/clientModel";
+import { getPhysicalLinks } from "clientModel/clientModel";
+import { getPhysicalMapping } from "clientModel/clientModel";
+import { getAllVirtualNode } from "clientModel/clientModel";
+import { getPhysicalNode } from "clientModel/clientModel";
+import { addSpot } from "clientModel/clientModel";
+import { addPhysicalLink } from "clientModel/clientModel";
 import { modifyEntity } from "clientModel/clientModel";
 import { addEntity } from "clientModel/clientModel";
 import CreateProjectButton from "opensand/Model/CreateProjectButton.tsx";
@@ -66,14 +74,33 @@ export default function Overview() {
       <CreateProjectButton></CreateProjectButton>
       <button onClick={async () => {
 
-        await addEntity("test","sat","Satellite")
-        await configureEntity("test","sat","127.0.0.1","00:00:00:00:00:01")
-        await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
+        //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
-
+        /** 
         await addPhysicalEntity("test","gw","Gateway")
         await configureEntity("test","gw","130.0.0.1","00:00:00:00:00:01")
 
+        await addPhysicalEntity("test","sat","Satellite")
+        await configureEntity("test","sat","130.0.0.2","00:00:00:00:00:02")
+
+        await addPhysicalEntity("test","st","Terminal")
+        await configureEntity("test","st","130.0.0.4","00:00:00:00:00:04")
+
+        await addEntity("test","gw2","Gateway")
+        await configureEntity("test","gw2","130.0.0.3","00:00:00:00:00:03")
+        await addPhysicalMapping("test","gw","gw2")
+
+        await addPhysicalLink("test","gw","sat")
+        await addSpot("test","Transparent","Transparent","sat","gw")
+        await addRoute("test","gw","st")
+
+        */
+        let node = await getPhysicalNode("test")
+        let link = await getPhysicalLinks("test")
+        let entities = await getAllVirtualNode("test")
+        let mapping = await getPhysicalMapping("test","gw")
+        
+        console.log(mapping)
 
         }} >  test </button>
     </Box>

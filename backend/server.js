@@ -42,41 +42,102 @@ app.post('/model/project/:id/entity/:nameEntity/modify',async (req, res) => {
 
 app.post('/model/project/:id/entity/physical',async (req, res) => {
 
-    let modelNetwork = new ModelNetwork(req.params.id)
+    let network = new ModelNetwork(req.params.id)
+    let createdEntity;
     let entity = new Object()
 
-    await modelNetwork.loadModel()
-    await modelNetwork.addEntity(req.body.name,req.body.type)
-    
-    entity.name = req.body.name
-    entity.type = req.body.type
-    entity.id = modelNetwork.entitiesByName[req.body.name].getID()
-    entity.mapping = [req.body.name]
+    await network.loadModel()
+    await network.addEntity(req.body.name,req.body.type)
+ 
+    createdEntity = network.entitiesByName[req.body.name]
 
-    await modelNetwork.addPhysicalEntity(entity)
+    entity.name = createdEntity.nameEntity
+    entity.type = createdEntity.type
+    entity.id = createdEntity.getID()
+    entity.mapping = [createdEntity.nameEntity]
+
+
+    await network.addPhysicalEntity(entity)
+    
+    return res.json()
+
+});
+
+app.post('/model/project/:id/entity/physical/:idNode/mapping/virtual/:idNodeVirt',async (req, res) => {
+
+    let nameProject = req.params.id
+    let nameEntityPhysical = req.params.idNode
+    let nameEntityVirtual = req.params.idNodeVirt
+
+    let modelNetwork = new ModelNetwork(nameProject)
+    await modelNetwork.loadModel()
+    await modelNetwork.addMappingPhysicalVirual(nameEntityPhysical,nameEntityVirtual)
+
     return res.json(modelNetwork)
 
 });
 
+app.post('/model/project/:id/link/physical',async (req, res) => {
 
+    let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject)
+    await modelNetwork.loadModel()
 
+    let idSource = modelNetwork.entitiesByName[req.body.source].getID()
+    let idTarget = modelNetwork.entitiesByName[req.body.target].getID()
 
+    await modelNetwork.addPhysicalConnection(idSource,idTarget)
+    
+   
+    return res.json()
 
+});
 
+app.post('/model/project/:id/spot',async (req, res) => {
+
+    let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject)
+    await modelNetwork.loadModel()
+    
+    let f_regen = req.body.f_regen
+    let r_regen = req.body.r_regen
+    let idGW = modelNetwork.entitiesByName[req.body.idGW].getID()
+    let idSat = modelNetwork.entitiesByName[req.body.idSat].getID()
+    
+    await modelNetwork.addSpot(f_regen,r_regen,idGW,idSat,idSat)
+    
+   
+    return res.json()
+
+});
+
+app.post('/model/project/:id/route',async (req, res) => {
+
+    let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject)
+    await modelNetwork.loadModel()
+    
+    let idGW = modelNetwork.entitiesByName[req.body.idGW].getID()
+    let idSt = modelNetwork.entitiesByName[req.body.idSt].getID()
+    
+    await modelNetwork.addRoute(idGW, idSt, idGW)
+    
+   
+    return res.json()
+
+});
 
 app.get('/model/project/:id/entity/physical',async (req, res) => {
 
     let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject) 
     let response = new Object()
 
-    if(!global.modelNetwork)
-        return res.json()
+    await modelNetwork.loadModel()
 
-    if(nameProject == global.modelNetwork.nameProject){
-        physicalNodes = global.modelNetwork.getNodesPhysical()
-        response.physicalNodes = physicalNodes
-    }
-   
+    let physicalNodes = modelNetwork.getNodesPhysical()
+    response.physicalNodes = physicalNodes
+    
     return res.json(response)
 
 });
@@ -84,19 +145,51 @@ app.get('/model/project/:id/entity/physical',async (req, res) => {
 app.get('/model/project/:id/link/physical',async (req, res) => {
 
     let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject) 
     let response = new Object()
 
-    if(!global.modelNetwork)
-        return res.json()
+    await modelNetwork.loadModel()
 
-    if(nameProject == global.modelNetwork.nameProject){
-        physicaLinks = global.modelNetwork.getLinksPhysical()
-        response.physicaLinks = physicaLinks
-    }
-   
+    let physicaLinks = modelNetwork.getLinksPhysical()
+    response.physicaLinks = physicaLinks
+       
     return res.json(response)
 
 });
+
+app.get('/model/project/:id/entity',async (req, res) => {
+
+    let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject) 
+    let response = new Object()
+
+    await modelNetwork.loadModel()
+
+    let entities = await modelNetwork.getEntities()
+    response.entities = entities
+    
+    return res.json(response)
+
+});
+
+app.get('/model/project/:id/entity/:idNode/physical/mapping',async (req, res) => {
+
+    let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject) 
+    let response = new Object()
+    let virtualEntity = []
+
+    await modelNetwork.loadModel()
+
+    virtualEntity = await modelNetwork.getPhisicalMapping(req.params.idNode)
+    
+   
+    return res.json(response.virtualEntity=virtualEntity)
+
+});
+
+
+
 
 app.delete('/model/project/:id/node/:idNode/physical',async (req, res) => {
 
@@ -113,85 +206,12 @@ app.delete('/model/project/:id/node/:idNode/physical',async (req, res) => {
 
 });
 
-app.get('/model/project/:id/node/:idNode/physical/mapping',async (req, res) => {
-
-    let nameProject = req.params.id
-    let virtualEntity = []
-    let response = new Object()
-
-    if(!global.modelNetwork)
-        return res.json(response.virtualEntity=[])
-
-    if(nameProject == global.modelNetwork.nameProject){
-        virtualEntity = await global.modelNetwork.getPhisicalMapping(req.params.idNode)
-    }
-   
-    return res.json(response.virtualEntity=virtualEntity)
-
-});
-
-app.post('/model/project/:id/node/:idNode/physical/mapping/virtual/:idNodeVirt',async (req, res) => {
-
-    let nameProject = req.params.id
-    let nameEntityPhysical = req.params.idNode
-    let nameEntityVirtual = req.params.idNodeVirt
-
-    if(!global.modelNetwork)
-        return res.json()
-
-    if(nameProject == global.modelNetwork.nameProject){
-        await global.modelNetwork.addMappingPhysicalVirual(nameEntityPhysical,nameEntityVirtual)
-    }
-   
-    return res.json()
-
-});
-
 app.delete('/model/project/:id/link/physical',async (req, res) => {
 
     let nameProject = req.params.id
 
     if(nameProject == global.modelNetwork.nameProject){
         global.modelNetwork.deletePhysicalLink(req.body.source,req.body.target)
-    }
-   
-    return res.json()
-
-});
-
-app.post('/model/project/:id/link/physical',async (req, res) => {
-
-    let nameProject = req.params.id
-
-    if(nameProject == global.modelNetwork.nameProject){
-
-        let idSource = global.modelNetwork.entitiesByName[req.body.source].getID()
-        let idTarget = global.modelNetwork.entitiesByName[req.body.target].getID()
-        global.modelNetwork.addPhysicalConnection(idSource,idTarget)
-    }
-   
-    return res.json()
-
-});
-
-
-
-app.post('/model/project/:id/node/:idNode/physical',async (req, res) => {
-
-    let nameProject = req.params.id
-    if(nameProject == global.modelNetwork.nameProject){
-    
-        await global.modelNetwork.addEntity(req.params.idNode)
-        let new_entity = global.modelNetwork.entitiesByName[req.params.idNode]
-        let entity = new Object()
-
-        entity.name = req.params.idNode
-        entity.type = new_entity.type
-        entity.id = new_entity.getID()
-        entity.mapping = [req.params.idNode]
-
-        await global.modelNetwork.addPhysicalEntity(entity)
-
     }
    
     return res.json()
@@ -217,6 +237,8 @@ app.get('/model/project/:id/node/:idNode/spots',async (req, res) => {
     return res.json(response.spots=spots)
 
 });
+
+
 
 app.get('/test',async (req, res) => {
 
@@ -348,6 +370,8 @@ app.get('/test',async (req, res) => {
     return res.json()
   
 });
+
+
             
 
 

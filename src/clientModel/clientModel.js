@@ -85,6 +85,168 @@ export async function addPhysicalEntity(nameProject,nameNode,typeNode){
 
 }
 
+export async function addPhysicalMapping(nameProject,nameEntityPhysical,nameEntityVirt){
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/entity/physical/"+nameEntityPhysical+"/mapping/virtual/"+nameEntityVirt,options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
+export async function addPhysicalLink(nameProject,source,target){
+
+  let body = new Object()
+  body.source = source
+  body.target = target
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body: JSON.stringify(body)
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/link/physical",options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
+export async function addSpot(nameProject,f_regen,r_regen,idSat,idGW){
+
+  let body = new Object()
+
+  body.f_regen = f_regen
+  body.r_regen = r_regen
+  body.idGW = idGW
+  body.idSat = idSat
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body: JSON.stringify(body)
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/spot",options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
+export async function addRoute(nameProject,nameGw,nameSt){
+
+  let body = new Object()
+  body.idGW = nameGw
+  body.idSt = nameSt
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body: JSON.stringify(body)
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/route",options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
+export async function getPhysicalNode(nameProject){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/entity/physical",options_profile)
+  const jsonData =  await response.json();
+
+  if(!jsonData.physicalNodes)
+      return []
+
+  for(let entity of jsonData.physicalNodes)
+      entity.svg = sat
+
+  return jsonData.physicalNodes
+ 
+
+}
+
+export async function getAllVirtualNode(nameProject){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/entity",options_profile)
+  const jsonData =  await response.json();
+
+  if(!jsonData.entities)
+      return []
+
+  return jsonData.entities
+ 
+
+}
+
+export async function getPhysicalLinks(nameProject){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/link/physical",options_profile)
+  const jsonData =  await response.json();
+
+  if (jsonData.physicaLinks)
+   return jsonData.physicaLinks 
+  return []
+
+}
+
+export async function getPhysicalMapping(nameProject,nameEntity){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/entity/"+nameEntity+"/physical/mapping",options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
 
 
 
@@ -108,62 +270,6 @@ export async function inizializeModel(name, entities){
 
 }
 
-export async function getPhysicalNode(nameProject){
-
-    const options_profile = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        "Accept": "application/json",
-      },
-    };
-
-    let response = await fetch("/model/project/"+nameProject+"/node/physical",options_profile)
-    const jsonData =  await response.json();
-
-    if(!jsonData.physicalNodes)
-        return []
-
-    for(let entity of jsonData.physicalNodes)
-        entity.svg = sat
-
-    return jsonData.physicalNodes
-   
-
-}
-
-export async function getPhysicalMapping(nameProject,nameEntity){
-
-  const options_profile = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      "Accept": "application/json",
-    },
-  };
-
-  let response = await fetch("/model/project/"+nameProject+"/node/"+nameEntity+"/physical/mapping",options_profile)
-  const jsonData =  await response.json()
-  return jsonData;
-
-}
-
-export async function addPhysicalMapping(nameProject,nameEntityPhysical,nameEntityVirt){
-
-  console.log("aggiungo  mapping : "+nameEntityPhysical+" "+nameEntityVirt )
-  const options_profile = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      "Accept": "application/json",
-    },
-  };
-
-  let response = await fetch("/model/project/"+nameProject+"/node/"+nameEntityPhysical+"/physical/mapping/virtual/"+nameEntityVirt,options_profile)
-  const jsonData =  await response.json()
-  return jsonData;
-
-}
 
 export async function deletePhysicalNode(nameProject,nameEntity){
 
@@ -202,50 +308,6 @@ export async function deletePhysicalLink(nameProject,source,target){
 
 }
 
-export async function addPhysicalLink(nameProject,clickedNodes){
-
-  if(clickedNodes.length != 2)
-    return 
-
-  let body = new Object()
-  body.source = clickedNodes[0]
-  body.target = clickedNodes[1]
-
-  const options_profile = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      "Accept": "application/json",
-    },
-    body: JSON.stringify(body)
-  };
-
-  let response = await fetch("/model/project/"+nameProject+"/link/physical",options_profile)
-  const jsonData =  await response.json()
-  return jsonData;
-
-}
-
-
-export async function getPhysicalLinks(nameProject){
-
-    const options_profile = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        "Accept": "application/json",
-      },
-    };
-
-    let response = await fetch("/model/project/"+nameProject+"/link/physical",options_profile)
-    const jsonData =  await response.json();
-
-    if (jsonData.physicaLinks)
-     return jsonData.physicaLinks 
-    return []
-
-}
-
 export async function setIdNewNode(nameProject,nameNode){
 
     const options_profile = {
@@ -261,7 +323,6 @@ export async function setIdNewNode(nameProject,nameNode){
     return jsonData
 
 }
-
 
 export async function getSpots(nameProject,nameSat){
 

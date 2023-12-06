@@ -65,7 +65,8 @@ class ModelNetwork {
         const jsonData =  await response.json();
         const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
 
-        if(!this.profile){
+
+        if(!result.model.root.configuration.topology__template){
             // Modifico i parametri infrastructure__template, profile__template,topology__template
             entities = result.model.root.configuration.entities.item
             if(isIterable(entities)){
@@ -246,6 +247,7 @@ class ModelNetwork {
     async addPhysicalEntity(entity){
         let item = new Object();
         item.entity = entity
+
         
         if(!this.topology.model.root.physicalEntities){
             this.topology.model.root.physicalEntities = [item]
@@ -256,6 +258,7 @@ class ModelNetwork {
         }
 
         await this.updateXml()
+
     }
 
     async addMappingPhysicalVirual(entityPhisycalName, entityVirtualName){
@@ -846,7 +849,7 @@ class ModelNetwork {
             body: JSON.stringify({"xml_data" : xmlStringTopology})
         };
 
-        await fetch(this.urlTopology,options_topology)
+        let res  = await fetch(this.urlTopology,options_topology)
 
 
         if(this.profile ){
@@ -863,7 +866,7 @@ class ModelNetwork {
             await fetch(this.urlTemplate+ this.nameProject,options_profile)
         }
 
-
+        return res
     }
 
 
