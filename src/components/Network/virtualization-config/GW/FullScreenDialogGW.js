@@ -14,7 +14,6 @@ import CardContent from '@mui/material/CardContent';
 import ExpandedContent from './ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { inizializeModel } from 'clientModel/clientModel';
 import { getPhysicalMapping } from 'clientModel/clientModel';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
@@ -46,7 +45,6 @@ export default function FullScreenDialogConfigGW(props) {
 
   React.useEffect(async ()  => {
 
-    await inizializeModel(props.projectName, props.entities)
     let virtualGWs = await getPhysicalMapping(props.projectName,props.nameEntity)
     setAllGW(virtualGWs)
 

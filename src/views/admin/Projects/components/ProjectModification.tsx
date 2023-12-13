@@ -36,7 +36,6 @@ import NewEntityDialog from './NewEntityDialog.tsx';
 import createTheme from 'opensand/utils/theme.ts';
 import ColumnsTable from "components/dataTables/components/ColumnsTable";
 import { useEffect } from 'react';
-import { ModelNetwork } from 'components/Network/model/ModelNetwork.js';
 
 
 
@@ -360,18 +359,6 @@ const Project: React.FC<Props> = (props) => {
 		return activeNavbar;
 	};
 
-
-    const handleNewGw = async (gwVirtual:any)=>{ 
-
-        let entityNetwork = new ModelNetwork(name,dataTables)
-        await entityNetwork.loadXMLDefault()
-        await entityNetwork.loadModel()
-
-        await entityNetwork.addMappingPhysicalVirual(gwPhysical,gwVirtual)
-        setGwPhysical("")
-
-   
-    }
 
 
     const handleSetgwPhysical = async (gwPhysical:any)=>{ 

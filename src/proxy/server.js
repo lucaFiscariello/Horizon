@@ -39,18 +39,10 @@ app.use('/model/:value*', async (req, res) => {
 
 app.use('/osm/:value*', async (req, res,next) => {
 
-  if(req.method == "PUT" &&  req.originalUrl.includes("nsd_content")){
-
-    next()
-
-  }
-  else{
-
-    let response = await forwarding_to_server(baseUrlOsm,req)
-    const jsonData =  await response.json();
-    return res.json(jsonData);   // Esegui il passaggio successivo
+  let response = await forwarding_to_server(baseUrlOsm,req)
+  const jsonData =  await response.json();
+  return res.json(jsonData);   // Esegui il passaggio successivo
   
-  }
  });
 
 app.put('/osm/nsd/v1/ns_descriptors/:id/nsd_content',async (req, res) => {

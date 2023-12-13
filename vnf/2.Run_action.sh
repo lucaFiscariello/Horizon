@@ -1,2 +1,2 @@
 #!/bin/bash
-osm ns-action opensat --wait --vnf_name sat --action_name print --params '{"xml" : "valore_parametro"}'
+osm ns-action sat --wait --vnf_name vnf1 --action_name print --params '{"xml" : "valore_parametro"}'

@@ -1,4 +1,4 @@
- export const yaml_ns = "nsd:\n\
+const yaml_ns = "nsd:\n\
   nsd:\n\
   - description: A very simple network service that deploys 1 VM\n\
     designer: Canonical\n\
@@ -10,6 +10,7 @@
     version: 1.0\n\
     virtual-link-desc:\n\
     - id: test2\n\
-      mgmt-network: true\n\
     vnfd-id:\n\
     - opensand"
+
+module.exports = yaml_ns

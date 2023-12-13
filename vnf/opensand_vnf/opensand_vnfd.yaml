@@ -1,14 +1,14 @@
 vnfd:
-  description: A VNF consisting of 1 VDU
+  description: A VNF consisting of 1 VDU with 4 paravirt interfaces
   df:
   - id: default-df
     instantiation-level:
     - id: default-instantiation-level
       vdu-level:
       - number-of-instances: 1
-        vdu-id: opensand
+        vdu-id: dataVM
     vdu-profile:
-    - id: opensand
+    - id: dataVM
       min-number-of-instances: 1
     lcm-operations-configuration:
       operate-vnf-op-config:
@@ -17,7 +17,7 @@ vnfd:
             ssh-access:
               default-user: ubuntu
               required: true
-          id: opensand
+          id: dataVM
           execution-environment-list:
           - id: native
             juju:
@@ -56,47 +56,67 @@ vnfd:
   ext-cpd:
   - id: vnf-mgmt-ext
     int-cpd:
-      cpd: eth0
-      vdu-id: opensand
-  id: opensand
+      cpd: eth0-int
+      vdu-id: dataVM
+  - id: vnf-data1-ext
+    int-cpd:
+      cpd: eth1-int
+      vdu-id: dataVM
+  - id: vnf-data2-ext
+    int-cpd:
+      cpd: eth2-int
+      vdu-id: dataVM
+  - id: vnf-data3-ext
+    int-cpd:
+      cpd: eth3-int
+      vdu-id: dataVM
+  id: ubuntu_4ifaces-vnf
   mgmt-cp: vnf-mgmt-ext
-
-  product-name: opensand
-  provider: Canonical
+  product-name: ubuntu_4ifaces-vnf
   sw-image-desc:
   - id: ubuntu22
     image: ubuntu22
     name: ubuntu22
   vdu:
   - cloud-init-file: cloud-init.dat
-    description: A single VM for performing operations
-    id: opensand
+    id: dataVM
     int-cpd:
-    - id: eth0
+    - id: eth0-int
       virtual-network-interface-requirement:
       - name: eth0
         position: 1
         virtual-interface:
           type: PARAVIRT
-    name: opensand
+    - id: eth2-int
+      virtual-network-interface-requirement:
+      - name: eth2
+        position: 3
+        virtual-interface:
+          type: PARAVIRT
+    - id: eth3-int
+      virtual-network-interface-requirement:
+      - name: eth3
+        position: 4
+        virtual-interface:
+          type: PARAVIRT
+    - id: eth1-int
+      virtual-network-interface-requirement:
+      - name: eth1
+        position: 2
+        virtual-interface:
+          type: PARAVIRT
+    name: dataVM
     sw-image-desc: ubuntu22
-    virtual-compute-desc: opensand-compute
+    virtual-compute-desc: dataVM-compute
     virtual-storage-desc:
-    - opensand-storage
+    - dataVM-storage
   version: 1.0
   virtual-compute-desc:
-  - id: opensand-compute
+  - id: dataVM-compute
     virtual-cpu:
       num-virtual-cpu: 1
     virtual-memory:
-      size: 1.0
+      size: 2.0
   virtual-storage-desc:
-  - id: opensand-storage
+  - id: dataVM-storage
     size-of-storage: 10
-    
-   
-    
-    
-    
-    
-    

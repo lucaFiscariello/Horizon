@@ -29,8 +29,7 @@ import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useEffect } from 'react';
-import { DriverOsm } from 'osm/driverOsm';
-import { ModelNetwork } from 'components/Network/model/ModelNetwork';
+import { createNetwork } from 'clientModel/clientModel';
 
 type SaveCallback = () => void;
 
@@ -347,10 +346,7 @@ const Project: React.FC<Props> = (props) => {
 	};
 
     const deploy = async () => {
-        let entityNetwork = new ModelNetwork(name,dataTables)
-        let driverOsm = new DriverOsm(entityNetwork)
-        await driverOsm.inizialize()
-        await driverOsm.create_network()
+        await createNetwork(name)
     }
 
 

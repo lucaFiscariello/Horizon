@@ -1,4 +1,4 @@
-4f62cd8095fe75abe8a39d8f819af2c6	opensand_vnf/opensand_vnfd.yaml
+2b82a09abfde508206ede7f9aec34ca1	opensand_vnf/opensand_vnfd.yaml
 a911ee3ea7a15362a9b11a83326b8334	opensand_vnf/cloud_init/cloud-init.dat
 3263f1f4114f3d71ea056ce44a4db56d	opensand_vnf/charms/opensand-charm/metadata.yaml
 92bef098e92c0831318c640f408bd250	opensand_vnf/charms/opensand-charm/actions.yaml

@@ -64,14 +64,6 @@ const NewEntityDialog = (props: Props) => {
 
 
         handleClose();
-
-        await setIdNewNode(props.nameProject,values.name.value)
-
-
-
-
-
-
        
     }, [onValidate, handleClose]);
 

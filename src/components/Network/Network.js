@@ -9,7 +9,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
 import net from 'assets/img/opensand/net.png'
-import { ModelNetwork } from './model/ModelNetwork';
 import { addConnectionPhysical } from './Constrain';
 import Slide from '@mui/material/Slide';
 import FullScreenDialogConfigGW from './virtualization-config/GW/FullScreenDialogGW';
@@ -47,15 +46,12 @@ export default function Network(props) {
   const projectName = React.useMemo(() => nameProject, [nameProject]);
   const newPhysicalEntityUpdate = React.useMemo(() => newPhysicalEntity, [newPhysicalEntity]);
 
-  let entityNetwork = new ModelNetwork(props.nameProject,entities)
 
   React.useEffect(async ()  => {
 
     const data = {"links":[],"nodes":[]}
     let nodes = []
     let links = []
-
-    await inizializeModel(projectName,entities)
 
     nodes = await getPhysicalNode(projectName)
     links = await getPhysicalLinks(projectName)
@@ -198,7 +194,7 @@ export default function Network(props) {
         <ThemeProvider theme={theme}>
 
         {open && typeNodeClicked == 'Gateway' && <FullScreenDialogConfigGW open={open} handleClose={handleClose} handleCloseAddGw = {props.handleCloseAddGw} nameEntity = {nodeName} entities={entities} setCreateOnlyGW = {props.setCreateOnlyGW} addListItem={addListItem} projectName = {projectName} ></FullScreenDialogConfigGW> }
-        {open && typeNodeClicked != 'Gateway' && <FullScreenDialogConfigST open={open} handleClose={handleClose} nameEntity = {nodeName} modelNetwork={entityNetwork}></FullScreenDialogConfigST> }
+        {open && typeNodeClicked != 'Gateway' && <FullScreenDialogConfigST open={open} handleClose={handleClose} nameEntity = {nodeName} ></FullScreenDialogConfigST> }
 
         </ThemeProvider> 
 

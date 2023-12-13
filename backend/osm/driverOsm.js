@@ -1,8 +1,17 @@
-import { delete_token, get_NSs, get_VNFDs, get_vims, post_NS, post_NSD, post_NS_instatiate, post_action, post_migrate_vnf, post_token, put_NSD } from "./api/osmClient"
-import yaml from 'js-yaml';
-import { NsdOsm } from "./model/NsdOsm";
+const  {delete_token}  = require("./api/osmClient")
+const  {get_NSs}  = require("./api/osmClient")
+const  {get_VNFDs}  = require("./api/osmClient")
+const  {get_vims}  = require("./api/osmClient")
+const  {post_NS}  = require("./api/osmClient")
+const  {post_NSD}  = require("./api/osmClient")
+const  {post_NS_instatiate}  = require("./api/osmClient")
+const  {post_migrate_vnf}  = require("./api/osmClient")
+const  {post_token}  = require("./api/osmClient")
+const  {put_NSD}  = require("./api/osmClient")
+const  yaml  = require("js-yaml")
+const  NsdOsm  = require("./model/NsdOsm")
 
-export class DriverOsm {
+class DriverOsm {
 
     constructor(modelNetwork) {        
         this.token = ""
@@ -19,7 +28,6 @@ export class DriverOsm {
         this.token = await post_token()
     }
 
-
     async create_network(){
         let id_openstack = await this.get_id_vim_openstack()
  
@@ -27,16 +35,21 @@ export class DriverOsm {
             let response = await post_NSD(this.token)
             let id = response.id
 
+
             let newNsd = new NsdOsm(this.modelNetwork)
-            newNsd.set_id(machine.name)
-            newNsd.set_name(machine.name)
+            newNsd.set_id(machine.entity_name)
+            newNsd.set_name(machine.entity_name)
             newNsd.add_vnf("opensand","test2")
 
             let data = yaml.dump(newNsd.nsd);
             await put_NSD(this.token,id,data)
-            
+
+            //Timeout per osm
+            await new Promise(r => setTimeout(r, 1000));
+
             let idNS = await post_NS(this.token,newNsd.nsd.nsd.nsd[0].name,id,id_openstack)  
             idNS = idNS.id
+
         
             await post_NS_instatiate(this.token,newNsd.nsd.nsd.nsd[0].name,idNS,id,id_openstack)  
         
@@ -63,7 +76,6 @@ export class DriverOsm {
         return response
     }
 
-
     async load_xml(nameAction,nsId,vnf_index,file_name,data_file){
         //let nameAction = "print"
         //let nsId = "6e411994-b644-4e61-a6d2-94f5ed6b86b6"
@@ -79,3 +91,5 @@ export class DriverOsm {
    
     
 }
+
+module.exports = DriverOsm

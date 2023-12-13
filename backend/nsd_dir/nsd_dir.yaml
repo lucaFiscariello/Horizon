@@ -17,6 +17,5 @@ nsd:
       version: 1
       virtual-link-desc:
         - id: test2
-          mgmt-network: true
       vnfd-id:
         - opensand

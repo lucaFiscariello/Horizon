@@ -1,7 +1,6 @@
 import sat from 'assets/img/opensand/sat.png'
 
 
-
 export async function addEntity(project,nameEntity,type){
 
   let body = new Object()
@@ -247,43 +246,61 @@ export async function getPhysicalMapping(nameProject,nameEntity){
 
 }
 
+export async function getSpots(nameProject,nameSat){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/entity/"+nameSat+"/spots",options_profile)
+  const jsonData =  await response.json();
+  if(!jsonData)
+      return []
 
 
-
-
-export async function inizializeModel(name, entities){
-
-    let body = new Object()
-    body.entities = entities
-
-    const options_profile = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        "Accept": "application/json",
-      },
-      body:JSON.stringify(body)
-    };
-
-    let response = await fetch("/model/project/"+name+"/inizialize",options_profile)
-    return response;
+  return jsonData
+ 
 
 }
 
+export async function getRoutes(nameProject){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+nameProject+"/route",options_profile)
+  const jsonData =  await response.json();
+  if(!jsonData)
+      return []
+
+
+  return jsonData
+ 
+
+}
 
 export async function deletePhysicalNode(nameProject,nameEntity){
 
-    const options_profile = {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        "Accept": "application/json",
-      },
-    };
+  const options_profile = {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
 
-    let response = await fetch("/model/project/"+nameProject+"/node/"+nameEntity+"/physical",options_profile)
-    const jsonData =  await response.json()
-    return jsonData;
+  let response = await fetch("/model/project/"+nameProject+"/entity/"+nameEntity+"/physical",options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
 
 }
 
@@ -308,45 +325,25 @@ export async function deletePhysicalLink(nameProject,source,target){
 
 }
 
-export async function setIdNewNode(nameProject,nameNode){
-
-    const options_profile = {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        "Accept": "application/json",
-      },
-    };
-
-    let response = await fetch("/model/project/"+nameProject+"/node/"+nameNode+"/id",options_profile)
-    const jsonData =  await response.json();
-    return jsonData
-
-}
-
-export async function getSpots(nameProject,nameSat){
+export async function createNetwork(nameProject){
 
   const options_profile = {
-    method: 'GET',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       "Accept": "application/json",
     },
   };
 
-  let response = await fetch("/model/project/"+nameProject+"/node/"+nameSat+"/spots",options_profile)
-  const jsonData =  await response.json();
-
-  console.log(jsonData)
-
-  if(!jsonData)
-      return []
-
-
-  return jsonData
- 
+  let response = await fetch("/model/project/"+nameProject+"/instantiate",options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
 
 }
+
+
+
+
 
 
 

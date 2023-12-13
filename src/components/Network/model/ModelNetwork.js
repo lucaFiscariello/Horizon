@@ -1,6 +1,5 @@
-import { ModelEntity } from "./ModelEntity";
-import xml2js from 'xml2js';
-import sat from 'assets/img/opensand/sat.png'
+import ModelEntity from "components/Network/model/ModelEntity.js";
+import { parseStringPromise, Builder } from "xml2js";
 
 
 /**
@@ -9,28 +8,133 @@ import sat from 'assets/img/opensand/sat.png'
  */
 export class ModelNetwork {
 
-    constructor(nameProject,machines) {   
-        this.urlTemplate = "api/project/"
+    constructor(nameProject) {   
+        this.urlTemplate = "http://127.0.0.1:8888/api/project/"
         let topologySTR = "/topology"
         this.nameProject = nameProject
-        this.machines = machines
+        this.machines = []
         this.urlTopology= this.urlTemplate + this.nameProject+ topologySTR
-        this.topology={}
+        this.urlProject = this.urlTemplate + this.nameProject
+
+        this.topology=NaN
+        this.profile=NaN
+
         this.entities = {} 
         this.entitiesByName = {}
-        this.maxId = -1         
+        this.maxId = 1        
+    }
+
+    /**
+     * Crea gli xml di default per la topologia. Questa funzione deve essere invocata appena viene creata una nuova rete.
+     */
+    async createXMLDefault() {
+        const urlTopologyDefault = "http://127.0.0.1:8888/api/project/"+this.nameProject+"/template/topology/Default.xml"
+       
+        const response = await fetch(urlTopologyDefault)
+        const jsonData =  await response.json();
+
+        
+        if(jsonData.error)
+            return
+
+        const result =  await parseStringPromise(jsonData.content, { explicitArray: false });
+        this.topology = result
+        this.topology.model.root.frequency_plan.spots.item.assignments.gateway_id = -1
+        await this.updateXml()
+
+    }
+
+
+    /**
+     * Modifica il file di configurazione "project.xml". Tale file mantiene i nomi degli xml di configurazione per un entità. Tale funzione
+     * inserisce i nomi degli xml di default.
+     */
+    async loadXMLDefault() {
+
+        if(!this.topology)
+            await this.createXMLDefault()
+
+        
+        let url = "http://127.0.0.1:8888/api/project/" + this.nameProject
+        let defaultXml = "Default.xml"
+        let builder = new Builder();
+        let entities;
+
+        //Leggo l'xml project.xml
+        const response = await fetch(url)
+        const jsonData =  await response.json();
+        const result =  await parseStringPromise(jsonData.content, { explicitArray: false });
+
+
+        if(!result.model.root.configuration.topology__template){
+            // Modifico i parametri infrastructure__template, profile__template,topology__template
+            entities = result.model.root.configuration.entities.item
+            if(isIterable(entities)){
+                for(let entity of entities){
+                    entity.infrastructure__template = defaultXml
+                    entity.profile__template = defaultXml
+                }
+                
+                result.model.root.configuration.entities.item = entities
+            }
+
+            result.model.root.configuration.topology__template = defaultXml
+
+
+            //Aggiorno project.xml
+            const xmlString = builder.buildObject(result);
+            const options = {
+                method: 'PUT',
+                headers: {
+                'Content-Type': 'application/json',
+                "Accept": "application/json"
+                },
+                body: JSON.stringify({"xml_data" : xmlString})
+            };
+
+            await fetch(url,options)
+        }
+
+        this.profile = result
+        this.machines = this.getEntities()
+
     }
 
     /**
      * Funzione che carica i file di configurazione di tutte le entità della rete 
      */
-    async loadModel(newEntity,newphysicalNode) {
-    
+    async loadModel() {
+
+        //carico progetto
+        let response = await fetch(this.urlProject)
+        let jsonData =  await response.json();
+        let result =  await parseStringPromise(jsonData.content, { explicitArray: false });
+        this.profile = result
+
+        
+        // Se ancora non è stata creato il topology.xml , carico quello di default
+        if(!this.profile.model.root.configuration.topology__template){
+            await this.createXMLDefault()
+            await this.loadXMLDefault()
+        }
+
+
+        //Carico topologia
+        response = await fetch(this.urlTopology)
+        jsonData =  await response.json();
+        result =  await parseStringPromise(jsonData.content, { explicitArray: false });
+        this.topology = result
+
+
+        this.machines = this.getEntities()
+
+        //carico configurazioni altre entità
         for (let entity of this.machines){
 
             if(entity){
-                let entityname = entity["name"]
-                let entityModel = new ModelEntity(entityname,this.nameProject,entity["type"])
+                
+                let entityname = entity.entity_name
+                let entityModel = new ModelEntity(entityname,this.nameProject,entity.entity_type)
                 
                 await entityModel.loadXML()                
                 let id = entityModel.getID()                
@@ -46,117 +150,217 @@ export class ModelNetwork {
 
 
         }
-
-        if(newEntity){
-            await this.addNewEntityId()
-        }
-
-
-        const response = await fetch(this.urlTopology)
-        const jsonData =  await response.json();
-
-        if(jsonData.error){
-            await this.createXMLDefault()
-        }else{
-            const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
-            this.topology = result
-        }
-
-        if(newphysicalNode){
-            let name_new_entity = this.machines[this.machines.length-1].name
-            let new_entity = this.entitiesByName[name_new_entity]
-            let entity = new Object()
-
-            entity.name = name_new_entity
-            entity.type = new_entity.type
-            entity.id = new_entity.getID()
-            entity.mapping = [name_new_entity]
-
-            await this.addPhysicalEntity(entity)
-        }
-
+        
     }
 
-    /**
-     * Modifica il file di configurazione "project.xml". Tale file mantiene i nomi degli xml di configurazione per un entità. Tale funzione
-     * inserisce i nomi degli xml di default.
-     */
-    async loadXMLDefault() {
-
-        let url = "/api/project/" + this.nameProject
-        let defaultXml = "Default.xml"
-        let builder = new xml2js.Builder();
-        let entities;
-
-        //Leggo l'xml project.xml
-        const response = await fetch(url)
-        const jsonData =  await response.json();
-        const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
-
-
-        // Modifico i parametri infrastructure__template, profile__template,topology__template
-        entities = result.model.root.configuration.entities.item
-
-        if(isIterable(entities)){
-            for(let entity of entities){
-                entity.infrastructure__template = defaultXml
-                entity.profile__template = defaultXml
-            }
-            
-            result.model.root.configuration.entities.item = entities
-        }
-
-        result.model.root.configuration.topology__template = defaultXml
-
-
-        //Aggiorno project.xml
-        const xmlString = builder.buildObject(result);
-        const options = {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-              "Accept": "application/json"
-            },
-            body: JSON.stringify({"xml_data" : xmlString})
-        };
-
-        await fetch(url,options)
-
-    }
 
     /**
-     * Crea gli xml di default per la topologia. Questa funzione deve essere invocata appena viene creata una nuova rete.
+     * Aggiunge una nuova entità alla rete. L'aggiunta di una nuova entità comporta la modifica
+     * del file project.xml
      */
-    async createXMLDefault() {
-        const urlTopologyDefault = "/api/project/"+this.nameProject+"/template/topology/Default.xml"
-       
-        const response = await fetch(urlTopologyDefault)
-        const jsonData =  await response.json();
+    async addEntity(name,type) {
+        
+        await this.loadModel()
 
-        if(jsonData.error)
-            return
-
-        const result =  await xml2js.parseStringPromise(jsonData.content, { explicitArray: false });
-        this.topology = result
-
-        //Creo uno spot di defaul con valori nulli
-        let templateSpot = this.topology.model.root.frequency_plan.spots.item
-        templateSpot.assignments.gateway_id = -1
-        templateSpot.assignments.sat_id_gw = -1
-        templateSpot.assignments.sat_id_st = -1
-
-        this.topology.model.root.frequency_plan.spots.item = templateSpot
-
-        //Creo una rotta di default con valori nulli
+        // Aggiungo entità in project.xml
+        let machines = this.profile.model.root.platform.machines
+        let machine = new Object()
         let item = new Object()
-        item.terminal_id = -1
-        item.gateway_id = -1
-        this.topology.model.root.st_assignment.assignments = new Object()
-        this.topology.model.root.st_assignment.assignments.item = item
+
+        machine.entity_name = name
+        machine.entity_type = type
+
+        if(machines == ''){
+            item.item = machine
+            machines = item
+        }else if (!isIterable(machines.item)){
+            machines.item = [machines.item,machine]
+        }else{
+            machines.item = [...machines.item,machine]
+        }
+
+        this.profile.model.root.platform.machines = machines
+        await this.updateXml()
+
+        // creo xml di deafult per la nuova entità
+        let newEntity = new ModelEntity(name,this.nameProject,type)
+        await newEntity.createEntity()
+        await newEntity.loadXML()
+
+        //Aggiorno id massimo 
+        this.maxId = Number(this.maxId) + 1
+
+        // aggiorna variabili di istanza
+        await newEntity.setID(this.maxId)   
+        this.entities[this.maxId] = newEntity
+        this.entitiesByName[name] = newEntity
+        this.machines = this.getEntities()
+
+    }
+
+    getEntities() {
+    
+        if(this.profile.model.root.platform.machines.item)
+            if(isIterable(this.profile.model.root.platform.machines.item))
+                return this.profile.model.root.platform.machines.item
+            else
+                return [this.profile.model.root.platform.machines.item]
+
+        return []
+    }
+
+    /**
+     * La configurazione di un entità comporta la l'aggiunta delle informazioni associate a quella
+     * entità in tutti gli infrastructure.xml degli altri file.
+     */
+    async configureEntity(nameEntity,ip,mac){
+     
+        let entity = this.entitiesByName[nameEntity]
+        await entity.setIP(ip)
+        await entity.setMAC(mac)
+
+
+        // Aggiorno infrastructure xml di tutte le entità
+        for(let entityInfo of this.machines){
+            let oldEntity = this.entitiesByName[entityInfo.entity_name]
+
+            await oldEntity.addEntity(entity.type, entity.getIP(), entity.getMAC(), entity.getID())
+
+            if(entity.getID() != oldEntity.getID())
+                await entity.addEntity(oldEntity.type, oldEntity.getIP(), oldEntity.getMAC(),oldEntity.getID())
+        }
+            
+    }
+
+    async modifyEntity(nameEntity,ip,mac){
+        let entity = this.entitiesByName[nameEntity]
+
+        await entity.setIP(ip)
+        await entity.setMAC(mac)
+
+        for(let entityInfo of this.machines){
+            let oldEntity = this.entitiesByName[entityInfo.entity_name]
+            await oldEntity.modifyEntity(entity.type, entity.getIP(), entity.getMAC(), entity.getID())
+        }
+    }
+
+    async addPhysicalEntity(entity){
+        let item = new Object();
+        item.entity = entity
+
+        
+        if(!this.topology.model.root.physicalEntities){
+            this.topology.model.root.physicalEntities = [item]
+        }else if (isIterable(this.topology.model.root.physicalEntities)){
+            this.topology.model.root.physicalEntities = [...this.topology.model.root.physicalEntities,item]
+        }else{
+            this.topology.model.root.physicalEntities = [this.topology.model.root.physicalEntities,item]
+        }
 
         await this.updateXml()
 
     }
+
+    async addMappingPhysicalVirual(entityPhisycalName, entityVirtualName){
+       
+
+        if(!this.topology.model.root.physicalEntities)
+            return 
+        
+        if(!isIterable(this.topology.model.root.physicalEntities)){
+
+            let entity = this.topology.model.root.physicalEntities.entity
+
+            if(entity.name == entityPhisycalName ){
+
+                if(typeof entity.mapping !== "string"){
+                    entity.mapping = [...entity.mapping,entityVirtualName]
+                }else{
+
+                    entity.mapping = [entity.mapping,entityVirtualName]
+                }
+            }
+        } else{
+
+            for(let entity of this.topology.model.root.physicalEntities){
+
+                if(entity.entity.name == entityPhisycalName ){
+    
+                    if(typeof entity.entity.mapping !== "string"){
+                        entity.entity.mapping = [...entity.entity.mapping,entityVirtualName]
+                    }else{
+    
+                        entity.entity.mapping = [entity.entity.mapping,entityVirtualName]
+                    }
+                
+                    break;
+                }
+    
+            }
+        }
+
+        await this.updateXml()
+
+    }
+
+    async addPhysicalConnection(source, destination){
+       
+        console.log("add link fisici: "+source+" "+destination)
+
+        let connection = new Object();        
+        connection.source = this.getNameEntityById(source)
+        connection.target = this.getNameEntityById(destination)
+        connection.color = "black"
+
+        if(!this.topology.model.root.physicaConnection){
+            this.topology.model.root.physicaConnection = [connection]
+        }else if (isIterable(this.topology.model.root.physicaConnection)){
+            this.topology.model.root.physicaConnection = [...this.topology.model.root.physicaConnection,connection]
+        }else{
+            this.topology.model.root.physicaConnection = [this.topology.model.root.physicaConnection,connection]
+        }
+
+        await this.updateXml()
+    }
+
+    getPhisicalMapping(entityPhisycalName){
+       
+
+        if(!this.topology.model.root.physicalEntities)
+            return []
+
+        if(!isIterable(this.topology.model.root.physicalEntities)){
+
+            let entity = this.topology.model.root.physicalEntities.entity
+
+            if(entity.name == entityPhisycalName ){
+
+                if(typeof entity.mapping === "string"){
+                    return [entity.mapping] 
+                }else{
+                    return entity.mapping
+                }
+            }
+        } else{
+
+            for(let entity of this.topology.model.root.physicalEntities){
+
+                if(entity.entity.name == entityPhisycalName ){
+    
+                    if(typeof entity.entity.mapping === "string"){
+                        return [entity.entity.mapping] 
+                    }else{
+                        return entity.entity.mapping
+                    }
+                
+                }
+    
+            }
+        }
+
+
+    }
+
 
     getSpots() {
         let spots = this.topology.model.root.frequency_plan.spots.item
@@ -228,6 +432,9 @@ export class ModelNetwork {
 
     getLinksPhysical(){
        
+        if(!this.topology.model)
+            return []
+
         const link = this.topology.model.root.physicaConnection
         if(!link)
             return []
@@ -241,8 +448,12 @@ export class ModelNetwork {
 
     getNodesPhysical(){
 
-        const urlSat = sat
+        const urlSat = ""
         let nodes = []
+
+        if(!this.topology.model)
+            return nodes
+
         let allNodes = this.topology.model.root.physicalEntities
     
         if(!allNodes)
@@ -263,25 +474,6 @@ export class ModelNetwork {
     
         return nodes
     }
-
-    getNodes(){
-
-        const urlSat = sat
-        let nodes = []
-    
-        for(let nodeInfo of this.machines){
-            let templateNode = {"id":"","name":"","svg":"","size":400,"labelPosition": 'bottom', "x":Math.floor(Math.random() * 800) + 100,"y":Math.floor(Math.random() * 300) + 100}
-            templateNode.id = nodeInfo["name"]
-            templateNode.name = nodeInfo["name"]
-            templateNode.svg = urlSat
-          
-            nodes.push(templateNode)
-        
-          }
-    
-        return nodes
-    }
-
 
     getIDByListType(nameEntities,type){
         
@@ -312,9 +504,10 @@ export class ModelNetwork {
         templateSpot.assignments.sat_id_gw = sat_id_gw
         templateSpot.assignments.sat_id_st = sat_id_st
 
+            
         if(isIterable(allSpots))
             allSpots = [...allSpots,templateSpot]
-        else if (allSpots.assignments.sat_id_gw == -1)
+        else if (allSpots.assignments.gateway_id == -1)
             allSpots = templateSpot
         else
             allSpots = [allSpots,templateSpot]
@@ -323,56 +516,109 @@ export class ModelNetwork {
         await this.updateXml()
     }
 
-
     async addRoute(idGatewayDefault, terminalId, gatewayId ){
        
         let item = new Object();
+        let route = new Object();
+
         let allItems = this.topology.model.root.st_assignment.assignments.item
-        item.terminal_id = terminalId
-        item.gateway_id = gatewayId
+        route.terminal_id = terminalId
+        route.gateway_id = gatewayId
+        item.item = route
 
 
-        if(isIterable(allItems))
-            allItems = [...allItems,item]
-        else if (allItems.terminal_id == -1)
-            allItems = item
-        else
-            allItems = [allItems,item]
+        if(this.topology.model.root.st_assignment.assignments == '')
+            this.topology.model.root.st_assignment.assignments = item
+        else if(isIterable(allItems)){
+            allItems = [...allItems,route]
+            this.topology.model.root.st_assignment.assignments.item = allItems
+        }
+        else{
+            allItems = [allItems,route]
+            this.topology.model.root.st_assignment.assignments.item = allItems
+        }
 
 
         this.topology.model.root.st_assignment.defaults.default_gateway=idGatewayDefault
-        this.topology.model.root.st_assignment.assignments.item = allItems
         await this.updateXml()
     }
 
-    async addPhysicalEntity(entity){
-        let item = new Object();
-        item.entity = entity
-        
-        if(!this.topology.model.root.physicalEntities){
-            this.topology.model.root.physicalEntities = [item]
-        }else if (isIterable(this.topology.model.root.physicalEntities)){
-            this.topology.model.root.physicalEntities = [...this.topology.model.root.physicalEntities,item]
-        }else{
-            this.topology.model.root.physicalEntities = [this.topology.model.root.physicalEntities,item]
+    /**
+     * L'eliminazione di un entità comporta l'eliminazione di tutti gli spot e di tutte le rotte associate
+     * a tale entità.
+    */
+    async deleteEntity(nameEntity){
+     
+        let entityToDelete = this.entitiesByName[nameEntity]
+
+        if(entityToDelete.type == "Gateway" || entityToDelete.type == "Terminal" )
+            this.removeAllRouteByEntity(nameEntity)
+
+        if(entityToDelete.type == "Gateway" || entityToDelete.type == "Satellite")
+            this.removeAllSpotEntity(nameEntity)
+
+        for(let entityInfo of this.machines){
+            let entity = this.entitiesByName[entityInfo.entity_name]
+            await entity.deleteEntity(entityToDelete.getID(),entityToDelete.type)
         }
 
+
+        //Rimuovo entità dal project.xml
+        let machines = this.profile.model.root.platform.machines
+        let i;
+
+        if(machines == ''){
+            
+        }else if (!isIterable(machines.item) && machines.item.entity_name == nameEntity ){
+            machines.item = ''
+        }else{
+
+            for(i in machines.item){
+                if(machines.item[i].entity_name == nameEntity){
+                    break;
+                }
+            }
+            machines.item.splice(i, 1);
+
+        }
+
+        this.profile.model.root.platform.machines = machines
         await this.updateXml()
+            
     }
 
+    /**
+     * La rimozione di un entità fisica comporta l'eliminazione delle entità virtuali ad esse associate.
+     * Comporta anche la rimozine di tutti i link fisici.
+     */
     async deletePhysicalEntity(name){
         
         if(!this.topology.model.root.physicalEntities)
             return 
 
+        await this.deleteAllPhysicalLinkEntity(name)
+
         if(!isIterable(this.topology.model.root.physicalEntities)){
+
+            for(let virtualEntityname of this.topology.model.root.physicalEntities.entity.mapping){
+                await this.deleteEntity(virtualEntityname)
+            }
+
             this.topology.model.root.physicalEntities = null
+
+
         } else{
 
             let i
             let allItems = this.topology.model.root.physicalEntities
+
             for(i in allItems){
-                if(allItems[i].name == name){
+                if(allItems[i].entity.name == name){
+
+                    for(let virtualEntityname of allItems[i].entity.mapping){
+                        await this.deleteEntity(virtualEntityname)
+                    }
+
                     break;
                 }
 
@@ -389,7 +635,6 @@ export class ModelNetwork {
 
     async deletePhysicalLink(source,target){
         
-    
         if(!this.topology.model.root.physicaConnection)
             return 
 
@@ -400,7 +645,7 @@ export class ModelNetwork {
             let i
             let allItems = this.topology.model.root.physicaConnection
             for(i in allItems){
-                if(allItems[i].source == source && allItems[i].target== target ){
+                if((allItems[i].source == source && allItems[i].target== target) || (allItems[i].source == target && allItems[i].source== target)){
                     break;
                 }
 
@@ -415,101 +660,43 @@ export class ModelNetwork {
         await this.updateXml()
     }
 
-    async addPhysicalConnection(source, destination){
-       
-        let connection = new Object();        
-        connection.source = this.getNameEntityById(source)
-        connection.target = this.getNameEntityById(destination)
-        connection.color = "black"
-
-        if(!this.topology.model.root.physicaConnection){
-            this.topology.model.root.physicaConnection = [connection]
-        }else if (isIterable(this.topology.model.root.physicaConnection)){
-            this.topology.model.root.physicaConnection = [...this.topology.model.root.physicaConnection,connection]
-        }else{
-            this.topology.model.root.physicaConnection = [this.topology.model.root.physicaConnection,connection]
-        }
-
-        await this.updateXml()
-    }
-
-    async addMappingPhysicalVirual(entityPhisycalName, entityVirtualName){
-       
-
+    /**
+     * Rimuove tutti i link fisici associati a un entità. Questa funzionalità deve essere
+     * invocata quando un entità fisica viene rimossa.
+     */
+    async deleteAllPhysicalLinkEntity(name){
+        
         if(!this.topology.model.root.physicalEntities)
             return 
-        
+
         if(!isIterable(this.topology.model.root.physicalEntities)){
 
-            let entity = this.topology.model.root.physicalEntities.entity
-
-            if(entity.name == entityPhisycalName ){
-
-                if(typeof entity.mapping !== "string"){
-                    entity.mapping = [...entity.mapping,entityVirtualName]
-                }else{
-
-                    entity.mapping = [entity.mapping,entityVirtualName]
-                }
+            for(let virtualEntityname of this.topology.model.root.physicalEntities.entity.mapping){
+                await this.deletePhysicalLink(virtualEntityname,name)
             }
+
+            this.topology.model.root.physicalEntities = null
         } else{
 
-            for(let entity of this.topology.model.root.physicalEntities){
+            let i
+            let allItems = this.topology.model.root.physicalEntities
 
-                if(entity.entity.name == entityPhisycalName ){
-    
-                    if(typeof entity.entity.mapping !== "string"){
-                        entity.entity.mapping = [...entity.entity.mapping,entityVirtualName]
-                    }else{
-    
-                        entity.entity.mapping = [entity.entity.mapping,entityVirtualName]
+            for(i in allItems){
+                if(allItems[i].entity.name == name){
+
+                    for(let virtualEntityname of allItems[i].entity.mapping){
+                        await this.deletePhysicalLink(virtualEntityname,name)
                     }
-                
+
                     break;
                 }
-    
+
             }
+    
         }
+
 
         await this.updateXml()
-
-    }
-
-    async getPhisicalMapping(entityPhisycalName){
-       
-
-        if(!this.topology.model.root.physicalEntities)
-            return []
-
-        if(!isIterable(this.topology.model.root.physicalEntities)){
-
-            let entity = this.topology.model.root.physicalEntities.entity
-
-            if(entity.name == entityPhisycalName ){
-
-                if(typeof entity.mapping === "string"){
-                    return [entity.mapping] 
-                }else{
-                    return entity.mapping
-                }
-            }
-        } else{
-
-            for(let entity of this.topology.model.root.physicalEntities){
-
-                if(entity.entity.name == entityPhisycalName ){
-    
-                    if(typeof entity.entity.mapping === "string"){
-                        return [entity.entity.mapping] 
-                    }else{
-                        return entity.entity.mapping
-                    }
-                
-                }
-    
-            }
-        }
-
 
     }
 
@@ -518,7 +705,7 @@ export class ModelNetwork {
         let entity = this.entitiesByName[entitySource]
         let st
 
-        if(entity.type == "Satellite"){
+        if(entity.type == "Gateway"){
             st = this.entitiesByName[entityTarget]
         }else if (entity.type == "Terminal"){
             st = entity
@@ -529,9 +716,7 @@ export class ModelNetwork {
         let allItems = this.topology.model.root.st_assignment.assignments.item
 
         if(!isIterable(allItems)){
-            allItems.terminal_id = -1
-            allItems.gateway_id = -1
-            this.topology.model.root.st_assignment.assignments.item = allItems
+            this.topology.model.root.st_assignment.assignments = ""
         } else{
 
             let i
@@ -550,6 +735,9 @@ export class ModelNetwork {
         await this.updateXml()
     }
 
+    /**
+     * La rimozione di uno spot comporta la rimozione di tutte le rotte associate
+     */
     async removeSpot(entitySource, entityTarget){
 
         let entity = this.entitiesByName[entitySource]
@@ -594,30 +782,34 @@ export class ModelNetwork {
         }
 
         await this.updateXml()
-        await this.removeAllRouteByGW(gw_name)
+        await this.removeAllRouteByEntity(gw_name)
 
 
     }
 
-    async removeAllRouteByGW(nameGW){
+    /**
+     * Rimuove tutte le rotte associate a un gateway. Questa funzionalità deve essere
+     * invocata quando si elimina uno spot oppure quando si elimina un gateway fisico o viertuale
+     */
+    async removeAllRouteByEntity(name){
 
-        let entity = this.entitiesByName[nameGW]
+        let entity = this.entitiesByName[name]
         let allItems = this.topology.model.root.st_assignment.assignments.item
 
-        if(!isIterable(allItems) && allItems.gateway_id == entity.getID()){
+        if(this.topology.model.root.st_assignment.assignments == "")
+            return 
 
-            allItems.gateway_id = -1
-            allItems.terminal_id= -1
+        if(!isIterable(allItems) && (allItems.gateway_id == entity.getID() || allItems.terminal_id == entity.getID() )){
 
-            this.topology.model.root.st_assignment.assignments.item = allItems
+            this.topology.model.root.st_assignment.assignments = ""
             await this.updateXml()
 
         } else{
 
-            let i
-            for(i in allItems){
-                if(allItems[i].gateway_id == entity.getID() ){
+            for(let i=0; i< allItems.length ; i++){
+                if(allItems[i].gateway_id == entity.getID() || allItems[i].terminal_id == entity.getID() ){
                     allItems.splice(i, 1);
+                    i = i-1
                 }
 
             }
@@ -632,28 +824,42 @@ export class ModelNetwork {
     }
 
     /**
-     * Questa funzionalità permette di assegnare un nuovo id automaticamente alla creazione di una nuova entità.
-     * L'assegnazione automatica degli id evita che vengano gestiti direttamente dal'utente.
-     */ 
-    async addNewEntityId(){
+     * Rimuove tutti gli spot associati a un gw o a un satellite. Deve essere invocata quando
+     * viene eliminato un gateway o un satellite.
+     */
+    async removeAllSpotEntity(name_entity){
+        let allItems = this.topology.model.root.frequency_plan.spots.item
+        let entity = this.entitiesByName[name_entity]
 
-        let name_new_entity = this.machines[this.machines.length-1].name
-        let new_entity = this.entitiesByName[name_new_entity]
-        this.maxId = parseInt(this.maxId)+1
-        let new_id = this.maxId
+        if(!isIterable(allItems)){
+            allItems = [allItems]
+        }
 
-        new_entity.setID(new_id)
-        this.entities[new_id] = new_entity
-        this.entitiesByName[name_new_entity] = new_entity
+       
+        for( let idSpot = 0 ; idSpot < allItems.length; idSpot++ ){
 
-        await new_entity.updateXml()
+            if(allItems[idSpot].assignments.gateway_id == entity.getID() || allItems[idSpot].assignments.sat_id_gw == entity.getID()){
+                 
+                // Non cancello l'ultimo spot, assegno un id di gateway non valido
+                if(allItems.length == 1){
+                    allItems[idSpot].assignments.gateway_id = -1
+                    break;
+                }
 
+                allItems.splice(idSpot, 1);   
+                idSpot =  idSpot-1          
+            }
+
+        }
+        
+
+        this.topology.model.root.frequency_plan.spots.item = allItems
+        this.updateXml()
     }
-
 
     async updateXml(){
 
-        const builder = new xml2js.Builder();
+        const builder = new Builder();
 
         const xmlStringTopology = builder.buildObject(this.topology);
         const options_topology = {
@@ -665,8 +871,24 @@ export class ModelNetwork {
             body: JSON.stringify({"xml_data" : xmlStringTopology})
         };
 
-        await fetch(this.urlTopology,options_topology)
+        let res  = await fetch(this.urlTopology,options_topology)
 
+
+        if(this.profile ){
+            let xmlStringProfile = builder.buildObject(this.profile);
+            let options_profile = {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  "Accept": "application/json"
+                },
+                body: JSON.stringify({"xml_data" : xmlStringProfile})
+            };
+    
+            await fetch(this.urlTemplate+ this.nameProject,options_profile)
+        }
+
+        return res
     }
 
 
@@ -688,3 +910,4 @@ function searchSatId(idGateway, spots){
             return spot.assignments.sat_id_gw
     }
 }
+

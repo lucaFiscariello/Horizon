@@ -526,16 +526,15 @@ class ModelNetwork {
         route.gateway_id = gatewayId
         item.item = route
 
-        console.log(this.topology.model.root.st_assignment)
 
         if(this.topology.model.root.st_assignment.assignments == '')
             this.topology.model.root.st_assignment.assignments = item
         else if(isIterable(allItems)){
-            allItems = [...allItems,item]
+            allItems = [...allItems,route]
             this.topology.model.root.st_assignment.assignments.item = allItems
         }
         else{
-            allItems = [allItems,item]
+            allItems = [allItems,route]
             this.topology.model.root.st_assignment.assignments.item = allItems
         }
 
@@ -562,6 +561,29 @@ class ModelNetwork {
             let entity = this.entitiesByName[entityInfo.entity_name]
             await entity.deleteEntity(entityToDelete.getID(),entityToDelete.type)
         }
+
+
+        //Rimuovo entità dal project.xml
+        let machines = this.profile.model.root.platform.machines
+        let i;
+
+        if(machines == ''){
+            
+        }else if (!isIterable(machines.item) && machines.item.entity_name == nameEntity ){
+            machines.item = ''
+        }else{
+
+            for(i in machines.item){
+                if(machines.item[i].entity_name == nameEntity){
+                    break;
+                }
+            }
+            machines.item.splice(i, 1);
+
+        }
+
+        this.profile.model.root.platform.machines = machines
+        await this.updateXml()
             
     }
 

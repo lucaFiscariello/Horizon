@@ -28,6 +28,10 @@ import { addPhysicalMapping } from "clientModel/clientModel";
 import { addRoute } from "clientModel/clientModel";
 import { getPhysicalLinks } from "clientModel/clientModel";
 import { getPhysicalMapping } from "clientModel/clientModel";
+import { deletePhysicalLink } from "clientModel/clientModel";
+import { getRoutes } from "clientModel/clientModel";
+import { getSpots } from "clientModel/clientModel";
+import { deletePhysicalNode } from "clientModel/clientModel";
 import { getAllVirtualNode } from "clientModel/clientModel";
 import { getPhysicalNode } from "clientModel/clientModel";
 import { addSpot } from "clientModel/clientModel";
@@ -76,7 +80,7 @@ export default function Overview() {
 
         //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
-        /** 
+        
         await addPhysicalEntity("test","gw","Gateway")
         await configureEntity("test","gw","130.0.0.1","00:00:00:00:00:01")
 
@@ -86,21 +90,31 @@ export default function Overview() {
         await addPhysicalEntity("test","st","Terminal")
         await configureEntity("test","st","130.0.0.4","00:00:00:00:00:04")
 
-        await addEntity("test","gw2","Gateway")
-        await configureEntity("test","gw2","130.0.0.3","00:00:00:00:00:03")
-        await addPhysicalMapping("test","gw","gw2")
+        //await addEntity("test","gw2","Gateway")
+        //await configureEntity("test","gw2","130.0.0.3","00:00:00:00:00:03")
+        //await addPhysicalMapping("test","gw","gw2")
 
-        await addPhysicalLink("test","gw","sat")
+        //await addPhysicalLink("test","gw","sat")
         await addSpot("test","Transparent","Transparent","sat","gw")
+        //await addSpot("test","Transparent","Transparent","sat","gw2")
         await addRoute("test","gw","st")
+        //await addRoute("test","gw2","st")
 
-        */
+        
         let node = await getPhysicalNode("test")
         let link = await getPhysicalLinks("test")
         let entities = await getAllVirtualNode("test")
         let mapping = await getPhysicalMapping("test","gw")
         
-        console.log(mapping)
+        //console.log(mapping)
+        //await deletePhysicalNode("test","gw")
+        //await deletePhysicalLink("test","gw","sat")
+
+        
+        let spot = await getSpots("test","sat")
+        let routes = await getRoutes("test")
+        console.log(routes)
+
 
         }} >  test </button>
     </Box>
