@@ -1,8 +1,7 @@
 const express = require('express');
 const ModelNetwork = require("./model/ModelNetwork");
-const DriverOsm = require("./osm/driverOsm");
+//const DriverOsm = require("./osm/driverOsm");
 
-const { mode } = require('@chakra-ui/theme-tools');
 const app = express();
 const port = 3004; 
 
@@ -244,6 +243,7 @@ app.delete('/model/project/:id/link/physical',async (req, res) => {
 
 });
 
+/*
 app.post('/model/project/:id/instantiate',async (req, res) => {
 
     let nameProject = req.params.id
@@ -255,7 +255,7 @@ app.post('/model/project/:id/instantiate',async (req, res) => {
  
     return res.json()
 
-});
+});*/
             
 /********************** Avvio server **********************/
 
