@@ -1,0 +1,7 @@
+id: vlp-datanet1
+virtual-link-desc-id: datanet1
+virtual-link-protocol-data:
+  associated-layer-protocol: ipv4
+  l3-protocol-data:
+    ip-version: ipv4
+    cidr: 192.168.10.0/24

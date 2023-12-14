@@ -1,0 +1,74 @@
+nsd:
+  nsd:
+    - description: NS with 2 VNFs ubuntu_4ifaces-vnf connected by mgmtnet and 3 datanet VLs
+      sapd:
+        - id: nsd_cp_mgmt
+          virtual-link-desc: test
+        - id: nsd_cp_data
+          virtual-link-desc: datanet1
+        - id: nsd_cp_data_2
+          virtual-link-desc: datanet2
+        - id: nsd_cp_data_3
+          virtual-link-desc: datanet3
+      df:
+        - id: default-df
+          virtual-link-profile:
+            - id: vlp-datanet1
+              virtual-link-desc-id: datanet1
+            - id: vlp-datanet2
+              virtual-link-desc-id: datanet2
+            - id: vlp-datanet3
+              virtual-link-desc-id: datanet3
+          vnf-profile:
+            - id: vnf1
+              vnfd-id: ubuntu_4ifaces-vnf
+              virtual-link-connectivity:
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-mgmt-ext
+                  virtual-link-profile-id: test
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-data1-ext
+                  virtual-link-profile-id: datanet1
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-data2-ext
+                  virtual-link-profile-id: datanet2
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-data3-ext
+                  virtual-link-profile-id: datanet3
+            - id: vnf2
+              vnfd-id: ubuntu_4ifaces-vnf
+              virtual-link-connectivity:
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf2
+                      constituent-cpd-id: vnf-mgmt-ext
+                  virtual-link-profile-id: test
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf2
+                      constituent-cpd-id: vnf-data1-ext
+                  virtual-link-profile-id: datanet1
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf2
+                      constituent-cpd-id: vnf-data2-ext
+                  virtual-link-profile-id: datanet2
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf2
+                      constituent-cpd-id: vnf-data3-ext
+                  virtual-link-profile-id: datanet3
+      id: clone_ubuntu_4ifaces-ns
+      name: clone_ubuntu_4ifaces-ns
+      version: 1
+      virtual-link-desc:
+        - id: test
+          mgmt-network: true
+        - id: datanet1
+          vim-network-name: slice1.slice_nsd-datanet1
+        - id: datanet2
+          vim-network-name: slice1.slice_nsd-datanet2
+        - id: datanet3
+          vim-network-name: slice1.slice_nsd-datanet3
+      vnfd-id:
+        - ubuntu_4ifaces-vnf

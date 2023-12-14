@@ -1,6 +1,16 @@
 nsd:
   nsd:
   - description: NS with 2 VNFs ubuntu_4ifaces-vnf connected by mgmtnet and 3 datanet VLs
+    
+    sapd:
+      - id: nsd_cp_mgmt
+        virtual-link-desc: test
+      - id: nsd_cp_data
+        virtual-link-desc: datanet1
+      - id: nsd_cp_data_2
+        virtual-link-desc: datanet2
+      - id: nsd_cp_data_3
+        virtual-link-desc: datanet3
     df:
     - id: default-df
       virtual-link-profile:

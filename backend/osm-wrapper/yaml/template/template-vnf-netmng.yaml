@@ -1,0 +1,4 @@
+  constituent-cpd-id:
+  - constituent-base-element-id: vnf2
+    constituent-cpd-id: vnf-mgmt-ext
+  virtual-link-profile-id: test
