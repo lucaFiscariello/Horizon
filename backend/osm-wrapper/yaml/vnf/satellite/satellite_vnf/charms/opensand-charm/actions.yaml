@@ -1,0 +1,22 @@
+# Copyright ETSI OSM Contributors
+# See LICENSE file for licensing details.
+#
+# This is only an example, and you should edit to suit your needs.
+# If you don't need actions, you can remove the file entirely.
+# It ties in to the example _on_fortune_action handler in src/charm.py
+
+print:
+  description: "Create file."
+  params:
+    xml:
+      description: "data xml"
+      type: string
+      default: ""
+    file_name:
+      description: "name file"
+      type: string
+      default: ""
+  required:
+    - xml
+    - file_name
+

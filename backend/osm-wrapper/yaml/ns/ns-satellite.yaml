@@ -1,0 +1,54 @@
+nsd:
+  nsd:
+  - description: NS with 2 VNFs ubuntu_4ifaces-vnf connected by mgmtnet and 3 datanet VLs
+    
+    sapd:
+      - id: nsd_cp_mgmt
+        virtual-link-desc: test
+      - id: nsd_cp_data
+        virtual-link-desc: datanet1
+
+    df:
+    - id: default-df
+      virtual-link-profile:
+      - id: vlp-datanet1
+        virtual-link-desc-id: datanet1
+        virtual-link-protocol-data:
+          associated-layer-protocol: ipv4
+          l3-protocol-data:
+            ip-version: ipv4
+            cidr: 192.168.10.0/24
+
+      vnf-profile:
+      - id: vnf1
+        vnfd-id: satellite
+        virtual-link-connectivity:
+        - constituent-cpd-id:
+          - constituent-base-element-id: vnf1
+            constituent-cpd-id: vnf-mgmt-ext
+          virtual-link-profile-id: test
+        - constituent-cpd-id:
+          - constituent-base-element-id: vnf1
+            constituent-cpd-id: vnf-data1-ext
+          virtual-link-profile-id: datanet1
+      - id: vnf2
+        vnfd-id: satellite
+        virtual-link-connectivity:
+        - constituent-cpd-id:
+          - constituent-base-element-id: vnf2
+            constituent-cpd-id: vnf-mgmt-ext
+          virtual-link-profile-id: test
+        - constituent-cpd-id:
+          - constituent-base-element-id: vnf2
+            constituent-cpd-id: vnf-data1-ext
+          virtual-link-profile-id: datanet1
+
+    id: satellite-ns
+    name: satellite-ns
+    version: 1.0
+    virtual-link-desc:
+    - id: test
+      mgmt-network: true
+    - id: datanet1
+    vnfd-id:
+    - satellite
