@@ -1,0 +1,4 @@
+id: slice_nsd_1
+is-shared-nss: true
+description: NetSlice Subnet (service) composed by 1 vnf with 4 cp
+nsd-ref: ubuntu_4ifaces-ns

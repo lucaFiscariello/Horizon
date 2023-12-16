@@ -1,0 +1,4 @@
+id: slice_vld_mgmt
+name: slice_vld_mgmt
+type: ELAN
+nss-connection-point-ref:

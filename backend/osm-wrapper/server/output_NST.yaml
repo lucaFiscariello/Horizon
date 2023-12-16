@@ -1,0 +1,44 @@
+nst:
+- SNSSAI-identifier:
+    slice-service-type: eMBB
+  id: slice_basic_nst
+  name: slice_basic_nst
+  netslice-subnet:
+  - description: desc
+    id: slice_nsd_1
+    is-shared-nss: true
+    nsd-ref: ubuntu_4ifaces
+  - description: desc1
+    id: slice_nsd_2
+    is-shared-nss: true
+    nsd-ref: clone_ubuntu_4ifaces
+  netslice-vld:
+  - id: slice_vld_mgmt
+    mgmt-network: true
+    name: slice_vld_mgmt
+    nss-connection-point-ref:
+    - nsd-connection-point-ref: nsd_cp_mgmt
+      nss-ref: slice_nsd_1
+    - nsd-connection-point-ref: nsd_cp_mgmt
+      nss-ref: slice_nsd_2
+    type: ELAN
+  - id: slice_vld_data1
+    mgmt-network: false
+    name: slice_vld_data1
+    nss-connection-point-ref:
+    - nsd-connection-point-ref: nsd_cp_data
+      nss-ref: slice_nsd_1
+    - nsd-connection-point-ref: nsd_cp_data
+      nss-ref: slice_nsd_2
+    type: ELAN
+  - id: slice_vld_data2
+    mgmt-network: false
+    name: slice_vld_data2
+    nss-connection-point-ref:
+    - nsd-connection-point-ref: nsd_cp_data2
+      nss-ref: slice_nsd_1
+    - nsd-connection-point-ref: nsd_cp_data2
+      nss-ref: slice_nsd_2
+    type: ELAN
+  quality-of-service:
+    id: 1
