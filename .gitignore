@@ -1,3 +1,4 @@
 frontend/node_modules/
 backend/opensand-wrapper/node_modules
 backend/proxy/node_modules
+backend/osm-wrapper/server/__pycache__

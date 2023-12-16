@@ -3,6 +3,8 @@ import yaml
 import json
 import copy
 from jsonpath_ng import jsonpath, parse
+from NsdBuilder import NSDBuilder 
+from NstBuilder import NSTBuilder 
 
 app = Flask(__name__)
 
@@ -315,6 +317,7 @@ def create_ns(project):
     set_value(json_template, NAME_PATH,"ubuntu_4ifaces-ns" )
     set_value(json_template, VERSION_PATH,1.0)
     set_value(json_template, VNF_NS_ID_PATH,"ubuntu_4ifaces-vnf",isElementOfArray=True)
+
     set_value(json_template, VLD_NS_PATH,{"id":test,"mgmt-network":True},isElementOfArray=True)
     set_value(json_template, VLD_NS_PATH,{"id":data1},isElementOfArray=True)
     set_value(json_template, VLD_NS_PATH,{"id":data2},isElementOfArray=True)
@@ -473,6 +476,68 @@ def create_nst(project):
 
     return jsonify({'project': json_template_nst})
 
+@app.route('/test/<string:project>', methods=['GET'])
+def test(project):
+    nsdBuilder = NSDBuilder()
+    nsdBuilder.set_description("ciao")
+
+    nsdBuilder.add_sapd("nsd_cp_mgmt","test",0)
+    nsdBuilder.add_sapd("nsd_cp_data","datanet1",1)
+    nsdBuilder.add_sapd("nsd_cp_data2","datanet2",2)
+    nsdBuilder.add_sapd("nsd_cp_data3","datanet3",3)
+
+    nsdBuilder.add_df()
+    nsdBuilder.add_vlp("vlp-datanet1","datanet1", "192.168.10.0/24",0)
+    nsdBuilder.add_vlp("vlp-datanet2","datanet2", "192.168.20.0/24",1)
+    nsdBuilder.add_vlp("vlp-datanet3","datanet3", "192.168.30.0/24",2)
+
+    nsdBuilder.add_vnf("vnf1","ubuntu_4ifaces",0)
+    nsdBuilder.add_vlc_on_vnf("vnf1","vnf-mgmt-ext","test",      num_cpd=0, num_vnf=0)
+    nsdBuilder.add_vlc_on_vnf("vnf1","vnf-data1-ext","datanet1", num_cpd=1, num_vnf=0)
+    nsdBuilder.add_vlc_on_vnf("vnf1","vnf-data2-ext","datanet2", num_cpd=2, num_vnf=0)
+    nsdBuilder.add_vlc_on_vnf("vnf1","vnf-data3-ext","datanet3", num_cpd=3, num_vnf=0)
+
+    nsdBuilder.set_id_ns("ubuntu_4ifaces-ns")
+    nsdBuilder.set_name_ns("ubuntu_4ifaces-ns")
+    nsdBuilder.set_versione_ns(1.0)
+    nsdBuilder.add_vnf_id_inside_ns("ubuntu_4ifaces-vnf")
+
+    nsdBuilder.add_vld_id_inside_ns("test",mng_net=True)
+    nsdBuilder.add_vld_id_inside_ns("data1")
+    nsdBuilder.add_vld_id_inside_ns("data2")
+    nsdBuilder.add_vld_id_inside_ns("data3")
+
+
+    return jsonify({'project': nsdBuilder.build()})
+
+@app.route('/testnst/<string:project>', methods=['GET'])
+def test_nst(project):
+    nstBuilder = NSTBuilder()
+    nstBuilder.set_id_nst("slice_basic_nst")
+    nstBuilder.set_name_nst("slice_basic_nst")
+
+    nstBuilder.add_nst_subnet("slice_nsd_1","desc","ubuntu_4ifaces",0)
+    nstBuilder.add_nst_subnet("slice_nsd_2","desc","ubuntu_4ifaces",1)
+    
+    nstBuilder.add_nst_vld("slice_vld_mgmt","slice_vld_mgmt",0,mng_net=True)
+    nstBuilder.add_nst_nss_cp("slice_nsd_1","nsd_cp_mgmt",num_vld=0,num_cp=0)
+    nstBuilder.add_nst_nss_cp("slice_nsd_2","nsd_cp_mgmt",num_vld=0,num_cp=1)
+
+    nstBuilder.add_nst_vld("slice_vld_data1","slice_vld_data1",1,mng_net=True)
+    nstBuilder.add_nst_nss_cp("slice_nsd_1","nsd_cp_data",num_vld=1,num_cp=0)
+    nstBuilder.add_nst_nss_cp("slice_nsd_2","nsd_cp_data",num_vld=1,num_cp=1)
+
+    nstBuilder.add_nst_vld("slice_vld_data2","slice_vld_data2",2,mng_net=True)
+    nstBuilder.add_nst_nss_cp("slice_nsd_1","nsd_cp_data2",num_vld=2,num_cp=0)
+    nstBuilder.add_nst_nss_cp("slice_nsd_2","nsd_cp_data2",num_vld=2,num_cp=1)
+
+    nstBuilder.add_nst_vld("slice_vld_data3","slice_vld_data3",3,mng_net=True)
+    nstBuilder.add_nst_nss_cp("slice_nsd_1","nsd_cp_data3",num_vld=3,num_cp=0)
+    nstBuilder.add_nst_nss_cp("slice_nsd_2","nsd_cp_data3",num_vld=3,num_cp=1)
+
+
+ 
+    return jsonify({'project': nstBuilder.build()})
 
 if __name__ == '__main__':
     app.run(debug=True,port=3005)
