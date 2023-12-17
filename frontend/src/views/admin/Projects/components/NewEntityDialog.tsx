@@ -15,9 +15,9 @@ import type {Parameter as ParameterType} from 'opensand/xsd/index.ts';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
 import createTheme from 'opensand/utils/theme.ts';
-import { setIdNewNode } from 'clientModel/clientModel';
-import { addPhysicalEntity } from 'clientModel/clientModel';
-import { addPhysicalMapping } from 'clientModel/clientModel';
+import { setIdNewNode } from 'client/opensad-wrapper/clientModel';
+import { addPhysicalEntity } from 'client/opensad-wrapper/clientModel';
+import { addPhysicalMapping } from 'client/opensad-wrapper/clientModel';
 
 interface Values {
     name: ParameterType;

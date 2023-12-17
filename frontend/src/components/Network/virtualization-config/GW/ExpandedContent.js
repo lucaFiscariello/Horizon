@@ -13,9 +13,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SingleSpotCard from './SingleSpotCard';
 import { Dialog, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
 import AddSpotDialog from './DialogAddSPot';
-import { getSpots } from 'clientModel/clientModel';
-
-
+import { getSpots } from 'client/opensad-wrapper/clientModel';
 
 
 export default function ExpandedContent(props) {

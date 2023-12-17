@@ -14,7 +14,7 @@ import CardContent from '@mui/material/CardContent';
 import ExpandedContent from './ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { getPhysicalMapping } from 'clientModel/clientModel';
+import { getPhysicalMapping } from 'client/opensad-wrapper/clientModel';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;

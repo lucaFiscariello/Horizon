@@ -29,7 +29,7 @@ import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useEffect } from 'react';
-import { createNetwork } from 'clientModel/clientModel';
+import { createNetwork } from 'client/opensad-wrapper/clientModel';
 
 type SaveCallback = () => void;
 

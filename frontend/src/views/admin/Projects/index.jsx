@@ -22,22 +22,24 @@
 
 // Chakra imports
 import { Box, Grid } from "@chakra-ui/react";
-import { configureEntity } from "clientModel/clientModel";
-import { addPhysicalEntity } from "clientModel/clientModel";
-import { addPhysicalMapping } from "clientModel/clientModel";
-import { addRoute } from "clientModel/clientModel";
-import { getPhysicalLinks } from "clientModel/clientModel";
-import { getPhysicalMapping } from "clientModel/clientModel";
-import { deletePhysicalLink } from "clientModel/clientModel";
-import { getRoutes } from "clientModel/clientModel";
-import { getSpots } from "clientModel/clientModel";
-import { deletePhysicalNode } from "clientModel/clientModel";
-import { getAllVirtualNode } from "clientModel/clientModel";
-import { getPhysicalNode } from "clientModel/clientModel";
-import { addSpot } from "clientModel/clientModel";
-import { addPhysicalLink } from "clientModel/clientModel";
-import { modifyEntity } from "clientModel/clientModel";
-import { addEntity } from "clientModel/clientModel";
+import { configureEntity } from "client/opensad-wrapper/clientModel";
+import { addPhysicalEntity } from "client/opensad-wrapper/clientModel";
+import { addPhysicalMapping } from "client/opensad-wrapper/clientModel";
+import { addRoute } from "client/opensad-wrapper/clientModel";
+import { getPhysicalLinks } from "client/opensad-wrapper/clientModel";
+import { getPhysicalMapping } from "client/opensad-wrapper/clientModel";
+import { deletePhysicalLink } from "client/opensad-wrapper/clientModel";
+import { getRoutes } from "client/opensad-wrapper/clientModel";
+import { getSpots } from "client/opensad-wrapper/clientModel";
+import { deletePhysicalNode } from "client/opensad-wrapper/clientModel";
+import { getAllVirtualNode } from "client/opensad-wrapper/clientModel";
+import { getPhysicalNode } from "client/opensad-wrapper/clientModel";
+import { addSpot } from "client/opensad-wrapper/clientModel";
+import { addPhysicalLink } from "client/opensad-wrapper/clientModel";
+import { modifyEntity } from "client/opensad-wrapper/clientModel";
+import { addEntity } from "client/opensad-wrapper/clientModel";
+import { create_ns_gw_st } from "client/osm-wrapper/client-osm-wrapper";
+import { DriverOsm } from "client/osm/driverOsm";
 import CreateProjectButton from "opensand/Model/CreateProjectButton.tsx";
 
 // Custom components
@@ -78,6 +80,13 @@ export default function Overview() {
       <CreateProjectButton></CreateProjectButton>
       <button onClick={async () => {
 
+        let driverOsm = new DriverOsm()
+        await driverOsm.inizialize()
+
+        let nsd = await create_ns_gw_st("Gateway","gw-prova","192.168.0.1")
+        await driverOsm.create_entity(nsd,"gw-prova")
+        
+        /* 
         //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
         
@@ -114,7 +123,7 @@ export default function Overview() {
         let spot = await getSpots("test","sat")
         let routes = await getRoutes("test")
         console.log(routes)
-
+*/
 
         }} >  test </button>
     </Box>

@@ -52,6 +52,9 @@ PATH_TEMPLATE_NST_SUBNET = '../yaml/template/nst/template-netslice-subnet.yaml'
 PATH_TEMPLATE_NST_VLD = '../yaml/template/nst/template-netslice-vld.yaml'
 PATH_TEMPLATE_NST_CP = '../yaml/template/nst/template-nst-nss-cp.yaml'
 
+PATH_NS_GW_ST = '../yaml/ns/ns-gw-st.yaml'
+PATH_NS_SAT = '../yaml/ns/ns-satellite.yaml'
+
 ######################## PATH ELEMENT YAML ########################
 DESCRIPTION_PATH = ["nsd", "nsd",0,"description"]
 
@@ -538,6 +541,20 @@ def test_nst(project):
 
  
     return jsonify({'project': nstBuilder.build()})
+
+@app.route('/osm-wrapper/ns/gw-st/template', methods=['POST'])
+def create_ns_by_default():
+
+    req = request.get_json()
+
+    nsdBuilder = NSDBuilder(modify_default=True)
+    nsdBuilder.set_ip_vnf_vlc(req.get('ip'),0,1)
+    nsdBuilder.set_id_ns(req.get('nameEntity'))
+    nsdBuilder.set_name_ns(req.get('nameEntity'))
+
+    return jsonify({'ns': nsdBuilder.build()})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True,port=3005)

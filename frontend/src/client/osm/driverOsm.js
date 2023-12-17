@@ -1,6 +1,5 @@
 import { delete_token, get_NSs, get_VNFDs, get_vims, post_NS, post_NSD, post_NS_instatiate, post_action, post_migrate_vnf, post_token, put_NSD } from "./api/osmClient"
 import yaml from 'js-yaml';
-import { NsdOsm } from "./model/NsdOsm";
 
 export class DriverOsm {
 
@@ -10,7 +9,7 @@ export class DriverOsm {
     }
 
     async inizialize() {
-        await this.modelNetwork.loadModel()
+        //await this.modelNetwork.loadModel()
         this.token = await post_token()
     }
 
@@ -20,6 +19,7 @@ export class DriverOsm {
     }
 
 
+    /*
     async create_network(){
         let id_openstack = await this.get_id_vim_openstack()
  
@@ -41,6 +41,20 @@ export class DriverOsm {
             await post_NS_instatiate(this.token,newNsd.nsd.nsd.nsd[0].name,idNS,id,id_openstack)  
         
         }
+    }*/
+
+    async create_entity(data,name){
+        let id_openstack = await this.get_id_vim_openstack()
+ 
+        let response = await post_NSD(this.token)
+        let id = response.id
+
+        await put_NSD(this.token,id,yaml.dump(data))
+        let idNS = await post_NS(this.token,name,id,id_openstack)  
+        idNS = idNS.id
+    
+        await post_NS_instatiate(this.token,name,idNS,id,id_openstack)  
+    
     }
 
     async get_NSs(){

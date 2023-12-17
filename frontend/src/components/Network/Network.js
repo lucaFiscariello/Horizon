@@ -16,12 +16,11 @@ import {
   Link,
 } from "@chakra-ui/react";
 import FullScreenDialogConfigST from './virtualization-config/ST/FullScreenDialogST';
-import { inizializeModel } from 'clientModel/clientModel';
-import { getPhysicalNode } from 'clientModel/clientModel';
-import { getPhysicalLinks } from 'clientModel/clientModel';
-import { deletePhysicalNode } from 'clientModel/clientModel';
-import { deletePhysicalLink } from 'clientModel/clientModel';
-import { addPhysicalLink } from 'clientModel/clientModel';
+import { getPhysicalNode } from 'client/opensad-wrapper/clientModel';
+import { getPhysicalLinks } from 'client/opensad-wrapper/clientModel';
+import { deletePhysicalNode } from 'client/opensad-wrapper/clientModel';
+import { deletePhysicalLink } from 'client/opensad-wrapper/clientModel';
+import { addPhysicalLink } from 'client/opensad-wrapper/clientModel';
 
 
 

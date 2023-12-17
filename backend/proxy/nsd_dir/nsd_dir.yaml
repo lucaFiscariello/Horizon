@@ -1,0 +1,54 @@
+nsd:
+  nsd:
+    - description: NS with 2 VNFs ubuntu_4ifaces-vnf connected by mgmtnet and 3 datanet VLs
+      df:
+        - id: default-df
+          virtual-link-profile:
+            - id: vlp-datanet1
+              virtual-link-desc-id: datanet1
+              virtual-link-protocol-data:
+                associated-layer-protocol: ipv4
+                l3-protocol-data:
+                  cidr: 192.168.0.0/24
+                  ip-version: ipv4
+            - id: vlp-datanet2
+              virtual-link-desc-id: datanet2
+              virtual-link-protocol-data:
+                associated-layer-protocol: ipv4
+                l3-protocol-data:
+                  cidr: 192.168.20.0/24
+                  ip-version: ipv4
+          vnf-profile:
+            - id: vnf1
+              virtual-link-connectivity:
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-mgmt-ext
+                  virtual-link-profile-id: test
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-data1-ext
+                      ip-address: 192.168.0.1
+                  virtual-link-profile-id: datanet1
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-data2-ext
+                  virtual-link-profile-id: datanet2
+              vnfd-id: ground_component
+      id: gw-prova
+      name: gw-prova
+      sapd:
+        - id: nsd_cp_mgmt
+          virtual-link-desc: test
+        - id: nsd_cp_data
+          virtual-link-desc: datanet1
+        - id: nsd_cp_data2
+          virtual-link-desc: datanet2
+      version: 1
+      virtual-link-desc:
+        - id: test
+          mgmt-network: true
+        - id: datanet1
+        - id: datanet2
+      vnfd-id:
+        - ground_component

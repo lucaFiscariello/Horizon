@@ -7,6 +7,7 @@ const port = 3003;
 let baseUrlOsm = "http://127.0.0.1:80"
 let baseUrlOpensand = "http://127.0.0.1:8888"
 let baseUrlModel = "http://127.0.0.1:3004"
+let baseUrlOsmWrapper = "http://127.0.0.1:3005"
 
 // Middleware per il parsing del corpo delle richieste in formato JSON
 app.use(express.json());
@@ -16,6 +17,14 @@ app.use(express.json());
 
 app.use('/api/:value*', async (req, res) => {
   let response = await forwarding_to_server(baseUrlOpensand,req)
+  const jsonData =  await response.json();
+  return res.json(jsonData);  
+});
+
+/********************** Middleware OSM-wrapper **********************/
+
+app.use('/osm-wrapper/:value*', async (req, res) => {
+  let response = await forwarding_to_server(baseUrlOsmWrapper,req)
   const jsonData =  await response.json();
   return res.json(jsonData);  
 });
@@ -38,11 +47,19 @@ app.use('/model/:value*', async (req, res) => {
 /********************** Middleware osm **********************/
 
 app.use('/osm/:value*', async (req, res,next) => {
+  console.log(req.body)
+  if(req.method == "PUT" &&  req.originalUrl.includes("nsd_content")){
 
-  let response = await forwarding_to_server(baseUrlOsm,req)
-  const jsonData =  await response.json();
-  return res.json(jsonData);   // Esegui il passaggio successivo
+    next()
+
+  }
+  else{
+
+    let response = await forwarding_to_server(baseUrlOsm,req)
+    const jsonData =  await response.json();
+    return res.json(jsonData);  
   
+  }
  });
 
 app.put('/osm/nsd/v1/ns_descriptors/:id/nsd_content',async (req, res) => {
