@@ -82,9 +82,6 @@ with open(PATH_TEMPLATE_NST_CP, 'r') as yaml_file:
 
 class NSTBuilder:
 
-    def __init__(self):
-        print(json_template_nst)
-
     def set_id_nst(self,id):
         set_value(json_template_nst, ID_NST_PATH, id)
 

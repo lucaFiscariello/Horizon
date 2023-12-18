@@ -28,15 +28,15 @@ nsd:
                 - constituent-cpd-id:
                     - constituent-base-element-id: vnf1
                       constituent-cpd-id: vnf-data1-ext
-                      ip-address: 192.168.0.1
+                      ip-address: 192.168.0.2
                   virtual-link-profile-id: datanet1
                 - constituent-cpd-id:
                     - constituent-base-element-id: vnf1
                       constituent-cpd-id: vnf-data2-ext
                   virtual-link-profile-id: datanet2
               vnfd-id: ground_component
-      id: gw-prova
-      name: gw-prova
+      id: st
+      name: st
       sapd:
         - id: nsd_cp_mgmt
           virtual-link-desc: test

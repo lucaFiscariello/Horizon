@@ -20,6 +20,27 @@ export async function create_ns_gw_st(type,nameEntity,ip){
 
 }
 
+export async function create_nst(nameProject,entities){
+
+  let body = new Object()
+  body.project = nameProject
+  body.entities = entities
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body:JSON.stringify(body)
+  };
+
+  let response = await fetch("/osm-wrapper/nst",options_profile)
+  let json_res = await response.json()
+  return json_res.nst;
+
+}
+
 
 
 

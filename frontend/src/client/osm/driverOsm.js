@@ -3,13 +3,11 @@ import yaml from 'js-yaml';
 
 export class DriverOsm {
 
-    constructor(modelNetwork) {        
+    constructor() {        
         this.token = ""
-        this.modelNetwork = modelNetwork  
     }
 
     async inizialize() {
-        //await this.modelNetwork.loadModel()
         this.token = await post_token()
     }
 
@@ -18,44 +16,22 @@ export class DriverOsm {
         this.token = await post_token()
     }
 
-
-    /*
-    async create_network(){
-        let id_openstack = await this.get_id_vim_openstack()
- 
-        for( let machine of this.modelNetwork.machines){
-            let response = await post_NSD(this.token)
-            let id = response.id
-
-            let newNsd = new NsdOsm(this.modelNetwork)
-            newNsd.set_id(machine.name)
-            newNsd.set_name(machine.name)
-            newNsd.add_vnf("opensand","test2")
-
-            let data = yaml.dump(newNsd.nsd);
-            await put_NSD(this.token,id,data)
-            
-            let idNS = await post_NS(this.token,newNsd.nsd.nsd.nsd[0].name,id,id_openstack)  
-            idNS = idNS.id
-        
-            await post_NS_instatiate(this.token,newNsd.nsd.nsd.nsd[0].name,idNS,id,id_openstack)  
-        
-        }
-    }*/
-
-    async create_entity(data,name){
-        let id_openstack = await this.get_id_vim_openstack()
+    async create_entity(data){
  
         let response = await post_NSD(this.token)
         let id = response.id
 
-        await put_NSD(this.token,id,yaml.dump(data))
+        await put_NSD(this.token,id,yaml.dump(data))    
+    }
+
+    async instance_entity(name,id){
+        let id_openstack = await this.get_id_vim_openstack()
         let idNS = await post_NS(this.token,name,id,id_openstack)  
         idNS = idNS.id
-    
         await post_NS_instatiate(this.token,name,idNS,id,id_openstack)  
-    
     }
+
+
 
     async get_NSs(){
         let nss = await get_NSs(this.token)

@@ -38,6 +38,7 @@ import { addSpot } from "client/opensad-wrapper/clientModel";
 import { addPhysicalLink } from "client/opensad-wrapper/clientModel";
 import { modifyEntity } from "client/opensad-wrapper/clientModel";
 import { addEntity } from "client/opensad-wrapper/clientModel";
+import { create_nst } from "client/osm-wrapper/client-osm-wrapper";
 import { create_ns_gw_st } from "client/osm-wrapper/client-osm-wrapper";
 import { DriverOsm } from "client/osm/driverOsm";
 import CreateProjectButton from "opensand/Model/CreateProjectButton.tsx";
@@ -79,17 +80,9 @@ export default function Overview() {
       </Grid>
       <CreateProjectButton></CreateProjectButton>
       <button onClick={async () => {
-
-        let driverOsm = new DriverOsm()
-        await driverOsm.inizialize()
-
-        let nsd = await create_ns_gw_st("Gateway","gw-prova","192.168.0.1")
-        await driverOsm.create_entity(nsd,"gw-prova")
         
-        /* 
         //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
-        
         await addPhysicalEntity("test","gw","Gateway")
         await configureEntity("test","gw","130.0.0.1","00:00:00:00:00:01")
 
@@ -122,8 +115,22 @@ export default function Overview() {
         
         let spot = await getSpots("test","sat")
         let routes = await getRoutes("test")
-        console.log(routes)
-*/
+
+        let driverOsm = new DriverOsm()
+        await driverOsm.inizialize()
+
+        let nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3")
+        await driverOsm.create_entity(nsd,"gw")
+
+        nsd = await create_ns_gw_st("Satellite","sat","192.168.0.1")
+        await driverOsm.create_entity(nsd,"sat")
+
+        nsd = await create_ns_gw_st("Terminal","st","192.168.0.2")
+        await driverOsm.create_entity(nsd,"st")
+        
+        let ent = [{"nameEntity":"gw","type":"Gateway"},{"nameEntity":"st","type":"Terminal"},{"nameEntity":"satellite","type":"Satellite"}]
+        let r = await create_nst("opensand",ent)
+        console.log(r)
 
         }} >  test </button>
     </Box>
