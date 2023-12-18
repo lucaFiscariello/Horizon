@@ -20,3 +20,37 @@ print:
     - xml
     - file_name
 
+config-net:
+  description: "config network."
+  params:
+    EMU_IFACE:
+      description: "EMU_IFACE"
+      type: string
+      default: ""
+    LAN_IFACE:
+      description: "LAN_IFACE"
+      type: string
+      default: ""
+    TAP_IFACE:
+      description: "TAP_IFACE"
+      type: string
+      default: ""
+    TAP_MAC:
+      description: "TAP_MAC"
+      type: string
+      default: ""   
+    BR_IFACE:
+      description: "BR_IFACE"
+      type: string
+      default: ""
+    BR_IFACE_IP:
+      description: "BR_IFACE_IP"
+      type: string
+      default: ""  
+  required:
+    - EMU_IFACE 
+    - LAN_IFACE 
+    - TAP_IFACE 
+    - TAP_MAC 
+    - BR_IFACE
+    - BR_IFACE_IP

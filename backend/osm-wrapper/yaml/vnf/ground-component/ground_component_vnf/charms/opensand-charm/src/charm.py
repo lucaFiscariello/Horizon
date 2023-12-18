@@ -45,7 +45,8 @@ class OSMCharm(CharmBase, InstallProgress):
 
         # Actions hooks
         self.framework.observe(self.on["print"].action, self._print)
-        
+        self.framework.observe(self.on["config-net"].action, self._config_net)
+
         # Relations hooks
 
     # Override InstallProgress to update our status
@@ -80,6 +81,30 @@ class OSMCharm(CharmBase, InstallProgress):
         shell("echo '"+data+"' >> /home/ubuntu/"+name_file)
         self.unit.status = self._get_current_status()
 
+    def _config_net(self,event):
+        
+        EMU_IFACE = event.params["EMU_IFACE"]
+        LAN_IFACE = event.params["LAN_IFACE"]
+        TAP_IFACE = event.params["TAP_IFACE"]
+        TAP_MAC = event.params["TAP_MAC"]
+        BR_IFACE = event.params["BR_IFACE"]
+        BR_IFACE_IP = event.params["BR_IFACE_IP"]
+
+        shell("ip link set {} up".format(EMU_IFACE))
+        shell("ip link set {} up".format(LAN_IFACE))
+        shell("sleep 0.1")
+        shell("ip tuntap add mode tap {}".format(TAP_IFACE))
+        shell("ip link set dev {} address {}".format(TAP_IFACE,TAP_MAC))
+        shell("ip link add name {} type bridge".format(BR_IFACE))
+        shell("ip address add {}/{} dev {}".format(BR_IFACE_IP,"24",BR_IFACE))
+        shell("ip link set dev {} master {}".format(TAP_IFACE,BR_IFACE))
+        shell("ip link set dev {} master {}".format(LAN_IFACE,BR_IFACE))
+        shell(" ip link set {} up".format(BR_IFACE))
+        shell(" ip link set {} up".format(TAP_IFACE))
+        
+        self.unit.status = self._get_current_status()
+
+    
     # Private functions
     def _get_current_status(self):
         status_type = ActiveStatus

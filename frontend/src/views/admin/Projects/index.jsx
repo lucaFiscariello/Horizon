@@ -83,17 +83,18 @@ export default function Overview() {
       <CreateProjectButton></CreateProjectButton>
       <button onClick={async () => {
         
+        
         /*
         //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
         await addPhysicalEntity("test","gw","Gateway")
-        await configureEntity("test","gw","130.0.0.1","00:00:00:00:00:01")
+        await configureEntity("test","gw","192.168.0.3","00:00:00:00:00:01")
 
         await addPhysicalEntity("test","sat","Satellite")
-        await configureEntity("test","sat","130.0.0.2","00:00:00:00:00:02")
+        await configureEntity("test","sat","192.168.0.1","00:00:00:00:00:02")
 
         await addPhysicalEntity("test","st","Terminal")
-        await configureEntity("test","st","130.0.0.4","00:00:00:00:00:04")
+        await configureEntity("test","st","192.168.0.2","00:00:00:00:00:03")
 
         //await addEntity("test","gw2","Gateway")
         //await configureEntity("test","gw2","130.0.0.3","00:00:00:00:00:03")
@@ -119,8 +120,6 @@ export default function Overview() {
         let spot = await getSpots("test","sat")
         let routes = await getRoutes("test")
 
-        let driverOsm = new DriverOsm()
-        await driverOsm.inizialize()
 
         let nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24")
         await driverOsm.create_entity(nsd,"gw")
@@ -130,7 +129,7 @@ export default function Overview() {
 
         nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24")
         await driverOsm.create_entity(nsd,"st")
-                
+       
 
         let ent = [{"nameEntity":"gw","type":"Gateway"},{"nameEntity":"st","type":"Terminal"},{"nameEntity":"sat","type":"Satellite"}]
         let data = await create_nst("opensand",ent)
@@ -146,14 +145,16 @@ export default function Overview() {
         let re = await driverOsm.put_nst_instantiate("opensand2",id_in.id)
       
         console.log(await re.json())
-        */
-
+       */
+    
         const builder = new xml2js.Builder();
         let driverOsm = new DriverOsm()
         await driverOsm.inizialize()
 
         let nss = await driverOsm.get_NSs()
         let model = await getModel("test")
+        let template_ip_br = "192.168.63."
+        let i = 1
 
         for (let ns of nss){
           let entity = model.model.entitiesByName[ns.nsd.id]
@@ -161,12 +162,41 @@ export default function Overview() {
           const xmlStringinf = builder.buildObject(entity.infrastructure);
           const xmlStringTop = builder.buildObject(model.model.topology);
           const xmlStringProf = builder.buildObject(entity.profile);
-
+          
           await driverOsm.load_xml(ns._id,"infrastructure.xml",xmlStringinf)
           await driverOsm.load_xml(ns._id,"topology.xml",xmlStringTop)
           await driverOsm.load_xml(ns._id,"profile.xml",xmlStringProf)
 
+          let type = entity.infrastructure.model.root.entity.entity_type
+          let mac;
+          
+          switch(type){
+
+            case "Satellite" :
+                mac= entity.infrastructure.model.root.entity.entity_sat.mac_address
+
+            case "Gateway" :
+                mac = entity.infrastructure.model.root.entity.entity_gw.mac_address
+
+            case "Terminal" :
+                mac = entity.infrastructure.model.root.entity.entity_st.mac_address
+                
+          } 
+
+          if(ns.nsd.id != "sat"){
+            let res = await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i)
+            console.log(res)
+          }
+
+          
+          
+          i = i+1
         }
+          
+        
+
+
+      
 
         }} >  test </button>
     </Box>

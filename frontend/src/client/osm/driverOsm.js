@@ -85,6 +85,26 @@ export class DriverOsm {
         let response = post_action(this.token,nameAction,nsId,configparams,vnf_index)
         return response
     }
+
+    async config_network(nsId,EMU_IFACE,LAN_IFACE,TAP_IFACE,TAP_MAC,BR_IFACE,BR_IFACE_IP){
+      
+        let nameAction = "config-net"
+        let vnf_index = "vnf1"
+
+        let configparams = new Object()
+        configparams.EMU_IFACE = EMU_IFACE
+        configparams.LAN_IFACE = LAN_IFACE
+
+        configparams.TAP_IFACE = TAP_IFACE
+        configparams.TAP_MAC = TAP_MAC
+        configparams.BR_IFACE = BR_IFACE
+        configparams.BR_IFACE_IP = BR_IFACE_IP
+
+        let response = post_action(this.token,nameAction,nsId,configparams,vnf_index)
+        return response
+    }
+
+
    
     
 }

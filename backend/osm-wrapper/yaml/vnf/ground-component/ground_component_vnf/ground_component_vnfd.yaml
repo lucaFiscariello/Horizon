@@ -31,7 +31,21 @@ vnfd:
             - data-type: STRING
               name: file_name
             execution-environment-ref: native
-
+          - name: config-net
+            parameter:
+            - data-type: STRING
+              name: LAN_IFACE
+            - data-type: STRING
+              name: EMU_IFACE
+            - data-type: STRING
+              name: TAP_IFACE
+            - data-type: STRING
+              name: TAP_MAC
+            - data-type: STRING
+              name: BR_IFACE
+            - data-type: STRING
+              name: BR_IFACE_IP
+            execution-environment-ref: native
   ext-cpd:
   - id: vnf-mgmt-ext
     int-cpd:
