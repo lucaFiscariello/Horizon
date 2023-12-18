@@ -38,6 +38,7 @@ import { addSpot } from "client/opensad-wrapper/clientModel";
 import { addPhysicalLink } from "client/opensad-wrapper/clientModel";
 import { modifyEntity } from "client/opensad-wrapper/clientModel";
 import { addEntity } from "client/opensad-wrapper/clientModel";
+import { create_ns_sat } from "client/osm-wrapper/client-osm-wrapper";
 import { create_nst } from "client/osm-wrapper/client-osm-wrapper";
 import { create_ns_gw_st } from "client/osm-wrapper/client-osm-wrapper";
 import { DriverOsm } from "client/osm/driverOsm";
@@ -119,18 +120,33 @@ export default function Overview() {
         let driverOsm = new DriverOsm()
         await driverOsm.inizialize()
 
-        let nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3")
+        let nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24")
         await driverOsm.create_entity(nsd,"gw")
 
-        nsd = await create_ns_gw_st("Satellite","sat","192.168.0.1")
+        nsd = await create_ns_sat("Satellite","sat","192.168.0.1")
         await driverOsm.create_entity(nsd,"sat")
 
-        nsd = await create_ns_gw_st("Terminal","st","192.168.0.2")
+        nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24")
         await driverOsm.create_entity(nsd,"st")
+                
+
+        let ent = [{"nameEntity":"gw","type":"Gateway"},{"nameEntity":"st","type":"Terminal"},{"nameEntity":"sat","type":"Satellite"}]
+        let data = await create_nst("opensand",ent)
+
+        // Creo descrittore di nst
+        let nst = await driverOsm.post_NST()
+        await driverOsm.put_NST(nst.id,data)
+          
+        // Creo un istanza di NST
+        let id_in = await driverOsm.put_nst_instance("opensand2",nst.id)
+
+        // Alloco un istanza di nst
+        let re = await driverOsm.put_nst_instantiate("opensand2",id_in.id)
         
-        let ent = [{"nameEntity":"gw","type":"Gateway"},{"nameEntity":"st","type":"Terminal"},{"nameEntity":"satellite","type":"Satellite"}]
-        let r = await create_nst("opensand",ent)
-        console.log(r)
+        
+        console.log(await re.json())
+
+
 
         }} >  test </button>
     </Box>

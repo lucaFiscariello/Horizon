@@ -19,8 +19,25 @@ def create_ns_by_default():
     nsdBuilder.set_ip_vnf_vlc(req.get('ip'),NUM_VNF,NUM_NET_DATA1)
     nsdBuilder.set_id_ns(req.get('nameEntity'))
     nsdBuilder.set_name_ns(req.get('nameEntity'))
+    nsdBuilder.set_cidr_vlp(req.get('cidr'),num_vlp=1)
 
     return jsonify({'ns': nsdBuilder.build()})
+
+@app.route('/osm-wrapper/ns/sat/template', methods=['POST'])
+def create_ns_sat_by_default():
+
+    NUM_VNF = 0
+    NUM_NET_DATA1 = 1
+    req = request.get_json()
+
+    nsdBuilder = NSDBuilder(modify_default=True , IsSatellite=True)
+    nsdBuilder.set_ip_vnf_vlc(req.get('ip'),NUM_VNF,NUM_NET_DATA1)
+    nsdBuilder.set_id_ns(req.get('nameEntity'))
+    nsdBuilder.set_name_ns(req.get('nameEntity'))
+    nsdBuilder.set_cidr_vlp(req.get('cidr'),num_vlp=0)
+
+    return jsonify({'ns': nsdBuilder.build()})
+
 
 @app.route('/osm-wrapper/nst', methods=['POST'])
 def create_nst():
@@ -30,7 +47,7 @@ def create_nst():
     NUM_NET = 0
 
     slice_name_template = "slice-{}"
-    slice_nsd_id_template = "slice_nsd_{}"
+    slice_nsd_id_template = "slice_nsd_{}_{}"
     slice_vld_template = "slice_vld_data{}"
     nsd_cp_data_template = "nsd_cp_data{}"
 
@@ -55,7 +72,7 @@ def create_nst():
     for i,entity in enumerate(entities):
         
         # netslice-subnet
-        id = slice_nsd_id_template.format(i)
+        id = slice_nsd_id_template.format(name_project,i)
         nsd_ref = entity.get("nameEntity")
         nstBuilder.add_nst_subnet(id,"desc",nsd_ref,num_subnet=i)
 

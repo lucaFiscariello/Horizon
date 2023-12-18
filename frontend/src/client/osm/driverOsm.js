@@ -1,4 +1,4 @@
-import { delete_token, get_NSs, get_VNFDs, get_vims, post_NS, post_NSD, post_NS_instatiate, post_action, post_migrate_vnf, post_token, put_NSD } from "./api/osmClient"
+import { delete_token, get_NSs, get_VNFDs, get_vims, post_NS, post_NSD, post_NST, post_NST_instance, post_NST_instatiate, post_NS_instatiate, post_action, post_migrate_vnf, post_token, put_NSD, put_NST } from "./api/osmClient"
 import yaml from 'js-yaml';
 
 export class DriverOsm {
@@ -31,7 +31,27 @@ export class DriverOsm {
         await post_NS_instatiate(this.token,name,idNS,id,id_openstack)  
     }
 
+    async post_NST(){
+        let res = await post_NST(this.token)
+        return res
+    }
 
+    async put_NST(id,data){
+        let res = await put_NST(this.token,id,yaml.dump(data))
+        return res
+    }
+
+    async put_nst_instance(nsiName,nsdID){
+        let id_openstack = await this.get_id_vim_openstack()
+        let response = await post_NST_instance(this.token,nsiName,nsdID,id_openstack)  
+        return await response.json()
+    }
+
+    async put_nst_instantiate(nsiName,nsiID){
+        let id_openstack = await this.get_id_vim_openstack()
+        let response = await post_NST_instatiate(this.token,nsiName,nsiID,id_openstack)
+        return response
+    }
 
     async get_NSs(){
         let nss = await get_NSs(this.token)

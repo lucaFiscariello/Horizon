@@ -110,17 +110,19 @@ with open(PATH_TEMPLATE_VNF_NETMNG, 'r') as yaml_file:
     
 class NSDBuilder:
 
-    def __init__(self, modify_default=False):
-        if modify_default :
-            with open(PATH_NS_GW_ST, 'r') as yaml_file:
-                template_ns_gw_st = yaml.safe_load(yaml_file)
-                json_template_ns_gw_st = json.dumps(template_ns_gw_st, indent=2)
-                self.json_template = json.loads(json_template_ns_gw_st)
-        else:
-            with open(PATH_TEMPLATE, 'r') as yaml_file:
-                template_yaml = yaml.safe_load(yaml_file)
-                json_template = json.dumps(template_yaml, indent=2)
-                self.json_template = json.loads(json_template)
+    def __init__(self, modify_default=False, IsSatellite=False):
+        
+        PATH = PATH_TEMPLATE
+
+        if modify_default and IsSatellite:
+            PATH = PATH_NS_SAT
+        if modify_default and not IsSatellite:
+            PATH = PATH_NS_GW_ST
+        
+        with open(PATH, 'r') as yaml_file:
+            template_yaml = yaml.safe_load(yaml_file)
+            json_template = json.dumps(template_yaml, indent=2)
+            self.json_template = json.loads(json_template)
 
     def set_description(self,description):
         set_value(self.json_template, DESCRIPTION_PATH, description)
@@ -161,6 +163,10 @@ class NSDBuilder:
         set_value(self.json_template, VL_PROFILE_PATH,copy.deepcopy(json_template_vlp), isElementOfArray=True )
         set_value(self.json_template, VLP_ID_PATH, vlp_id )
         set_value(self.json_template, VLP_VLD_PATH, vlp_vld )
+        set_value(self.json_template, VLP_VLD_CIDR, cidr )
+
+    def set_cidr_vlp(self,cidr,num_vlp):
+        VLP_VLD_CIDR[VLP_POS] = num_vlp
         set_value(self.json_template, VLP_VLD_CIDR, cidr )
 
     def add_vnf(self,vnf_id,vnf_profile_id,num_vnf):

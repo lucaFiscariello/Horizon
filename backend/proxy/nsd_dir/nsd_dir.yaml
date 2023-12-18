@@ -16,7 +16,7 @@ nsd:
               virtual-link-protocol-data:
                 associated-layer-protocol: ipv4
                 l3-protocol-data:
-                  cidr: 192.168.20.0/24
+                  cidr: 10.20.10.0/24
                   ip-version: ipv4
           vnf-profile:
             - id: vnf1

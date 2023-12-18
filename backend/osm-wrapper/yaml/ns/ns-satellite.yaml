@@ -31,18 +31,6 @@ nsd:
           - constituent-base-element-id: vnf1
             constituent-cpd-id: vnf-data1-ext
           virtual-link-profile-id: datanet1
-      - id: vnf2
-        vnfd-id: satellite
-        virtual-link-connectivity:
-        - constituent-cpd-id:
-          - constituent-base-element-id: vnf2
-            constituent-cpd-id: vnf-mgmt-ext
-          virtual-link-profile-id: test
-        - constituent-cpd-id:
-          - constituent-base-element-id: vnf2
-            constituent-cpd-id: vnf-data1-ext
-          virtual-link-profile-id: datanet1
-
     id: satellite-ns
     name: satellite-ns
     version: 1.0

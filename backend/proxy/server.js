@@ -47,8 +47,7 @@ app.use('/model/:value*', async (req, res) => {
 /********************** Middleware osm **********************/
 
 app.use('/osm/:value*', async (req, res,next) => {
-  console.log(req.body)
-  if(req.method == "PUT" &&  req.originalUrl.includes("nsd_content")){
+  if(req.method == "PUT" && (req.originalUrl.includes("nsd_content") || req.originalUrl.includes("nst_content"))){
 
     next()
 
@@ -123,6 +122,71 @@ app.put('/osm/nsd/v1/ns_descriptors/:id/nsd_content',async (req, res) => {
 
 });
 
+app.put('/osm/nst/v1/netslice_templates/:id/nst_content',async (req, res) => {
+
+  folderName = req.body.name
+  fileName = folderName+"/"+req.body.name+".yaml"
+  fileContent = req.body.data
+
+  fs.mkdir(folderName, (err) => {
+    if (err) {
+      console.error(`Si è verificato un errore durante la creazione della cartella: ${err}`);
+    } else {
+      console.log(`Cartella ${folderName} creata con successo.`);
+    }
+  });
+
+  fs.writeFile(fileName, fileContent, (err) => {
+    if (err) {
+      console.error(`Si è verificato un errore durante la creazione del file: ${err}`);
+    } else {
+      console.log(`File ${fileName} creato con successo.`);
+    }
+  });
+
+  const sourceDirectory = folderName; 
+  const outputFileName = 'archive.tar.gz'; 
+
+  // Crea un file tar dall'intera directory
+  await tar.c(
+    {
+      gzip: true, 
+      file: outputFileName,
+    },
+    [sourceDirectory]
+  )
+    
+  fs.readFile(outputFileName, async (err, data) => {
+      if(err) {
+
+        console.error('Si è verificato un errore durante la lettura del file:', err);
+
+      }else {
+     
+        const blob = new Blob([data], { type: "application/gzip" })
+        let token = req.body.token
+
+        const options_profile = {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/gzip',
+            "Accept": "application/json",
+            "Authorization" : 'Bearer '+token   
+          },
+          body:blob
+        };
+
+        let response = await fetch(baseUrlOsm+req.originalUrl,options_profile)
+        return res.json(response);
+
+    
+   }
+
+
+  });
+
+});
+
 
 /********************** Avvio server **********************/
 
@@ -157,6 +221,7 @@ async function forwarding_to_server(baseUrl,req){
     }
 
     let response = await fetch(baseUrl+req.originalUrl,options_profile)
+
     return response
   
   }

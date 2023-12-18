@@ -281,3 +281,95 @@ export async function post_action(token,nameAction,nsId,configparams,vnf_index){
 
 
 
+
+export async function post_NST(token){
+	  
+  const options_profile = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Accept": "application/json",
+        "Authorization" : 'Bearer '+token   
+      },
+  };
+  
+  let response = await fetch("osm/nst/v1/netslice_templates",options_profile)
+  const jsonData =  await response.json();
+  
+  return jsonData
+
+}
+
+export async function put_NST(token,id,data){
+
+  let body = new Object()
+  body.data = data 
+  body.name = "nst_dir"
+  body.token = token
+  body.id = id
+
+
+  const options_profile = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json"   
+    },
+    body:JSON.stringify(body)
+  };
+
+  let response = await fetch("/osm/nst/v1/netslice_templates/"+id+"/nst_content",options_profile)
+  const jsonData =  await response.json();
+
+  return jsonData
+
+
+}
+
+export async function post_NST_instance(token,nsiName,nstId,vimAccountId){
+	
+  let body = new Object()
+  body.nsiName = nsiName
+  body.nstId = nstId
+  body.vimAccountId = vimAccountId 
+  
+  const options_profile = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Accept": "application/json",
+        "Authorization" : 'Bearer '+token   
+      },
+      body: JSON.stringify(body),
+  };
+  
+  let response = await fetch("osm/nsilcm/v1/netslice_instances/",options_profile)
+  return response
+
+}
+
+export async function post_NST_instatiate(token,nsName,nsId,vimAccountId){
+
+  let body = new Object()
+  body.nsiName = nsName
+  body.nstId = nsId
+  body.vimAccountId = vimAccountId 
+
+
+  const options_profile = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        "Accept": "application/json",
+        "Authorization" : 'Bearer '+token   
+      },
+      body: JSON.stringify(body),
+  };
+
+  let response = await fetch("osm/nsilcm/v1/netslice_instances/"+nsId+"/instantiate",options_profile)
+  return response
+
+}
+
+
+
