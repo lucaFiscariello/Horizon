@@ -219,6 +219,19 @@ app.get('/model/project/:id/route',async (req, res) => {
 
 });
 
+app.get('/model/:id',async (req, res) => {
+
+    let nameProject = req.params.id
+    let modelNetwork = new ModelNetwork(nameProject) 
+    let response = new Object()
+
+    await modelNetwork.loadModel()
+    response.model = modelNetwork
+    
+    return res.json(response)
+
+});
+
 app.delete('/model/project/:id/entity/:idNode/physical',async (req, res) => {
 
     let nameProject = req.params.id
@@ -243,19 +256,6 @@ app.delete('/model/project/:id/link/physical',async (req, res) => {
 
 });
 
-/*
-app.post('/model/project/:id/instantiate',async (req, res) => {
-
-    let nameProject = req.params.id
-    let modelNetwork = new ModelNetwork(nameProject) 
-
-    let driverOsm = new DriverOsm(modelNetwork)
-    await driverOsm.inizialize()
-    await driverOsm.create_network()
- 
-    return res.json()
-
-});*/
             
 /********************** Avvio server **********************/
 

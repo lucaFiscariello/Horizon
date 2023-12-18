@@ -258,7 +258,7 @@ export async function post_action(token,nameAction,nsId,configparams,vnf_index){
   body.primitive = nameAction
   body.primitive_params = configparams
   body.member_vnf_index = vnf_index
-
+  body.vdu_id = "dataVM"
   const options_profile = {
       method: 'POST',
       headers: {

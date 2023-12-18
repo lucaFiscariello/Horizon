@@ -74,10 +74,9 @@ export class DriverOsm {
     }
 
 
-    async load_xml(nameAction,nsId,vnf_index,file_name,data_file){
-        //let nameAction = "print"
-        //let nsId = "6e411994-b644-4e61-a6d2-94f5ed6b86b6"
-        //let vnf_index = "my_first_vnf"
+    async load_xml(nsId,file_name,data_file){
+        let nameAction = "print"
+        let vnf_index = "vnf1"
 
         let configparams = new Object()
         configparams.xml = data_file

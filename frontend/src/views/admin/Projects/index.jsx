@@ -32,6 +32,7 @@ import { deletePhysicalLink } from "client/opensad-wrapper/clientModel";
 import { getRoutes } from "client/opensad-wrapper/clientModel";
 import { getSpots } from "client/opensad-wrapper/clientModel";
 import { deletePhysicalNode } from "client/opensad-wrapper/clientModel";
+import { getModel } from "client/opensad-wrapper/clientModel";
 import { getAllVirtualNode } from "client/opensad-wrapper/clientModel";
 import { getPhysicalNode } from "client/opensad-wrapper/clientModel";
 import { addSpot } from "client/opensad-wrapper/clientModel";
@@ -43,7 +44,7 @@ import { create_nst } from "client/osm-wrapper/client-osm-wrapper";
 import { create_ns_gw_st } from "client/osm-wrapper/client-osm-wrapper";
 import { DriverOsm } from "client/osm/driverOsm";
 import CreateProjectButton from "opensand/Model/CreateProjectButton.tsx";
-
+import xml2js from "xml2js"
 // Custom components
 
 import Projects from "views/admin/Projects/components/Projects";
@@ -82,6 +83,7 @@ export default function Overview() {
       <CreateProjectButton></CreateProjectButton>
       <button onClick={async () => {
         
+        /*
         //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
         await addPhysicalEntity("test","gw","Gateway")
@@ -142,11 +144,29 @@ export default function Overview() {
 
         // Alloco un istanza di nst
         let re = await driverOsm.put_nst_instantiate("opensand2",id_in.id)
-        
-        
+      
         console.log(await re.json())
+        */
 
+        const builder = new xml2js.Builder();
+        let driverOsm = new DriverOsm()
+        await driverOsm.inizialize()
 
+        let nss = await driverOsm.get_NSs()
+        let model = await getModel("test")
+
+        for (let ns of nss){
+          let entity = model.model.entitiesByName[ns.nsd.id]
+
+          const xmlStringinf = builder.buildObject(entity.infrastructure);
+          const xmlStringTop = builder.buildObject(model.model.topology);
+          const xmlStringProf = builder.buildObject(entity.profile);
+
+          await driverOsm.load_xml(ns._id,"infrastructure.xml",xmlStringinf)
+          await driverOsm.load_xml(ns._id,"topology.xml",xmlStringTop)
+          await driverOsm.load_xml(ns._id,"profile.xml",xmlStringProf)
+
+        }
 
         }} >  test </button>
     </Box>

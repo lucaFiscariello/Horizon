@@ -246,6 +246,23 @@ export async function getPhysicalMapping(nameProject,nameEntity){
 
 }
 
+
+export async function getModel(nameProject){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/"+nameProject,options_profile)
+  const jsonData =  await response.json()
+  return jsonData;
+
+}
+
 export async function getSpots(nameProject,nameSat){
 
   const options_profile = {
