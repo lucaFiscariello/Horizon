@@ -21,7 +21,7 @@ export class DriverOsm {
         let response = await post_NSD(this.token)
         let id = response.id
 
-        await put_NSD(this.token,id,yaml.dump(data))    
+        return await put_NSD(this.token,id,yaml.dump(data))    
     }
 
     async instance_entity(name,id){

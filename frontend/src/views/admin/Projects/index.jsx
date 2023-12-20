@@ -135,11 +135,12 @@ export default function Overview() {
           let nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24")
           await driverOsm.create_entity(nsd,"gw")
 
-          nsd = await create_ns_sat("Satellite","sat","192.168.0.1")
-          await driverOsm.create_entity(nsd,"sat")
-
           nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24")
           await driverOsm.create_entity(nsd,"st")
+
+          nsd = await create_ns_sat("Satellite","sat","192.168.0.1")
+          let s = await driverOsm.create_entity(nsd,"sat")
+          console.log(await s.json())
         
 
           let ent = [{"nameEntity":"gw","type":"Gateway"},{"nameEntity":"st","type":"Terminal"},{"nameEntity":"sat","type":"Satellite"}]
