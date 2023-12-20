@@ -7,9 +7,12 @@ vnfd:
       vdu-level:
       - number-of-instances: 1
         vdu-id: dataVM
+        
     vdu-profile:
     - id: dataVM
       min-number-of-instances: 1
+      affinity-or-anti-affinity-group:
+        - id: gatewayPhy
     lcm-operations-configuration:
       operate-vnf-op-config:
         day1-2:

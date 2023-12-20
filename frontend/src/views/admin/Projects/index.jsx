@@ -151,7 +151,7 @@ export default function Overview() {
             
           // Creo un istanza di NST
           let id_in = await driverOsm.put_nst_instance("opensand2",nst.id)
-
+          console.log(id_in)
           // Alloco un istanza di nst
           let re = await driverOsm.put_nst_instantiate("opensand2",id_in.id)
         
