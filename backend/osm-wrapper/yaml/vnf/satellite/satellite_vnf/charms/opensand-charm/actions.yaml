@@ -19,4 +19,6 @@ print:
   required:
     - xml
     - file_name
+config-net:
+  description: "Start opensand."
 

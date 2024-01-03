@@ -78,7 +78,7 @@ class OSMCharm(CharmBase, InstallProgress):
         data = event.params["xml"]
         name_file = event.params["file_name"]
 
-        shell("echo '"+data+"' >> /home/ubuntu/"+name_file)
+        shell("echo '"+data+"' > /home/ubuntu/"+name_file)
         self.unit.status = self._get_current_status()
 
     def _config_net(self,event):
@@ -101,6 +101,10 @@ class OSMCharm(CharmBase, InstallProgress):
         shell("ip link set dev {} master {}".format(LAN_IFACE,BR_IFACE))
         shell("ip link set {} up".format(BR_IFACE))
         shell("ip link set {} up".format(TAP_IFACE))
+        
+        shell("sleep 5")
+        shell("opensand -i /home/ubuntu/infrastructure.xml -t /home/ubuntu/topology.xml -p /home/ubuntu/profile.xml &")
+
         
         self.unit.status = self._get_current_status()
 

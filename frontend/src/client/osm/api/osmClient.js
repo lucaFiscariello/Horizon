@@ -252,11 +252,14 @@ export async function post_migrate_vnf(token,vnfId,nsId){
 
 }
 
-export async function post_action(token,nameAction,nsId,configparams,vnf_index){
+export async function post_action(token,nameAction,nsId,vnf_index,configparams){
 
   let body = new Object()
   body.primitive = nameAction
-  body.primitive_params = configparams
+
+  if(configparams)
+    body.primitive_params = configparams
+
   body.member_vnf_index = vnf_index
   body.vdu_id = "dataVM"
   const options_profile = {
@@ -273,7 +276,8 @@ export async function post_action(token,nameAction,nsId,configparams,vnf_index){
   
   let response = await fetch("osm/nslcm/v1/ns_instances/"+nsId+"/action",options_profile)
   let jsonData = await response.json()
-  
+  console.log(jsonData)
+
   return jsonData
 
 }

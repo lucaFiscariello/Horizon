@@ -129,8 +129,6 @@ export default function Overview() {
           
           let driverOsm = new DriverOsm()
           await driverOsm.inizialize()
-
-          await driverOsm.get_id_vim_openstack()
           
           let nsd = await create_ns_sat("Satellite","sat","192.168.0.1","192.168.0.0/24")
           let id = await driverOsm.create_entity(nsd)
@@ -142,6 +140,7 @@ export default function Overview() {
           nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24","192.168.0.0/24","sat")
           id = await driverOsm.create_entity(nsd)
           id = driverOsm.instance_entity("gw",id,"phy-gw")
+          console.log(id)
           console.log(id)
 
           nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24","192.168.0.0/24","sat")
@@ -176,6 +175,8 @@ export default function Overview() {
             await driverOsm.load_xml(ns._id,"infrastructure.xml",xmlStringinf)
             await driverOsm.load_xml(ns._id,"topology.xml",xmlStringTop)
             await driverOsm.load_xml(ns._id,"profile.xml",xmlStringProf)
+            
+            console.log("Caricamneto completato")
 
             let type = entity.infrastructure.model.root.entity.entity_type
             let mac;
@@ -195,6 +196,9 @@ export default function Overview() {
                   break;
             } 
 
+            await new Promise(r => setTimeout(r, 20000));
+
+
             if(ns.nsd.id != "sat"){
               let res = await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i)
               console.log("-----------------")
@@ -202,7 +206,11 @@ export default function Overview() {
               console.log(mac)
               console.log(ns.nsd.id)
               console.log(template_ip_br+i)
-              console.log(entity)
+            }else{
+              let res = await driverOsm.config_network(ns._id)
+              console.log("-----------------")
+              console.log(ns._id)
+              console.log(ns.nsd.id)
             }
 
             
@@ -215,6 +223,15 @@ export default function Overview() {
 
           }} >  configura rete </button>
 
+
+<button onClick={async () => {
+          
+          let driverOsm = new DriverOsm()
+          await driverOsm.inizialize()
+          let res = await driverOsm.get_NSs()
+          console.log(res)
+
+          }} >  Stato </button>     
 
           </Stack>
       </Box>

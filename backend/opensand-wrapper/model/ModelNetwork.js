@@ -21,7 +21,7 @@ class ModelNetwork {
 
         this.entities = {} 
         this.entitiesByName = {}
-        this.maxId = 1        
+        this.maxId = -1        
     }
 
     /**

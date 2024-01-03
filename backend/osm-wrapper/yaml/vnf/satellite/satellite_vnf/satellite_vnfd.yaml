@@ -31,6 +31,8 @@ vnfd:
             - data-type: STRING
               name: file_name
             execution-environment-ref: native
+          - name: config-net
+            execution-environment-ref: native
 
   ext-cpd:
   - id: vnf-mgmt-ext

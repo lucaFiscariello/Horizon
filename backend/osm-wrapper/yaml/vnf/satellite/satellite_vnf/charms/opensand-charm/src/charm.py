@@ -45,7 +45,8 @@ class OSMCharm(CharmBase, InstallProgress):
 
         # Actions hooks
         self.framework.observe(self.on["print"].action, self._print)
-        
+        self.framework.observe(self.on["config-net"].action, self._config_net)
+
         # Relations hooks
 
     # Override InstallProgress to update our status
@@ -77,7 +78,12 @@ class OSMCharm(CharmBase, InstallProgress):
         data = event.params["xml"]
         name_file = event.params["file_name"]
 
-        shell("echo '"+data+"' >> /home/ubuntu/"+name_file)
+        shell("echo '"+data+"' > /home/ubuntu/"+name_file)
+        self.unit.status = self._get_current_status()
+
+
+    def _config_net(self,event):
+        shell("opensand -i /home/ubuntu/infrastructure.xml -t /home/ubuntu/topology.xml &")
         self.unit.status = self._get_current_status()
 
     # Private functions

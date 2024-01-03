@@ -87,7 +87,7 @@ export class DriverOsm {
         configparams.xml = data_file
         configparams.file_name = file_name
 
-        let response = post_action(this.token,nameAction,nsId,configparams,vnf_index)
+        let response = await post_action(this.token,nameAction,nsId,vnf_index,configparams)
         return response
     }
 
@@ -95,21 +95,21 @@ export class DriverOsm {
       
         let nameAction = "config-net"
         let vnf_index = "vnf1"
-
         let configparams = new Object()
-        configparams.EMU_IFACE = EMU_IFACE
-        configparams.LAN_IFACE = LAN_IFACE
-
-        configparams.TAP_IFACE = TAP_IFACE
-        configparams.TAP_MAC = TAP_MAC
-        configparams.BR_IFACE = BR_IFACE
-        configparams.BR_IFACE_IP = BR_IFACE_IP
-
-        let response = post_action(this.token,nameAction,nsId,configparams,vnf_index)
-        return response
-    }
 
 
-   
+        if(EMU_IFACE){
+            configparams.EMU_IFACE = EMU_IFACE
+            configparams.LAN_IFACE = LAN_IFACE
     
+            configparams.TAP_IFACE = TAP_IFACE
+            configparams.TAP_MAC = TAP_MAC
+            configparams.BR_IFACE = BR_IFACE
+            configparams.BR_IFACE_IP = BR_IFACE_IP
+        }
+
+
+        return await post_action(this.token,nameAction,nsId,vnf_index,configparams)
+    }
+       
 }

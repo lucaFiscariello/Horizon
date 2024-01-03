@@ -9,7 +9,14 @@ nsd:
               virtual-link-protocol-data:
                 associated-layer-protocol: ipv4
                 l3-protocol-data:
-                  cidr: null
+                  cidr: 192.168.0.0/24
+                  ip-version: ipv4
+            - id: vlp-datanet2
+              virtual-link-desc-id: datanet2
+              virtual-link-protocol-data:
+                associated-layer-protocol: ipv4
+                l3-protocol-data:
+                  cidr: 10.20.10.0/24
                   ip-version: ipv4
           vnf-profile:
             - id: vnf1
@@ -21,16 +28,22 @@ nsd:
                 - constituent-cpd-id:
                     - constituent-base-element-id: vnf1
                       constituent-cpd-id: vnf-data1-ext
-                      ip-address: 192.168.0.1
+                      ip-address: 192.168.0.2
                   virtual-link-profile-id: datanet1
-              vnfd-id: satellite
-      id: sat
-      name: sat
+                - constituent-cpd-id:
+                    - constituent-base-element-id: vnf1
+                      constituent-cpd-id: vnf-data2-ext
+                  virtual-link-profile-id: datanet2
+              vnfd-id: ground_component
+      id: st
+      name: st
       sapd:
         - id: nsd_cp_mgmt
           virtual-link-desc: test
         - id: nsd_cp_data
           virtual-link-desc: datanet1
+        - id: nsd_cp_data2
+          virtual-link-desc: datanet2
       version: 1
       virtual-link-desc:
         - id: test
@@ -39,4 +52,4 @@ nsd:
           vim-network-name: sat-datanet1
         - id: datanet2
       vnfd-id:
-        - satellite
+        - ground_component
