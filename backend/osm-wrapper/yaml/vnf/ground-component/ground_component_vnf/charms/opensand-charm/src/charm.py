@@ -99,8 +99,8 @@ class OSMCharm(CharmBase, InstallProgress):
         shell("ip address add {}/{} dev {}".format(BR_IFACE_IP,"24",BR_IFACE))
         shell("ip link set dev {} master {}".format(TAP_IFACE,BR_IFACE))
         shell("ip link set dev {} master {}".format(LAN_IFACE,BR_IFACE))
-        shell(" ip link set {} up".format(BR_IFACE))
-        shell(" ip link set {} up".format(TAP_IFACE))
+        shell("ip link set {} up".format(BR_IFACE))
+        shell("ip link set {} up".format(TAP_IFACE))
         
         self.unit.status = self._get_current_status()
 

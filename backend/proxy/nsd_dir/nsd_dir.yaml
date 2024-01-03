@@ -49,6 +49,7 @@ nsd:
         - id: test
           mgmt-network: true
         - id: datanet1
+          vim-network-name: sat-datanet1
         - id: datanet2
       vnfd-id:
         - ground_component

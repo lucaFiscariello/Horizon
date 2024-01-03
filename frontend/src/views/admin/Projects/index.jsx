@@ -88,13 +88,14 @@ export default function Overview() {
           
           //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
-          await addPhysicalEntity("test","gw","Gateway")
+          //await addPhysicalEntity("test","gw","Gateway")
+          await addEntity("test","gw","Gateway")
           await configureEntity("test","gw","192.168.0.3","00:00:00:00:00:01")
 
-          await addPhysicalEntity("test","sat","Satellite")
+          await addEntity("test","sat","Satellite")
           await configureEntity("test","sat","192.168.0.1","00:00:00:00:00:02")
 
-          await addPhysicalEntity("test","st","Terminal")
+          await addEntity("test","st","Terminal")
           await configureEntity("test","st","192.168.0.2","00:00:00:00:00:03")
 
           //await addEntity("test","gw2","Gateway")
@@ -108,60 +109,53 @@ export default function Overview() {
           //await addRoute("test","gw2","st")
 
           
-          let node = await getPhysicalNode("test")
-          let link = await getPhysicalLinks("test")
-          let entities = await getAllVirtualNode("test")
-          let mapping = await getPhysicalMapping("test","gw")
+          //let node = await getPhysicalNode("test")
+          //let link = await getPhysicalLinks("test")
+          //let entities = await getAllVirtualNode("test")
+          //let mapping = await getPhysicalMapping("test","gw")
           let spot = await getSpots("test","sat")
           let routes = await getRoutes("test")
 
-          console.log(mapping)
-          console.log(node)
-          console.log(link)
-          console.log(entities)
           console.log(spot)
+          console.log(routes)
+
 
           //await deletePhysicalNode("test","gw")
           //await deletePhysicalLink("test","gw","sat")
         
           }} >  configura opensad </button>
         
-
         <button onClick={async () => {
           
           let driverOsm = new DriverOsm()
           await driverOsm.inizialize()
 
-          let nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24")
-          await driverOsm.create_entity(nsd,"gw")
+          await driverOsm.get_id_vim_openstack()
+          
+          let nsd = await create_ns_sat("Satellite","sat","192.168.0.1","192.168.0.0/24")
+          let id = await driverOsm.create_entity(nsd)
+          id = driverOsm.instance_entity("sat",id,"phy-sat")
+          console.log(id)
 
-          nsd = await create_ns_sat("Satellite","sat","192.168.0.1")
-          await driverOsm.create_entity(nsd,"sat")
+          await new Promise(r => setTimeout(r, 5000));
 
-          nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24")
-          await driverOsm.create_entity(nsd,"st")
-        
+          nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24","192.168.0.0/24","sat")
+          id = await driverOsm.create_entity(nsd)
+          id = driverOsm.instance_entity("gw",id,"phy-gw")
+          console.log(id)
 
-          let ent = [{"nameEntity":"gw","type":"Gateway"},{"nameEntity":"st","type":"Terminal"},{"nameEntity":"sat","type":"Satellite"}]
-          let data = await create_nst("opensand",ent)
+          nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24","192.168.0.0/24","sat")
+          id = await driverOsm.create_entity(nsd)
+          id = driverOsm.instance_entity("st",id,"phy-st")
+          console.log(id)
 
-          // Creo descrittore di nst
-          let nst = await driverOsm.post_NST()
-          await driverOsm.put_NST(nst.id,data)
-            
-          // Creo un istanza di NST
-          let id_in = await driverOsm.put_nst_instance("opensand2",nst.id)
-          console.log(id_in)
-          // Alloco un istanza di nst
-          let re = await driverOsm.put_nst_instantiate("opensand2",id_in.id)
-        
-          console.log(await re.json())
-      
+
           
 
-          }} >  creazione rete </button>
+          }} >  creazione rete </button>     
 
-  <button onClick={async () => {
+
+        <button onClick={async () => {
           
           let driverOsm = new DriverOsm()
           await driverOsm.inizialize()
@@ -190,18 +184,25 @@ export default function Overview() {
 
               case "Satellite" :
                   mac= entity.infrastructure.model.root.entity.entity_sat.mac_address
+                  break;
 
               case "Gateway" :
                   mac = entity.infrastructure.model.root.entity.entity_gw.mac_address
+                  break;
 
               case "Terminal" :
                   mac = entity.infrastructure.model.root.entity.entity_st.mac_address
-                  
+                  break;
             } 
 
             if(ns.nsd.id != "sat"){
               let res = await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i)
-              console.log(res)
+              console.log("-----------------")
+              console.log(ns._id)
+              console.log(mac)
+              console.log(ns.nsd.id)
+              console.log(template_ip_br+i)
+              console.log(entity)
             }
 
             
@@ -213,6 +214,8 @@ export default function Overview() {
         
 
           }} >  configura rete </button>
+
+
           </Stack>
       </Box>
    

@@ -1,10 +1,12 @@
-export async function create_ns_gw_st(type,nameEntity,ip,cidr){
+export async function create_ns_gw_st(type,nameEntity,ip,cidr,cidr_emulation,vim_net){
 
   let body = new Object()
   body.type = type
   body.nameEntity = nameEntity
   body.ip = ip
   body.cidr = cidr
+  body.cidr_emulation = cidr_emulation
+  body.vim_net = vim_net+"-datanet1"
 
   const options_profile = {
     method: 'POST',
@@ -21,12 +23,13 @@ export async function create_ns_gw_st(type,nameEntity,ip,cidr){
 
 }
 
-export async function create_ns_sat(type,nameEntity,ip){
+export async function create_ns_sat(type,nameEntity,ip,cidr){
 
   let body = new Object()
   body.type = type
   body.nameEntity = nameEntity
   body.ip = ip
+  body.cidr = cidr
 
   const options_profile = {
     method: 'POST',

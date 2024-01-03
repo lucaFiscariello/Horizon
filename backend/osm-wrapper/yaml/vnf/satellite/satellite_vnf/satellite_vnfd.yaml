@@ -42,7 +42,7 @@ vnfd:
       cpd: eth1-int
       vdu-id: dataVM
 
-  id: staellite
+  id: satellite
   mgmt-cp: vnf-mgmt-ext
   product-name: satellite
   sw-image-desc:

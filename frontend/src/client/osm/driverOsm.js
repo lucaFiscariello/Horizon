@@ -21,11 +21,12 @@ export class DriverOsm {
         let response = await post_NSD(this.token)
         let id = response.id
 
-        await put_NSD(this.token,id,yaml.dump(data))    
+        await put_NSD(this.token,id,yaml.dump(data))
+        return id    
     }
 
-    async instance_entity(name,id){
-        let id_openstack = await this.get_id_vim_openstack()
+    async instance_entity(name,id,vim){
+        let id_openstack = await this.get_id_vim_openstack(vim)
         let idNS = await post_NS(this.token,name,id,id_openstack)  
         idNS = idNS.id
         await post_NS_instatiate(this.token,name,idNS,id,id_openstack)  
@@ -63,8 +64,12 @@ export class DriverOsm {
         return vnfs
     } 
     
-    async get_id_vim_openstack(){
+    async get_id_vim_openstack(vim_name){
         let vims = await get_vims(this.token)
+        for(let vim of vims){
+            if(vim.name == vim_name)
+                return vim._id
+        }
         return vims[0]._id
     }
 

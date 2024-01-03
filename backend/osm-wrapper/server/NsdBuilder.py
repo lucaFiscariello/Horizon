@@ -72,12 +72,14 @@ NAME_PATH = ["nsd", "nsd",0,"name"]
 VERSION_PATH = ["nsd", "nsd",0,"version"]
 VNF_NS_ID_PATH = ["nsd", "nsd",0,"vnf-id"]
 VLD_NS_PATH = ["nsd", "nsd",0,"virtual-link-desc"]
+VLD_NS_VIM_NET_PATH = ["nsd", "nsd",0,"virtual-link-desc",1,"vim-network-name"]
 
 ######################## POS ARRAY YAML ########################
 SAPD_POS = 4
 VLP_POS = 6
 VNF_NET_POS = 6
 VNF_CONSTITUENT_POS = 8
+VLD_NS_VIM_NET_POS = 4
 
 ######################## LETTURA TEMPLATE YAML ########################
 
@@ -145,6 +147,13 @@ class NSDBuilder:
         else:
             set_value(self.json_template, VLD_NS_PATH,{"id":vld_id},isElementOfArray=True)
 
+    def add_vld_vim_net_datanet1(self,vim_net):
+        set_value(self.json_template, VLD_NS_VIM_NET_PATH,vim_net)
+       
+    def add_vld_vim_net_datanet2(self,vim_net):
+        VLD_NS_VIM_NET_PATH[VLD_NS_VIM_NET_POS]=2
+        set_value(self.json_template, VLD_NS_VIM_NET_PATH,vim_net)
+       
 
     def add_sapd(self,id,virtual_link_desc,num_sapd):
         SAPD_PATH_ID[SAPD_POS]=num_sapd

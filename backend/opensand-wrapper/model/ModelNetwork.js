@@ -524,6 +524,7 @@ class ModelNetwork {
         let allItems = this.topology.model.root.st_assignment.assignments.item
         route.terminal_id = terminalId
         route.gateway_id = gatewayId
+        route.group="Standard"
         item.item = route
 
 

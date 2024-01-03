@@ -180,8 +180,7 @@ class ModelEntity {
 
         switch(this.type){
             case "Satellite" :
-                this.infrastructure.model.root.entity.entity_sat.mac_address = mac
-                break;
+                return;
 
             case "Gateway" :
                 this.infrastructure.model.root.entity.entity_gw.mac_address = mac
@@ -229,8 +228,10 @@ class ModelEntity {
         let item = new Object()
 
         entity.entity_id = id
-        entity.emu_adress = ip
-        entity.mac_adress = mac
+        entity.emu_address = ip
+
+        if(type!="Satellite")
+            entity.mac_address = mac
 
         item.item = entity
 
@@ -274,6 +275,7 @@ class ModelEntity {
                 break;
         }
 
+        console.log(this.infrastructure.model.root.infrastructure.satellites)
 
         this.updateXml()
 

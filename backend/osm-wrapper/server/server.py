@@ -8,6 +8,7 @@ from NstBuilder import NSTBuilder
 
 app = Flask(__name__)
 
+
 @app.route('/osm-wrapper/ns/gw-st/template', methods=['POST'])
 def create_ns_by_default():
 
@@ -20,6 +21,8 @@ def create_ns_by_default():
     nsdBuilder.set_id_ns(req.get('nameEntity'))
     nsdBuilder.set_name_ns(req.get('nameEntity'))
     nsdBuilder.set_cidr_vlp(req.get('cidr'),num_vlp=1)
+    nsdBuilder.set_cidr_vlp(req.get('cidr_emulation'),num_vlp=0)
+    nsdBuilder.add_vld_vim_net_datanet1(req.get('vim_net'))
 
     return jsonify({'ns': nsdBuilder.build()})
 
