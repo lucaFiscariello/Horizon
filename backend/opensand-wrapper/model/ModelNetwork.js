@@ -892,6 +892,12 @@ class ModelNetwork {
         return res
     }
 
+    async enableCollector(ip){
+
+        for(let id in this.entities){
+            await this.entities[id].enableCollector(ip)
+        }
+    }
 
 }
 

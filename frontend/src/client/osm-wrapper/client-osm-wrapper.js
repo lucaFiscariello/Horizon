@@ -46,6 +46,29 @@ export async function create_ns_sat(type,nameEntity,ip,cidr){
 
 }
 
+export async function create_ns_node(nameEntity,ip,cidr,vim_net){
+
+  let body = new Object()
+  body.nameEntity = nameEntity
+  body.ip = ip
+  body.cidr = cidr
+  body.vim_net = vim_net+"-datanet2"
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+    body:JSON.stringify(body)
+  };
+
+  let response = await fetch("/osm-wrapper/ns/node/template",options_profile)
+  let json_res = await response.json()
+  return json_res.ns;
+
+}
+
 export async function create_nst(nameProject,entities){
 
   let body = new Object()

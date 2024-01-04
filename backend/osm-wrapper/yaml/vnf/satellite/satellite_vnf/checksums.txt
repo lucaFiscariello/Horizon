@@ -1,5 +1,5 @@
 9934aff3c993e3012bfe1d8a31aefac0	satellite_vnf/satellite_vnfd.yaml
-4853a1292bf565979a63c1880ee71e16	satellite_vnf/cloud_init/cloud-init.dat
+9e0524de55f33f0613b74f57da3121bd	satellite_vnf/cloud_init/cloud-init.dat
 3263f1f4114f3d71ea056ce44a4db56d	satellite_vnf/charms/opensand-charm/metadata.yaml
 22535d87d3279ed8aa26398b23c0a992	satellite_vnf/charms/opensand-charm/actions.yaml
 564be6d5016e3e4e73e8b68858c66183	satellite_vnf/charms/opensand-charm/README.md

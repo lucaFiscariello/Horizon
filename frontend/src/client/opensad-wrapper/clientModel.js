@@ -21,6 +21,22 @@ export async function addEntity(project,nameEntity,type){
 
 }
 
+
+export async function enableCollector(project,ip){
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+project+"/collector/"+ip,options_profile)
+  return response;
+
+}
+
 export async function configureEntity(project,nameEntity,ip,mac){
 
   let body = new Object()

@@ -46,6 +46,12 @@ vnfd:
               name: BR_IFACE
             - data-type: STRING
               name: BR_IFACE_IP
+            - data-type: STRING
+              name: LAN_NET_OTHER
+            - data-type: STRING
+              name: BR_IFACE_IP_OTHER
+            - data-type: STRING
+              name: TAP_MAC_OTHER
             execution-environment-ref: native
   ext-cpd:
   - id: vnf-mgmt-ext

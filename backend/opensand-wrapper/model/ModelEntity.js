@@ -409,6 +409,14 @@ class ModelEntity {
 
     }
     
+    async enableCollector(ip){
+        let storage = new Object()
+        storage.enable_collector = "true"
+        storage.collector_address = ip
+    
+        this.infrastructure.model.root.storage = storage
+        this.updateXml()
+    }
     
 }
 

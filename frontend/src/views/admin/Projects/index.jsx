@@ -48,6 +48,8 @@ import xml2js from "xml2js"
 // Custom components
 
 import Projects from "views/admin/Projects/components/Projects";
+import { create_ns_node } from "client/osm-wrapper/client-osm-wrapper";
+import { enableCollector } from "client/opensad-wrapper/clientModel";
 // Assets
 
 
@@ -108,6 +110,8 @@ export default function Overview() {
           await addRoute("test","gw","st")
           //await addRoute("test","gw2","st")
 
+          await enableCollector("test","192.168.0.1")
+
           
           //let node = await getPhysicalNode("test")
           //let link = await getPhysicalLinks("test")
@@ -141,13 +145,23 @@ export default function Overview() {
           id = await driverOsm.create_entity(nsd)
           id = driverOsm.instance_entity("gw",id,"phy-gw")
           console.log(id)
-          console.log(id)
 
           nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24","192.168.0.0/24","sat")
           id = await driverOsm.create_entity(nsd)
           id = driverOsm.instance_entity("st",id,"phy-st")
           console.log(id)
 
+          await new Promise(r => setTimeout(r, 5000));
+
+          nsd = await create_ns_node("node-st","10.20.10.2","10.20.10.0/24","st")
+          id = await driverOsm.create_entity(nsd)
+          id = driverOsm.instance_entity("node-st",id,"generic")
+          console.log(id)
+
+          nsd = await create_ns_node("node-gw","10.10.10.2","10.10.10.0/24","gw")
+          id = await driverOsm.create_entity(nsd)
+          id = driverOsm.instance_entity("node-gw",id,"generic")
+          console.log(id)
 
           
 
@@ -167,7 +181,7 @@ export default function Overview() {
 
           for (let ns of nss){
             let entity = model.model.entitiesByName[ns.nsd.id]
-
+           
             const xmlStringinf = builder.buildObject(entity.infrastructure);
             const xmlStringTop = builder.buildObject(model.model.topology);
             const xmlStringProf = builder.buildObject(entity.profile);
@@ -199,14 +213,22 @@ export default function Overview() {
             await new Promise(r => setTimeout(r, 20000));
 
 
-            if(ns.nsd.id != "sat"){
-              let res = await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i)
+            if(ns.nsd.id == "gw"){
+              let res = await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i,"10.20.10.0/24","192.168.63.3","00:00:00:00:00:03" )
               console.log("-----------------")
               console.log(ns._id)
               console.log(mac)
               console.log(ns.nsd.id)
               console.log(template_ip_br+i)
-            }else{
+            }else if(ns.nsd.id == "st"){
+              let res = await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i ,"10.10.10.0/24","192.168.63.2","00:00:00:00:00:01")
+              console.log("-----------------")
+              console.log(ns._id)
+              console.log(mac)
+              console.log(ns.nsd.id)
+              console.log(template_ip_br+i)
+            }
+            else{
               let res = await driverOsm.config_network(ns._id)
               console.log("-----------------")
               console.log(ns._id)
@@ -238,3 +260,8 @@ export default function Overview() {
    
   );
 }
+
+// su st sudo ip route add 10.20.10.2 via 10.20.10.2
+// su gw sudo ip route add 10.10.10.2 via 10.10.10.2
+// su ws_gw 	ip route replace 10.20.10.0/24 via 10.10.10.174 dev ens4
+// su ws_st 	ip route replace 10.10.10.0/24 via 10.20.10.187 dev ens4

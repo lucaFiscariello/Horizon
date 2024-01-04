@@ -47,6 +47,18 @@ config-net:
       description: "BR_IFACE_IP"
       type: string
       default: ""  
+    LAN_NET_OTHER:
+      description: "LAN_NET_OTHER"
+      type: string
+      default: "" 
+    BR_IFACE_IP_OTHER:
+      description: "BR_IFACE_IP_OTHER"
+      type: string
+      default: "" 
+    TAP_MAC_OTHER:
+      description: "TAP_MAC_OTHER"
+      type: string
+      default: "" 
   required:
     - EMU_IFACE 
     - LAN_IFACE 
@@ -54,3 +66,6 @@ config-net:
     - TAP_MAC 
     - BR_IFACE
     - BR_IFACE_IP
+    - TAP_MAC_OTHER
+    - BR_IFACE_IP_OTHER
+    - LAN_NET_OTHER

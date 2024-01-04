@@ -28,7 +28,7 @@ def create_ns_by_default():
 
 @app.route('/osm-wrapper/ns/sat/template', methods=['POST'])
 def create_ns_sat_by_default():
-
+    
     NUM_VNF = 0
     NUM_NET_DATA1 = 1
     req = request.get_json()
@@ -41,6 +41,22 @@ def create_ns_sat_by_default():
 
     return jsonify({'ns': nsdBuilder.build()})
 
+@app.route('/osm-wrapper/ns/node/template', methods=['POST'])
+def create_ns_node_by_default():
+    
+    NUM_VNF = 0
+    NUM_NET_DATA1 = 1
+    req = request.get_json()
+
+    nsdBuilder = NSDBuilder(modify_default=True , IsSatellite=True)
+    nsdBuilder.set_ip_vnf_vlc(req.get('ip'),NUM_VNF,NUM_NET_DATA1)
+    nsdBuilder.set_id_ns(req.get('nameEntity'))
+    nsdBuilder.set_name_ns(req.get('nameEntity'))
+    nsdBuilder.set_cidr_vlp(req.get('cidr'),num_vlp=0)
+    nsdBuilder.add_vld_vim_net_datanet1(req.get('vim_net'))
+
+
+    return jsonify({'ns': nsdBuilder.build()})
 
 @app.route('/osm-wrapper/nst', methods=['POST'])
 def create_nst():

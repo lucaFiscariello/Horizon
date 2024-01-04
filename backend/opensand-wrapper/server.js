@@ -31,6 +31,16 @@ app.post('/model/project/:id/entity/:nameEntity/configure',async (req, res) => {
 
 });
 
+app.post('/model/project/:id/collector/:ip',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.enableCollector(req.params.ip)
+    
+    return res.json(modelNetwork)
+
+});
+
 app.post('/model/project/:id/entity/:nameEntity/modify',async (req, res) => {
 
     let modelNetwork = new ModelNetwork(req.params.id)
