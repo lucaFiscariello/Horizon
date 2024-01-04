@@ -50,6 +50,7 @@ import xml2js from "xml2js"
 import Projects from "views/admin/Projects/components/Projects";
 import { create_ns_node } from "client/osm-wrapper/client-osm-wrapper";
 import { enableCollector } from "client/opensad-wrapper/clientModel";
+import MapComponent from "components/Network/Map";
 // Assets
 
 
