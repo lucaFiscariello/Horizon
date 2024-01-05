@@ -48,7 +48,7 @@ export default function FullScreenDialogConfigGW(props) {
     let virtualGWs = await getPhysicalMapping(props.projectName,props.nameEntity)
     setAllGW(virtualGWs)
 
-  }, [props.entities]);
+  }, []);
 
 
   const ExpandedContents = allGW.map((title) => (
@@ -91,15 +91,13 @@ export default function FullScreenDialogConfigGW(props) {
           <Card className="section-white">
             <CardContent>
               <Typography variant="h5" component="div">
-                Physical constraint
+                Network
               </Typography>
 
               <Stack spacing={2} style={{ marginTop: '16px' }}>
-                <TextField id="outlined-basic" label="Max physical bandwidth" variant="outlined" />
-                <TextField id="outlined-basic" label="Latitude" variant="outlined" />
-                <TextField id="outlined-basic" label="Longitude" variant="outlined" />
-                <TextField id="outlined-basic" label="UpLink Attenuation" variant="outlined" />
-                <TextField id="outlined-basic" label="DownLink Attenuation" variant="outlined" />
+                <TextField id="outlined-basic" label="Cidr" variant="outlined" />
+                <TextField id="outlined-basic" label="Ip" variant="outlined" />
+                <TextField id="outlined-basic" label="Mac" variant="outlined" />
               </Stack>
             
             </CardContent>

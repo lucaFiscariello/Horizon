@@ -16,18 +16,18 @@ const customIcon = new L.Icon({
     popupAnchor: [0, -32], // Posizione del popup rispetto all'icona
   });
 
-  const customIconServer = new L.Icon({
-    iconUrl: "  https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Database_Server.svg/640px-Database_Server.svg.png    ",
+  const customIconSat = new L.Icon({
+    iconUrl: "https://cdn.icon-icons.com/icons2/2481/PNG/512/satellite_icon_149808.png",
     iconSize: [32, 32], // Dimensioni dell'icona
     iconAnchor: [16, 32], // Posizione dell'ancora rispetto all'icona
     popupAnchor: [0, -32], // Posizione del popup rispetto all'icona
   });
 
 
-const MapComponent = () => {
+const MapComponent = (props) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const theme = React.useMemo(() => createTheme(prefersDarkMode), [prefersDarkMode]);
-  const [center, setCenter] = React.useState([51.505, -0.09]);
+  const [center, setCenter] = React.useState([52.505, -0.09]);
   const [open, setOpen] = React.useState(false);
 
   const pos2 = [50.905, -0.09];
@@ -42,11 +42,11 @@ const MapComponent = () => {
     setOpen(false);
   };
 
-  let x = 51.505
+  let x = -0.09 
   React.useEffect(() => {
     const intervalId = setInterval(() => {
-        x = x+0.1
-        setCenter([x,-0.09 ]);
+        x = x+0.05
+        setCenter([52.505,x ]);
       }, 1000);
 
     // Pulisci l'intervallo quando il componente viene smontato
@@ -62,7 +62,7 @@ const MapComponent = () => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <LayerGroup>
-        <Circle center={center} pathOptions={{ fillColor: 'green', color:"green" }} radius={100000} />
+        <Circle center={center} pathOptions={{ fillColor: 'green', color:"green" }} radius={500000} />
       </LayerGroup>
       <Marker position={pos1} icon={customIcon} eventHandlers={{ click: () => handleMarkerClick() }}>
         <Tooltip direction="top" offset={[0, -30]} opacity={1} permanent>
@@ -74,8 +74,10 @@ const MapComponent = () => {
             GW
         </Tooltip>
       </Marker>
+      <Marker position={center} icon={customIconSat} eventHandlers={{ click: () => handleMarkerClick() }}>
+      </Marker>
       <ThemeProvider theme={theme}>
-        <FullScreenDialogConfigGW open={open} handleClose={handleClose}></FullScreenDialogConfigGW>
+        <FullScreenDialogConfigGW open={open} handleClose={handleClose} projectName={props.projectName}  nameEntity = "gw"></FullScreenDialogConfigGW>
       </ThemeProvider>
 
     </MapContainer>

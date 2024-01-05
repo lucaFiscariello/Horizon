@@ -25,7 +25,7 @@ export default function ExpandedContent(props) {
   React.useEffect(async ()  => {
 
     let spots = await getSpots(props.nameProject,"gw")
-    setAllSpots(spots)
+    setAllSpots(spots.spots)
 
   }, []);
 

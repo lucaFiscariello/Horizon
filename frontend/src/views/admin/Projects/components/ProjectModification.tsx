@@ -31,7 +31,7 @@ const Project: React.FC<Props> = (props) => {
 	const [ fixed ] = useState(false);
 	const [ toggleSidebar, setToggleSidebar ] = useState(false);
 
-
+	console.log(props)
 	const getActiveRoute = (routes: string | any[],nameProject: undefined | string): any => {
 		let activeRoute = nameProject;
 		for (let i = 0; i < routes.length; i++) {
@@ -145,7 +145,7 @@ const Project: React.FC<Props> = (props) => {
 						</Portal>
                         
                         <div className='map'>
-                            <MapComponent></MapComponent>
+                            <MapComponent projectName={name} ></MapComponent>
                         </div>
                         
                         <div className='center-table'>

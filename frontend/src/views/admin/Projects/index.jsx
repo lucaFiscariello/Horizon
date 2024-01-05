@@ -91,8 +91,8 @@ export default function Overview() {
           
           //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
-          //await addPhysicalEntity("test","gw","Gateway")
-          await addEntity("test","gw","Gateway")
+          await addPhysicalEntity("test","gw","Gateway")
+          //await addEntity("test","gw","Gateway")
           await configureEntity("test","gw","192.168.0.3","00:00:00:00:00:01")
 
           await addEntity("test","sat","Satellite")
@@ -114,15 +114,15 @@ export default function Overview() {
           await enableCollector("test","192.168.0.1")
 
           
-          //let node = await getPhysicalNode("test")
+          let node = await getPhysicalNode("test")
           //let link = await getPhysicalLinks("test")
           //let entities = await getAllVirtualNode("test")
-          //let mapping = await getPhysicalMapping("test","gw")
+          let mapping = await getPhysicalMapping("test","gw")
           let spot = await getSpots("test","sat")
           let routes = await getRoutes("test")
 
-          console.log(spot)
-          console.log(routes)
+          console.log(mapping)
+          console.log(node)
 
 
           //await deletePhysicalNode("test","gw")
