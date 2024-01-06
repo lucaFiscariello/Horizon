@@ -91,8 +91,8 @@ export default function Overview() {
           
           //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
-          await addPhysicalEntity("test","gw","Gateway")
-          //await addEntity("test","gw","Gateway")
+          //await addPhysicalEntity("test","gw","Gateway")
+          await addEntity("test","gw","Gateway")
           await configureEntity("test","gw","192.168.0.3","00:00:00:00:00:01")
 
           await addEntity("test","sat","Satellite")

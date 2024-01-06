@@ -7,6 +7,10 @@ import FullScreenDialogConfigGW from './virtualization-config/GW/FullScreenDialo
 import createTheme from 'opensand/utils/theme.ts';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {ThemeProvider} from '@mui/material/styles';
+import FullScreenDialogConfigST from './virtualization-config/ST/FullScreenDialogST';
+import FullScreenDialogConfigSAT from './virtualization-config/SAT/FullScreenDialogSAT';
+import { getSpotLocation } from 'client/geometry-costellation/client';
+import { getNodeLocation } from 'client/geometry-costellation/client';
 
 
 const customIcon = new L.Icon({
@@ -24,24 +28,51 @@ const customIcon = new L.Icon({
   });
 
 
-const MapComponent = (props) => {
+const MapComponent =  (props) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const theme = React.useMemo(() => createTheme(prefersDarkMode), [prefersDarkMode]);
-  const [center, setCenter] = React.useState([52.505, -0.09]);
-  const [open, setOpen] = React.useState(false);
+  const [center, setCenter] = React.useState([52.505, 4]);
 
-  const pos2 = [50.905, -0.09];
-  const pos1 = [51.505, -0.09];
+  const [openGW, setOpenGW] = React.useState(false);
+  const [openST, setOpenST] = React.useState(false);
+  const [openSAT, setOpenSAT] = React.useState(false);
 
-  const handleMarkerClick = () => {
-    console.log('Marker clicked!');
-    setOpen(true)
+  const pos2 = [52.005, -0.09];
+  const pos1 = [52.105, 1.09];
+  const spot_pos = [52.505, 0.08];
+
+
+  const handleMarkerClickGW = async() => {
+    setOpenGW(true)
+    let res = await getSpotLocation("slice1")
+    console.log(res)
+
+    res = await getNodeLocation()
+    console.log(res)
+
   };
 
-  const handleClose =  () => {
-    setOpen(false);
+  const handleMarkerClickSAT = () => {
+    setOpenSAT(true)
   };
 
+  const handleMarkerClickST = () => {
+    setOpenST(true)
+  };
+
+  const handleCloseGW =  () => {
+    setOpenGW(false);
+  };
+
+  const handleCloseSAT =  () => {
+    setOpenSAT(false);
+  };
+
+  const handleCloseST =  () => {
+    setOpenST(false);
+  };
+
+  /*
   let x = -0.09 
   React.useEffect(() => {
     const intervalId = setInterval(() => {
@@ -52,8 +83,13 @@ const MapComponent = (props) => {
     // Pulisci l'intervallo quando il componente viene smontato
     return () => clearInterval(intervalId);
   }, []); // Assicurati di passare un array vuoto come dipendenza per eseguire l'effetto solo all'inizio
+  */
 
+  let nameGW = props.projectName+"-gw"
+  let nameST = props.projectName+"-st"
+  let nameSAT = props.projectName+"-sat"
 
+  
 
   return (
     <MapContainer center={center} zoom={6} style={{ height: '500px', width: '100%' }}>
@@ -62,22 +98,29 @@ const MapComponent = (props) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <LayerGroup>
-        <Circle center={center} pathOptions={{ fillColor: 'green', color:"green" }} radius={500000} />
+        <Circle center={center} pathOptions={{ fillColor: 'green', color:"green" }} radius={400000} />
+        <Circle center={spot_pos} pathOptions={{ fillColor: 'green', color:"green" }} radius={100000} />
+
       </LayerGroup>
-      <Marker position={pos1} icon={customIcon} eventHandlers={{ click: () => handleMarkerClick() }}>
+      <Marker position={pos1} icon={customIcon} eventHandlers={{ click: () => handleMarkerClickST() }}>
         <Tooltip direction="top" offset={[0, -30]} opacity={1} permanent>
-            ST
+            {nameST}
         </Tooltip>
       </Marker>
-      <Marker position={pos2} icon={customIcon} eventHandlers={{ click: () => handleMarkerClick() }}>
+      <Marker position={pos2} icon={customIcon} eventHandlers={{ click: () => handleMarkerClickGW() }}>
         <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
-            GW
+          {nameGW}
         </Tooltip>
       </Marker>
-      <Marker position={center} icon={customIconSat} eventHandlers={{ click: () => handleMarkerClick() }}>
+      <Marker position={center} icon={customIconSat} eventHandlers={{ click: () => handleMarkerClickSAT() }}>
+        <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
+          {nameSAT}
+        </Tooltip>
       </Marker>
       <ThemeProvider theme={theme}>
-        <FullScreenDialogConfigGW open={open} handleClose={handleClose} projectName={props.projectName}  nameEntity = "gw"></FullScreenDialogConfigGW>
+        <FullScreenDialogConfigGW open={openGW} handleClose={handleCloseGW} projectName={props.projectName}  nameEntity = {nameGW}></FullScreenDialogConfigGW>
+        <FullScreenDialogConfigST open={openST} handleClose={handleCloseST} projectName={props.projectName}  nameEntity = {nameST}></FullScreenDialogConfigST>
+        <FullScreenDialogConfigSAT open={openSAT} handleClose={handleCloseSAT} projectName={props.projectName}  nameEntity = {nameSAT}></FullScreenDialogConfigSAT>
       </ThemeProvider>
 
     </MapContainer>

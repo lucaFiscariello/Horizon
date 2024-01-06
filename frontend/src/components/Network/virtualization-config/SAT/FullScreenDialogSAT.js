@@ -8,27 +8,24 @@ import Typography from '@mui/material/Typography';
 import CloseIcon from '@mui/icons-material/Close';
 import Slide from '@mui/material/Slide';
 import TextField from '@mui/material/TextField';
+import { styled } from '@mui/material/styles';
 import "assets/css/styleDialog.css"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import ExpandedContent from './ExpandedContent';
+import ExpandedContent from '../GW/ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { getPhysicalMapping } from 'client/opensad-wrapper/clientModel';
 import { addEntity } from 'client/opensad-wrapper/clientModel';
 import { configureEntity } from 'client/opensad-wrapper/clientModel';
-import SingleSpotCard from './SingleSpotCard';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export default function FullScreenDialogConfigGW(props) {
+export default function FullScreenDialogConfigSAT(props) {
   const open = props.open
   const handleClose = props.handleClose
   const nameEntity = props.nameEntity
-
-  //COnfigurazioni opensand
   const [mac, setMac] = React.useState('');
   const [ip, setIP] = React.useState('');
 
@@ -40,23 +37,14 @@ export default function FullScreenDialogConfigGW(props) {
     setIP(event.target.value);
   };
 
-
   const handleSave = async () => {
-    if(ip && mac){
-      await addEntity(props.projectName,props.nameEntity,"Gateway")
+    if(ip  && mac){
+      await addEntity(props.projectName,props.nameEntity,"Satellite")
       await configureEntity(props.projectName,props.nameEntity,ip,mac)
-    }
+      }
     props.handleClose()
   };
-
-  const handleOnClickAdd = () => {
-  
-  };
-
-
- 
   return (
-    <div>
     
       <Dialog style={{ width: '50%', marginLeft: 'auto'}}
         fullScreen
@@ -88,39 +76,21 @@ export default function FullScreenDialogConfigGW(props) {
         <div className="container">
           <Card className="section-white">
             <CardContent>
-              <Typography variant="h6" component="div">
+              <Typography variant="h5" component="div">
                 Network
               </Typography>
 
               <Stack spacing={2} style={{ marginTop: '16px' }}>
                 <TextField id="outlined-basic" label="Ip" variant="outlined"  value={ip} onChange={handleIpChange}/>
                 <TextField id="outlined-basic" label="Mac" variant="outlined" value={mac} onChange={handleMacChange} />
-              </Stack>
+             </Stack>
             
             </CardContent>
           </Card>
 
-          <Card className="section-white">
-            <CardContent style={{ maxHeight: '1000px', overflowY: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-
-                <Typography variant="h6" component="div">
-                  Spot
-                </Typography>
-                <IconButton onClick={handleOnClickAdd} >
-                      <AddCircleOutlineIcon />
-                </IconButton>
-              
-              </div>
-            
-              <SingleSpotCard title="Spot1" />
-          
-            </CardContent>
-          </Card>
         </div>
 
 
       </Dialog>
-    </div>
   );
 }

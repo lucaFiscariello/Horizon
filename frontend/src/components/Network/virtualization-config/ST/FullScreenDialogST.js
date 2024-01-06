@@ -15,6 +15,8 @@ import CardContent from '@mui/material/CardContent';
 import ExpandedContent from '../GW/ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { addEntity } from 'client/opensad-wrapper/clientModel';
+import { configureEntity } from 'client/opensad-wrapper/clientModel';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -24,7 +26,24 @@ export default function FullScreenDialogConfigST(props) {
   const open = props.open
   const handleClose = props.handleClose
   const nameEntity = props.nameEntity
- 
+  const [mac, setMac] = React.useState('');
+  const [ip, setIP] = React.useState('');
+
+  const handleMacChange = (event) => {
+    setMac(event.target.value);
+  };
+
+  const handleIpChange = (event) => {
+    setIP(event.target.value);
+  };
+
+  const handleSave = async () => {
+    if(ip  && mac){
+      await addEntity(props.projectName,props.nameEntity,"Terminal")
+      await configureEntity(props.projectName,props.nameEntity,ip,mac)
+      }
+    props.handleClose()
+  };
   return (
     
       <Dialog style={{ width: '50%', marginLeft: 'auto'}}
@@ -47,7 +66,7 @@ export default function FullScreenDialogConfigST(props) {
             <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div" style={{ color: 'white' }}>
               Configure {nameEntity}
             </Typography>
-            <Button color="inherit" onClick={handleClose} style={{ color: 'white' }} >
+            <Button color="inherit" onClick={handleSave} style={{ color: 'white' }} >
               Save
             </Button>
           </Toolbar>
@@ -58,16 +77,13 @@ export default function FullScreenDialogConfigST(props) {
           <Card className="section-white">
             <CardContent>
               <Typography variant="h5" component="div">
-                Physical constraint
+                Network
               </Typography>
 
               <Stack spacing={2} style={{ marginTop: '16px' }}>
-                <TextField id="outlined-basic" label="Max physical bandwidth" variant="outlined" />
-                <TextField id="outlined-basic" label="Latitude" variant="outlined" />
-                <TextField id="outlined-basic" label="Longitude" variant="outlined" />
-                <TextField id="outlined-basic" label="UpLink Attenuation" variant="outlined" />
-                <TextField id="outlined-basic" label="DownLink Attenuation" variant="outlined" />
-              </Stack>
+                <TextField id="outlined-basic" label="Ip" variant="outlined"  value={ip} onChange={handleIpChange}/>
+                <TextField id="outlined-basic" label="Mac" variant="outlined" value={mac} onChange={handleMacChange} />
+             </Stack>
             
             </CardContent>
           </Card>
