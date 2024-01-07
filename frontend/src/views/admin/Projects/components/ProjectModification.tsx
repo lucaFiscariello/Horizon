@@ -147,15 +147,7 @@ const Project: React.FC<Props> = (props) => {
                         <div className='map'>
                             <MapComponent projectName={name} ></MapComponent>
                         </div>
-                        
-                        <div className='center-table'>
-                        
-                            <ColumnsTable
-                                columnsData={columnsDataColumns}
-                                tableData={[]}
-                            />
-                        </div>
-                                    
+                                      
                            
 						<Box>
 							<Footer />

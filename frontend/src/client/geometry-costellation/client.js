@@ -74,4 +74,20 @@ export async function getNodeLocation(){
 
 }
 
+export async function getNodeLocationInsideSpot(project,spotName){
+
+  const options_profile = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/geometry/nodes/"+project+"/spots/"+spotName,options_profile)
+  response = await response.json()
+  return response.nodes;
+
+}
+
 

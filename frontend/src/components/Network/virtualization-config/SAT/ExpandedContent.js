@@ -15,6 +15,9 @@ import { Dialog, DialogContent, DialogContentText, DialogTitle, TextField } from
 import AddSpotDialog from '../GW/DialogAddSPot';
 import { postSpotLocation } from 'client/geometry-costellation/client';
 import { deleteSpotLocation } from 'client/geometry-costellation/client';
+import { getNodeLocationInsideSpot } from 'client/geometry-costellation/client';
+import { addSpot as addSpotOpensand } from "client/opensad-wrapper/clientModel";
+import { addRoute } from 'client/opensad-wrapper/clientModel';
 
 export default function ExpandedContent(props) {
   const [expanded, setExpanded] = React.useState(false);
@@ -30,7 +33,30 @@ export default function ExpandedContent(props) {
   const addSpot = async() => {
     let newSpot = await postSpotLocation(props.projectName,lat,long,radius,props.satName,nameSpot)
     props.addSpotToMap(newSpot)
+    
+    let nodesInsideSPot= await getNodeLocationInsideSpot(props.projectName,nameSpot)
+    let gateway;
+    let terminal;
+
+    console.log(nodesInsideSPot)
+
+    if(nodesInsideSPot.length == 2 ){
+      if(nodesInsideSPot[0].type == "Gateway"){
+        gateway = nodesInsideSPot[0]
+        terminal = nodesInsideSPot[1]
+      }else{
+        gateway = nodesInsideSPot[1]
+        terminal = nodesInsideSPot[0]
+      }
+    }
+
+    
+
+    await addSpotOpensand(props.projectName,"Transparent","Transparent",props.satName,gateway.nome+"-"+props.projectName)
+    await addRoute(props.projectName,gateway.nome+"-"+props.projectName,terminal.nome+"-"+props.projectName)
+
   };
+
 
   const deleteSpot = async() => {
     await deleteSpotLocation(props.info)
