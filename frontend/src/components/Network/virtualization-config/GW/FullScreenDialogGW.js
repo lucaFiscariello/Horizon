@@ -11,13 +11,11 @@ import TextField from '@mui/material/TextField';
 import "assets/css/styleDialog.css"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import ExpandedContent from './ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { getPhysicalMapping } from 'client/opensad-wrapper/clientModel';
 import { addEntity } from 'client/opensad-wrapper/clientModel';
 import { configureEntity } from 'client/opensad-wrapper/clientModel';
-import SingleSpotCard from './SingleSpotCard';
+import SingleSpotCard from '../SAT/SingleSpotCard';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -100,23 +98,6 @@ export default function FullScreenDialogConfigGW(props) {
             </CardContent>
           </Card>
 
-          <Card className="section-white">
-            <CardContent style={{ maxHeight: '1000px', overflowY: 'auto' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-
-                <Typography variant="h6" component="div">
-                  Spot
-                </Typography>
-                <IconButton onClick={handleOnClickAdd} >
-                      <AddCircleOutlineIcon />
-                </IconButton>
-              
-              </div>
-            
-              <SingleSpotCard title="Spot1" />
-          
-            </CardContent>
-          </Card>
         </div>
 
 

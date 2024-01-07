@@ -31,26 +31,42 @@ const customIcon = new L.Icon({
 const MapComponent =  (props) => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   const theme = React.useMemo(() => createTheme(prefersDarkMode), [prefersDarkMode]);
-  const [center, setCenter] = React.useState([52.505, 4]);
+  
+  const [physicalNodes, setPhysicalNodes] = React.useState([]);
+  const [spots, setSpots] = React.useState([]);
 
+  const [center, setCenter] = React.useState([52.505, 4]);
   const [openGW, setOpenGW] = React.useState(false);
   const [openST, setOpenST] = React.useState(false);
   const [openSAT, setOpenSAT] = React.useState(false);
 
-  const pos2 = [52.005, -0.09];
-  const pos1 = [52.105, 1.09];
-  const spot_pos = [52.505, 0.08];
 
+  React.useEffect(async () => {
+    let nodes = await getNodeLocation()
+    let spots_all = await getSpotLocation(props.projectName)
+
+    for(let node of nodes){
+      node.nome=node.nome+"-"+props.projectName
+    }
+
+    setPhysicalNodes(nodes)
+    setSpots(spots_all)
+
+    console.log(spots_all)
+  }, []);
 
   const handleMarkerClickGW = async() => {
     setOpenGW(true)
-    let res = await getSpotLocation("slice1")
-    console.log(res)
-
-    res = await getNodeLocation()
-    console.log(res)
-
   };
+
+  const addSpotToMap = async(spot) => {
+      setSpots([...spots,spot])
+  };
+
+  const deleteSpotToMap = async(id) => {
+    const newSpots = spots.filter((spot) => spot.id !== id);
+    setSpots(newSpots)
+};
 
   const handleMarkerClickSAT = () => {
     setOpenSAT(true)
@@ -84,11 +100,6 @@ const MapComponent =  (props) => {
     return () => clearInterval(intervalId);
   }, []); // Assicurati di passare un array vuoto come dipendenza per eseguire l'effetto solo all'inizio
   */
-
-  let nameGW = props.projectName+"-gw"
-  let nameST = props.projectName+"-st"
-  let nameSAT = props.projectName+"-sat"
-
   
 
   return (
@@ -98,29 +109,41 @@ const MapComponent =  (props) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       <LayerGroup>
-        <Circle center={center} pathOptions={{ fillColor: 'green', color:"green" }} radius={400000} />
-        <Circle center={spot_pos} pathOptions={{ fillColor: 'green', color:"green" }} radius={100000} />
+
+        {spots.map((spot) => (
+          <Circle center={[spot.latitudine,spot.longitudine]}  pathOptions={{ fillColor: 'green', color:"green" }} radius={spot.radius} />
+        ))}
 
       </LayerGroup>
-      <Marker position={pos1} icon={customIcon} eventHandlers={{ click: () => handleMarkerClickST() }}>
-        <Tooltip direction="top" offset={[0, -30]} opacity={1} permanent>
-            {nameST}
-        </Tooltip>
-      </Marker>
-      <Marker position={pos2} icon={customIcon} eventHandlers={{ click: () => handleMarkerClickGW() }}>
-        <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
-          {nameGW}
-        </Tooltip>
-      </Marker>
-      <Marker position={center} icon={customIconSat} eventHandlers={{ click: () => handleMarkerClickSAT() }}>
-        <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
-          {nameSAT}
-        </Tooltip>
-      </Marker>
+
+      {physicalNodes.map((node) => (
+    
+        <Marker
+          position={[node.latitudine,node.longitudine]}  
+          icon={
+            node.type == "Satellite"? customIconSat: customIcon 
+          }    
+          eventHandlers={
+            node.type == "Satellite"?{ click: () => handleMarkerClickSAT() }:
+            node.type == "Terminal"?{ click: () => handleMarkerClickST() }:{ click: () => handleMarkerClickGW() }
+          }
+        >
+          <Tooltip direction="bottom" offset={[0, 0]} opacity={1} permanent>
+            {node.nome}  
+          </Tooltip>
+        </Marker>
+
+      ))}
+
+    
       <ThemeProvider theme={theme}>
-        <FullScreenDialogConfigGW open={openGW} handleClose={handleCloseGW} projectName={props.projectName}  nameEntity = {nameGW}></FullScreenDialogConfigGW>
-        <FullScreenDialogConfigST open={openST} handleClose={handleCloseST} projectName={props.projectName}  nameEntity = {nameST}></FullScreenDialogConfigST>
-        <FullScreenDialogConfigSAT open={openSAT} handleClose={handleCloseSAT} projectName={props.projectName}  nameEntity = {nameSAT}></FullScreenDialogConfigSAT>
+        {physicalNodes.map((node) => (
+        
+        node.type == "Gateway"? <FullScreenDialogConfigGW open={openGW} handleClose={handleCloseGW} projectName={props.projectName}  nameEntity = {node.nome}></FullScreenDialogConfigGW> :
+        node.type == "Satellite"? <FullScreenDialogConfigSAT open={openSAT} handleClose={handleCloseSAT} projectName={props.projectName}  nameEntity = {node.nome} addSpotToMap={addSpotToMap} deleteSpotToMap={deleteSpotToMap}></FullScreenDialogConfigSAT> :
+        <FullScreenDialogConfigST open={openST} handleClose={handleCloseST} projectName={props.projectName}  nameEntity = {node.nome}></FullScreenDialogConfigST>
+        
+        ))}
       </ThemeProvider>
 
     </MapContainer>

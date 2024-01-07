@@ -6,9 +6,9 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { styled } from '@mui/material/styles';
 import "assets/css/styleDialog.css"
 import DeleteIcon from '@mui/icons-material/Delete';
-import TableSpot from './Table';
+import TableSpot from '../GW/Table';
 import AddCircleOutline from '@mui/icons-material/AddCircleOutline';
-import AlertDialog from './DialogAddSPot';
+import AlertDialog from '../GW/DialogAddSPot';
 
 
 

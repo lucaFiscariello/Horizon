@@ -12,7 +12,7 @@ import { styled } from '@mui/material/styles';
 import "assets/css/styleDialog.css"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import ExpandedContent from '../GW/ExpandedContent';
+import ExpandedContent from '../SAT/ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { addEntity } from 'client/opensad-wrapper/clientModel';

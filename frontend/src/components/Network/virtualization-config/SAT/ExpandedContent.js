@@ -12,43 +12,32 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import SingleSpotCard from './SingleSpotCard';
 import { Dialog, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
-import AddSpotDialog from './DialogAddSPot';
-import { getSpots } from 'client/opensad-wrapper/clientModel';
-
+import AddSpotDialog from '../GW/DialogAddSPot';
+import { postSpotLocation } from 'client/geometry-costellation/client';
+import { deleteSpotLocation } from 'client/geometry-costellation/client';
 
 export default function ExpandedContent(props) {
   const [expanded, setExpanded] = React.useState(false);
-  const [openDialogSpot, setOpenDialogSpot] = React.useState(false);
-  const [allSpots, setAllSpots] = React.useState([]);
-
-
-  React.useEffect(async ()  => {
-
-    let spots = await getSpots(props.nameProject,"gw")
-    setAllSpots(spots.spots)
-
-  }, []);
+  const [lat, setLat] = React.useState();
+  const [long, setLong] = React.useState();
+  const [radius, setRadius] = React.useState();
+  const [nameSpot, setNameSpot] = React.useState();
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  const handleClose = React.useCallback(() => {
-    setOpenDialogSpot(false)
+  const addSpot = async() => {
+    let newSpot = await postSpotLocation(props.projectName,lat,long,radius,props.satName,nameSpot)
+    props.addSpotToMap(newSpot)
+  };
 
-  });
+  const deleteSpot = async() => {
+    await deleteSpotLocation(props.info)
+    props.handleDeleteSpot(props.info.id)
+  };
 
-  const handleOpen = React.useCallback(() => {
-    setOpenDialogSpot(true);
-
-  });
-
-  const handeSetNameSpot = React.useCallback((spotName) => {
-    setAllSpots([...allSpots,spotName])
-    handleClose()
-
-  });
-
+  
 
   const ExpandMore = styled((props) => {
     const { expand, ...other } = props;
@@ -61,10 +50,6 @@ export default function ExpandedContent(props) {
     }),
   }));
 
-  const spotName = "Spot"
-  const ExpandedSpots = allSpots.map((spot,index) => (
-    <SingleSpotCard title={spotName.concat(index)} />
-  ));
 
   return (
 
@@ -87,7 +72,7 @@ export default function ExpandedContent(props) {
                     <ExpandMoreIcon />
                 </ExpandMore>
                 
-                <IconButton onClick={()=> props.handleDelete(props.title)}>
+                <IconButton onClick={deleteSpot}>
                     <DeleteIcon ></DeleteIcon>
                 </IconButton>
 
@@ -95,26 +80,16 @@ export default function ExpandedContent(props) {
 
             <Collapse in={expanded} timeout="auto" unmountOnExit>
                 <Stack spacing={2} style={{ marginTop: '16px' }}>
-                    <TextField id="outlined-basic" label="Name" variant="outlined" placeholder={props.title} />
-                    <TextField id="outlined-basic" label="Bandwidth" variant="outlined" />
-                    <TextField id="outlined-basic" label="Delay" variant="outlined" />
-                </Stack>
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',marginTop: '16px',marginBottom:"16px"  }}>
-                
-                    <Typography variant="h7" component="div">
-                        Spot
-                    </Typography>
-                    <IconButton onClick={handleOpen}>
-                        <AddCircleOutlineIcon />
-                    </IconButton>
-              
-                </div>
-
-                {ExpandedSpots}
+                    <TextField id="outlined-basic" label="Name" variant="outlined" defaultValue={props.info.name}  onChange={(event) => {setNameSpot(event.target.value)}} />
+                    <TextField id="outlined-basic" label="Latitude" variant="outlined" defaultValue={props.info.latitudine}  onChange={(event) => {setLat(event.target.value)}} />
+                    <TextField id="outlined-basic" label="Longitude" variant="outlined" defaultValue={props.info.longitudine} onChange={(event) => {setLong(event.target.value)}} />
+                    <TextField id="outlined-basic" label="Radius" variant="outlined" defaultValue={props.info.radius} onChange={(event) => {setRadius(event.target.value)}}/>
+                    <button className='button' onClick={addSpot} >
+                      Save
+                    </button>
+                </Stack>              
 
 
-                <AddSpotDialog open={openDialogSpot} handleClose={handleClose} handeSetNameSpot={handeSetNameSpot}></AddSpotDialog>
             </Collapse>
 
         </CardContent>

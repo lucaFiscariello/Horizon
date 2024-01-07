@@ -1,5 +1,9 @@
 from flask import Flask, jsonify, request
 import sqlite3
+import math
+import json
+from geopy.distance import geodesic
+
 
 app = Flask(__name__)
 NODE_TABLE = "node"
@@ -19,6 +23,7 @@ def inizialize():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             latitudine FLOAT,
             longitudine FLOAT,
+            type TEXT,
             nome TEXT
         )
     '''.format(NODE_TABLE))
@@ -37,12 +42,12 @@ def inizialize():
     '''.format(SPOT_TABLE))
 
     # Inserimento di dati node
-    cursor.execute("INSERT INTO {} (latitudine, longitudine,nome) VALUES (?, ?,?)".format(NODE_TABLE), (52.005,-0.09,"GW" ))
-    cursor.execute("INSERT INTO {} (latitudine, longitudine,nome) VALUES (?, ?,?)".format(NODE_TABLE), (52.105,1.09,"ST" ))
-    cursor.execute("INSERT INTO {} (latitudine, longitudine,nome) VALUES (?, ?,?)".format(NODE_TABLE), (52.505,4,"SAT" ))
+    cursor.execute("INSERT INTO {} (latitudine, longitudine,type,nome) VALUES (?, ?,?,?)".format(NODE_TABLE), (52.005,-0.09,"Gateway","GW" ))
+    cursor.execute("INSERT INTO {} (latitudine, longitudine,type,nome) VALUES (?, ?,?,?)".format(NODE_TABLE), (52.105,9.09,"Terminal","ST" ))
+    cursor.execute("INSERT INTO {} (latitudine, longitudine,type,nome) VALUES (?, ?,?,?)".format(NODE_TABLE), (52.505,4,"Satellite","SAT" ))
 
     # Inserimento di dati spot
-    cursor.execute("INSERT INTO {} (latitudine, longitudine,radius,satName,project,name) VALUES (?, ?,?,?,?,?)".format(SPOT_TABLE), (52.505,4,400000,"SAT","slice1","Spot0" ))
+    cursor.execute("INSERT INTO {} (latitudine, longitudine,radius,satName,project,name) VALUES (?, ?,?,?,?,?)".format(SPOT_TABLE), (52.505,4,400000,"SAT-slice1","slice1","Spot0" ))
 
     conn.commit()
     conn.close()
@@ -86,6 +91,40 @@ def get_nodes():
 
     return jsonify({'nodes': results})
 
+@app.route('/geometry/nodes/<project>/spots/<nameSpot>', methods=['GET'])
+def get_nodes_inside_spot(project,nameSpot):
+    conn = sqlite3.connect('geometry.db')
+    cursor = conn.cursor()
+
+    # Esecuzione di una query
+    cursor.execute("SELECT * FROM {} WHERE project = ? AND name= ?".format(SPOT_TABLE),(project,nameSpot, ))
+    column_names = [column[0] for column in cursor.description]
+    rows = cursor.fetchall()
+
+    # Crea una lista di dizionari con il nome delle colonne come chiavi
+    results = []
+    for row in rows:
+        result_dict = dict(zip(column_names, row))
+        results.append(result_dict)
+    
+    # Chiusura della connessione
+    conn.close()
+    
+    spot=results[0]
+    nodes = get_nodes().get_data()
+    nodes = json.loads(nodes)
+    
+    result=[]
+    for node in nodes["nodes"]:
+        distance = geodesic((spot["latitudine"], spot["longitudine"]), (node["latitudine"], node["longitudine"])).meters
+        if distance <= spot["radius"] and node["type"]!="Satellite":
+            result.append(node)
+   
+
+    return jsonify({"nodes":result})
+
+
+    
 @app.route('/geometry/spots/<project>', methods=['GET'])
 def get_spots(project):
 
@@ -108,11 +147,103 @@ def get_spots(project):
 
     return jsonify({'spots': results})
 
+@app.route('/geometry/spots/<project>/sat/<satellite>', methods=['GET'])
+def get_spots_sat(project,satellite):
+
+    conn = sqlite3.connect('geometry.db')
+    cursor = conn.cursor()
+
+    # Esecuzione di una query
+    cursor.execute("SELECT * FROM {} WHERE project = ? AND satName = ?".format(SPOT_TABLE),(project,satellite,))
+    column_names = [column[0] for column in cursor.description]
+    rows = cursor.fetchall()
+
+    # Crea una lista di dizionari con il nome delle colonne come chiavi
+    results = []
+    for row in rows:
+        result_dict = dict(zip(column_names, row))
+        results.append(result_dict)
+    
+    # Chiusura della connessione
+    conn.close()
+
+    return jsonify({'spots': results})
 
 
 
+@app.route('/geometry/nodes', methods=['POST'])
+def post_node():
+    conn = sqlite3.connect('geometry.db')
+    cursor = conn.cursor()
 
+    req = request.get_json()
+    name = req.get('name')
+    latitudine = req.get('latitudine')
+    latitudine = req.get('latitudine')
+    typeEntity = req.get('type')
+    
+    cursor.execute("INSERT INTO {} (latitudine, longitudine,type,nome) VALUES (?, ?,?,?)".format(NODE_TABLE), (latitudine,longitudine,typeEntity,name ))
+    conn.commit()
+    conn.close()
 
+@app.route('/geometry/spots', methods=['POST'])
+def post_spot():
+    conn = sqlite3.connect('geometry.db')
+    cursor = conn.cursor()
+
+    req = request.get_json()
+    project = req.get('project')
+    latitudine = req.get('latitudine')
+    longitudine = req.get('longitudine')
+    radius = req.get('radius')
+    satName = req.get('satName')
+    name = req.get('name')
+
+    cursor.execute("INSERT INTO {} (latitudine, longitudine,radius,satName,project,name) VALUES (?, ?,?,?,?,?)".format(SPOT_TABLE), (latitudine,longitudine,radius,satName,project,name ))
+
+    newSpot = {
+        "project": project,
+        "latitudine": latitudine,
+        "longitudine": longitudine,
+        "radius": radius,
+        "satName": satName,
+        "name": name,
+        "id":  cursor.lastrowid      
+    }
+
+    conn.commit()
+    conn.close()
+
+    return jsonify(newSpot)
+
+@app.route('/geometry/spots/<id>', methods=['DELETE'])
+def delete_spot(id):
+    conn = sqlite3.connect('geometry.db')
+    cursor = conn.cursor()
+    
+    cursor.execute("DELETE FROM {} WHERE id = ?".format(SPOT_TABLE), (id,))
+    conn.commit()
+    conn.close()
+
+    return jsonify()
+
+@app.route('/geometry/test/', methods=['GET'])
+def is_point_inside_circle():
+    from geopy.distance import geodesic
+    
+    radius = 400000
+
+    # Coordinate del punto 1
+    lat1, lon1 = (52, 4)
+
+    # Coordinate del punto 2
+    lat2, lon2 = (52, 9)
+
+    # Calcolo della distanza
+    distance = geodesic((lat1, lon1), (lat2, lon2)).meters
+
+    print(distance <= radius)
+    return jsonify()
 
 
 if __name__ == '__main__':

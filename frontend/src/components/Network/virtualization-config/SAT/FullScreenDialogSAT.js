@@ -12,11 +12,12 @@ import { styled } from '@mui/material/styles';
 import "assets/css/styleDialog.css"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import ExpandedContent from '../GW/ExpandedContent';
+import ExpandedContent from './ExpandedContent';
 import { Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { addEntity } from 'client/opensad-wrapper/clientModel';
 import { configureEntity } from 'client/opensad-wrapper/clientModel';
+import { getSpotLocation } from 'client/geometry-costellation/client';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -28,6 +29,14 @@ export default function FullScreenDialogConfigSAT(props) {
   const nameEntity = props.nameEntity
   const [mac, setMac] = React.useState('');
   const [ip, setIP] = React.useState('');
+  const [spots, setSpots] = React.useState([]);
+
+  React.useEffect(async ()  => {
+
+    let spots = await getSpotLocation(props.projectName)
+    setSpots(spots)
+
+  }, []);
 
   const handleMacChange = (event) => {
     setMac(event.target.value);
@@ -44,6 +53,25 @@ export default function FullScreenDialogConfigSAT(props) {
       }
     props.handleClose()
   };
+
+  const addSpotTemp = async () => {
+    setSpots([...spots,[]])
+  }
+
+  const handleAddSpot = async (spot) => {
+
+    //Elimino elemento temporaneo e aggiungo il definitivo
+    setSpots([...spots.slice(0, -1),spot])
+    props.addSpotToMap(spot)
+  }
+
+  const handleDeleteSpot = async (id) => {
+    const newSpots = spots.filter((spot) => spot.id !== id);
+    setSpots(newSpots)
+    props.deleteSpotToMap(id)
+  }
+
+
   return (
     
       <Dialog style={{ width: '50%', marginLeft: 'auto'}}
@@ -85,6 +113,29 @@ export default function FullScreenDialogConfigSAT(props) {
                 <TextField id="outlined-basic" label="Mac" variant="outlined" value={mac} onChange={handleMacChange} />
              </Stack>
             
+            </CardContent>
+          </Card>
+
+          <Card className="section-white">
+            <CardContent>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center',marginTop: '16px',marginBottom:"16px"  }}>
+                  
+                  <Typography variant="h5" component="div">
+                      Spot
+                  </Typography>
+                  <IconButton >
+                      <AddCircleOutlineIcon onClick={addSpotTemp}/>
+                  </IconButton>
+            
+              </div>
+
+            
+              {spots.map((spot) => (
+        
+                <ExpandedContent addSpotToMap={handleAddSpot} handleDeleteSpot={handleDeleteSpot} projectName={props.projectName} title={spot.name} info={spot} satName={props.nameEntity}></ExpandedContent>
+              
+              ))}
+
             </CardContent>
           </Card>
 
