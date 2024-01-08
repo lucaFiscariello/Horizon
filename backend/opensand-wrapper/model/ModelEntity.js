@@ -21,6 +21,8 @@ class ModelEntity {
         this.urlInfrastructure = this.urlTemplate + this.nameProject+ infrastructureSTR + this.nameEntity
         this.urlProfile= this.urlTemplate + this.nameProject+ profileSTR + this.nameEntity
         this.urlTopology= this.urlTemplate + this.nameProject+ topologySTR
+        this.ip =""
+        this.mac = ""
                
     }
 
@@ -74,6 +76,9 @@ class ModelEntity {
         const jsonData_pr =  await response_pr.json();
         const result_pr =  await xml2js.parseStringPromise(jsonData_pr.content, { explicitArray: false });
         this.profile = result_pr
+
+        this.ip = this.getIP()
+        this.mac = this.getMAC()
 
     }
     

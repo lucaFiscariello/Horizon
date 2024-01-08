@@ -40,7 +40,6 @@ import {
   columnsDataComplex,
 } from "views/admin/dashboard/variables/columnsData";
 import tableDataComplex from "views/admin/dashboard/variables/tableDataComplex.json";
-import React from "react";
 
 
 

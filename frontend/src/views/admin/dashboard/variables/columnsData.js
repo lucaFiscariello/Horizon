@@ -26,11 +26,11 @@ export const columnsDataComplex = [
     accessor: "status",
   },
   {
-    Header: "DATE",
-    accessor: "date",
+    Header: "IP",
+    accessor: "ip",
   },
   {
-    Header: "PROGRESS",
-    accessor: "progress",
+    Header: "TYPE",
+    accessor: "type",
   },
 ];

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import {useParams} from 'react-router-dom';
 import {Formik} from 'formik';
 import type {FormikProps, FormikHelpers} from 'formik';
+import {
+    columnsDataComplex,
+  } from "views/admin/dashboard/variables/columnsData.js";
+import tableDataComplex from "views/admin/dashboard/variables/tableDataComplex.json";
 
 import {
     deleteXML,
@@ -13,15 +17,12 @@ import {
 
     
 import {useSelector, useDispatch} from 'opensand/redux/index.ts';
-import {newError} from 'opensand/redux/error.ts';
 import {clearTemplates} from 'opensand/redux/form.ts';
 import {clearModel} from 'opensand/redux/model.ts';
-import type {MutatorCallback} from 'opensand/utils/actions.ts';
-import {getXsdName} from 'opensand/xsd/index.ts';
 import {isComponentElement, isListElement, isParameterElement, newItem} from 'opensand/xsd/model.tsx';
 import type {Component, Parameter, List} from 'opensand/xsd/index.ts';
 
-import { Portal, Box, useDisclosure,SimpleGrid } from '@chakra-ui/react';
+import { Portal, Box, useDisclosure,SimpleGrid, Stack } from '@chakra-ui/react';
 import Footer from 'components/footer/FooterAdmin.js';
 // Layout components
 import Navbar from 'components/navbar/NavbarAdmin.js';
@@ -29,255 +30,66 @@ import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 import { useEffect } from 'react';
-import { createNetwork } from 'client/opensad-wrapper/clientModel';
-
-type SaveCallback = () => void;
-
-
-const findMachines = (root?: Component, operation?: (l: List, path: string) => void): List | undefined => {
-    if (root) {
-        const platformIndex = root.elements.findIndex((e: { element: { id: string; }; }) => isComponentElement(e) && e.element.id === "platform");
-        if (platformIndex < 0) { return; }
-
-        const platform = root.elements[platformIndex];
-        if (isComponentElement(platform)) {
-            const machinesIndex = platform.element.elements.findIndex((e: { element: { id: string; }; }) => isListElement(e) && e.element.id === "machines");
-            if (machinesIndex < 0) { return; }
-
-            const machines = platform.element.elements[machinesIndex];
-
-            if (isListElement(machines)) {
-                if (operation) {
-                    operation(machines.element, `elements.${platformIndex}.element.elements.${machinesIndex}.element`);
-                } else {
-                    return machines.element;
-                }
-            }
-        }
-    }
-};
-
-const findMachinesName= (root?: Component, operation?: (l: List, path: string) => void): any | undefined => {
-    if (root) {
-        const platformIndex = root.elements.findIndex((e: { element: { id: string; }; }) => isComponentElement(e) && e.element.id === "platform");
-        if (platformIndex < 0) { return; }
-
-        const platform = root.elements[platformIndex];
-        if (isComponentElement(platform)) {
-            const machinesIndex = platform.element.elements.findIndex((e: { element: { id: string; }; }) => isListElement(e) && e.element.id === "machines");
-            if (machinesIndex < 0) { return; }
-
-            const machines = platform.element.elements[machinesIndex];
-            return machines.element
-   
-        }
-    }
-};
-
-const findEntities = (root?: Component, operation?: (l: List, path: string) => void): List | undefined => {
-    if (root) {
-        const configurationIndex = root.elements.findIndex((e: { element: { id: string; }; }) => isComponentElement(e) && e.element.id === "configuration");
-        if (configurationIndex < 0) { return; }
-
-        const configuration = root.elements[configurationIndex];
-        if (isComponentElement(configuration)) {
-            const entitiesIndex = configuration.element.elements.findIndex((e: { element: { id: string; }; }) => isListElement(e) && e.element.id === "entities");
-            if (entitiesIndex < 0) { return; }
-
-            const entities = configuration.element.elements[entitiesIndex];
-
-            if (isListElement(entities)) {
-                if (operation) {
-                    operation(entities.element, `elements.${configurationIndex}.element.elements.${entitiesIndex}.element`);
-                } else {
-                    return entities.element;
-                }
-            }
-        }
-    }
-};
-
-
-const applyOnMachinesAndEntities = (root: Component, operation: (l: List, path: string) => void) => {
-    findMachines(root, operation);
-    findEntities(root, operation);
-};
-
+import { DriverOsm } from 'client/osm/driverOsm';
+import { create_ns_sat } from 'client/osm-wrapper/client-osm-wrapper';
+import { create_ns_gw_st } from 'client/osm-wrapper/client-osm-wrapper';
+import { create_ns_node } from 'client/osm-wrapper/client-osm-wrapper';
+import { getModel } from 'client/opensad-wrapper/clientModel';
+import ComplexTable from 'views/admin/dashboard/components/ComplexTable';
 
 
 const Project: React.FC<Props> = (props) => {
-    const model = useSelector((state: { model: { model: any; }; }) => state.model.model);
     const source = useSelector((state: { ping: { source: any; }; }) => state.ping.source);
 
     let name = useParams().id;
 
-    const dispatch = useDispatch();
-    const [handleNewEntityCreate, setNewEntityCreate] = React.useState<((entity: string, entityType: string) => void) | undefined>(undefined);
-    const [pingDestination, setPingDestination] = React.useState<string | null>(null);
-    const [machs,setMachs] = useState([]);
-    const [nameMachs,setMachsName] = useState<string[]>([]);
-    const [dataTables,setDataTables] = useState([])
-    const [refresh,setRefresh] = useState(true);
+    const [log, setLog] = useState<string[]>([]);
+    const [entitiesState, setEntities] = useState<any[]>([]);
 
-  
-    // Scarica la lista delle macchine che verranno graficate nella tabella
-    useEffect(() => {
-        
-        let Allmachs = findMachinesName(model?.root)
-        let AllDataTable = []
-
-        if(Allmachs){
-            for( let machineID in Allmachs.elements){
-                let row = new Object()
-
-                row.name = Allmachs.elements[machineID].elements[1].element.value
-                row.type = Allmachs.elements[machineID].elements[2].element.value
-                row.ip = Allmachs.elements[machineID].elements[3].element.value
-                
-                AllDataTable.push(row)
-            }
-
-            setDataTables(AllDataTable)
-
-        }
-      }, [machs])
-
-
-    
-    const handleOpen = React.useCallback((root: Component, mutator: MutatorCallback, submitForm: SaveCallback) => {
-        setNewEntityCreate(() => (entity: string, entityType: string) => {
-            const addNewEntity = (l: List) => {
-                let hasError = false;
-                l.elements.forEach((c: { elements: any[]; }) => {
-                    c.elements.forEach((p: { element: { id: string; value: string; }; }) => {
-                        if (isParameterElement(p)) {
-                            if (p.element.id === "entity_name" && p.element.value === entity) {
-                                hasError = true;
-                            }
-                        }
-                    });
-                });
-                
-                if (hasError) {
-                    dispatch(newError(`Entity ${entity} already exists in ${l.name}`));
-                    return;
-                }
-
-                if (l.elements.length < l.maxOccurences) {
-                    const newEntity = newItem(l.pattern, l.elements.length);
-                    newEntity.elements.forEach((p: { element: { id: string; value: string; type: string; }; }) => {
-                        if (isParameterElement(p)) {
-                            if (p.element.id === "entity_name") {
-                                p.element.value = entity;
-                            }
-                            if (p.element.id === "entity_type") {
-                                p.element.value = entityType;
-                            }
-                            if (p.element.type.endsWith("_xsd")) {
-                                p.element.value = getXsdName(p.element.id, entityType);
-                            }
-                        }
-                    });
-                    return newEntity;
-                }
-            };
-
-            applyOnMachinesAndEntities(root, (l: List, p: string) => mutator(l, p, addNewEntity));
-            submitForm();
-
-        });
-    }, [dispatch]);
-
-
-    const handleClose = React.useCallback(() => {
-        setNewEntityCreate(undefined);
-        setRefresh(!refresh)
-    }, []);
-
-    const handleSubmit = React.useCallback((values: Component, helpers: FormikHelpers<Component>) => {
-        if (name) {
-            dispatch(updateProject({project: name, root: values}));
-        }
-        helpers.setSubmitting(false);
-        
-    }, [dispatch, name]);
-
-    const handleDeleteEntity = React.useCallback((root: Component, mutator: (l: List, path: string) => void) => {
-        applyOnMachinesAndEntities(root, mutator);
-    }, []);
-
-
-    const handleDelete = React.useCallback((entity: string | undefined, key: string) => {
-        if (name) {
-            const urlFragment = key + (entity == null ? "" : "/" + entity);
-            dispatch(deleteXML({project: name, urlFragment}));
-        }
-    }, [dispatch, name]);
-
-
-    const updateName = (model: { root: any; } | undefined) =>{
-        let Allmachs = findMachinesName(model?.root)
-        let AllnameMachs =[]
-
-        if(Allmachs)
-            for(const element of Allmachs.elements)
-                AllnameMachs.push(element.elements[1].element.value)
-
-        setMachs(Allmachs)
-        setMachsName(AllnameMachs)
-
-    }
-
-    const [entityName, entityType]: [Parameter | undefined, Parameter | undefined] = React.useMemo(() => {
-        const entity: [Parameter | undefined, Parameter | undefined] = [undefined, undefined];
-
-        updateName(model)
-
-        findMachines(model?.root, (machines: List) => {
-            machines.pattern.elements.forEach((p: { element: { id: string; }; }) => {
-                if (isParameterElement(p)) {
-                    if (p.element.id === "entity_name") { entity[0] = p.element; }
-                    if (p.element.id === "entity_type") { entity[1] = p.element; }
-                }
-            });
-        });
-        
-        return entity;
-    }, [model,refresh]);
-
-    React.useEffect(() => {
-        if (name) {
-            dispatch(getProject({project: name}));
-            dispatch(listProjectTemplates({project: name}));
-        }
-
-        return () => {
-            dispatch(clearTemplates());
-            dispatch(clearModel());
-        };
-    }, [dispatch, name]);
-
-    React.useEffect(() => {
-        if (name && source && pingDestination) {
-            dispatch(pingEntity({
-                project: name,
-                entity: source.name,
-                address: source.address,
-                destination: pingDestination,
-            }));
-            setPingDestination(null);
-        }
-    }, [dispatch, name, source, pingDestination]);
-    
     const { ...rest } = props;
-	// states and functions
 	const [ fixed ] = useState(false);
 	const [ toggleSidebar, setToggleSidebar ] = useState(false);
-	// functions for changing the states from components
-	const getRoute = () => {
-		return window.location.pathname !== '/admin/full-screen-maps';
-	};
+	
+    document.documentElement.dir = 'ltr';
+	const { onOpen } = useDisclosure();
+	document.documentElement.dir = 'ltr';
 
+    const appendToLog = async (message: string) => {
+        setLog((prevLog) => [...prevLog, message]); 
+   };
+
+    React.useEffect(async () => {
+        let model = await getModel(name)
+        model = model.model
+
+        appendToLog("Loading entities..")
+
+        let entities: any[] = []
+
+        // Posizione il satellite come prima entità da allocare
+        for(let idEntity in model.entities){
+
+            let entity = model.entities[idEntity]
+            if(entity.type == "Satellite"){
+                entities = [entity,...entities]
+            }else{
+                entities.push(entity)
+            }
+        }
+
+        appendToLog("List entities: ")
+        
+        console.log(entities)
+        for(let entity of entities){
+            appendToLog("* " +entity.nameEntity)
+            entity.name = entity.nameEntity
+            entity.status = "Disable"
+        }
+
+        setEntities(entities)
+
+    }, []); 
+ 
 	const getActiveRoute = (routes: string | any[],nameProject: undefined | string): any => {
 		let activeRoute = nameProject;
 		for (let i = 0; i < routes.length; i++) {
@@ -346,13 +158,115 @@ const Project: React.FC<Props> = (props) => {
 	};
 
     const deploy = async () => {
-        await createNetwork(name)
+        
+       
+        appendToLog("Start allocation...")
+
+        let driverOsm = new DriverOsm()
+        await driverOsm.inizialize()
+
+        let sat = entitiesState[0]
+
+        for(let entity of entitiesState){
+            if(entity.type == "Satellite"){
+
+                /*
+                let ip = entity.ip
+                let cidr = ipToCidr(ip)
+
+                let nsd = await create_ns_sat("Satellite",entity.nameEntity,ip,cidr)
+                let id = await driverOsm.create_entity(nsd)
+                id = driverOsm.instance_entity(entity.nameEntity,id,"phy-sat")
+
+                await new Promise(r => setTimeout(r, 5000));*/
+                appendToLog("Satellite allocation..")
+
+            }
+
+            if(entity.type == "Gateway"){
+
+                /*
+                let ip = entity.ip
+                let cidr = ipToCidr(ip)
+
+                let nsd = await create_ns_gw_st("Gateway",entity.nameEntity,ip,"10.10.10.0/24",cidr,sat.nameEntity)
+                let id = await driverOsm.create_entity(nsd)
+                id = driverOsm.instance_entity(entity.nameEntity,id,"phy-gw")*/
+                appendToLog("Gateway allocation..")
+            }
+
+            if(entity.type == "Terminal"){
+
+                /*
+                let ip = entity.ip
+                let cidr = ipToCidr(ip)
+
+                let nsd = await create_ns_gw_st("Terminal",entity.nameEntity,ip,"10.20.10.0/24",cidr,sat.nameEntity)
+                let id = await driverOsm.create_entity(nsd)
+                id = driverOsm.instance_entity(entity.nameEntity,id,"phy-st")*/
+                appendToLog("Terminal allocation..")
+            }
+
+
+
+            
+        }
+
+        appendToLog("Wait..")
+
+
+        /*
+        let nsd = await create_ns_sat("Satellite","sat","192.168.0.1","192.168.0.0/24")
+        let id = await driverOsm.create_entity(nsd)
+        id = driverOsm.instance_entity("sat",id,"phy-sat")
+        console.log(id)
+
+        await new Promise(r => setTimeout(r, 5000));
+
+        nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24","192.168.0.0/24","sat")
+        id = await driverOsm.create_entity(nsd)
+        id = driverOsm.instance_entity("gw",id,"phy-gw")
+        console.log(id)
+
+        nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24","192.168.0.0/24","sat")
+        id = await driverOsm.create_entity(nsd)
+        id = driverOsm.instance_entity("st",id,"phy-st")
+        console.log(id)
+
+        await new Promise(r => setTimeout(r, 5000));
+
+        nsd = await create_ns_node("node-st","10.20.10.2","10.20.10.0/24","st")
+        id = await driverOsm.create_entity(nsd)
+        id = driverOsm.instance_entity("node-st",id,"generic")
+        console.log(id)
+
+        nsd = await create_ns_node("node-gw","10.10.10.2","10.10.10.0/24","gw")
+        id = await driverOsm.create_entity(nsd)
+        id = driverOsm.instance_entity("node-gw",id,"generic")
+        console.log(id)
+        */
     }
 
+    function ipToCidr(ip: string) {
+        // Dividi l'indirizzo IP e ottieni gli ottetti
+        var octets = ip.split('.');
+    
+        // Assicurati che ci siano 4 ottetti
+        if (octets.length !== 4) {
+            throw new Error('Indirizzo IP non valido');
+        }
+    
+        // Converti gli ottetti in formato numerico
+        var numericOctets = octets.map(function (octet) {
+            return parseInt(octet, 10);
+        });
+    
+        // Ottieni la notazione CIDR per la subnet
+        var cidr = numericOctets.slice(0, 3).join('.') + '.0/24';
+    
+        return cidr;
+    }
 
-    document.documentElement.dir = 'ltr';
-	const { onOpen } = useDisclosure();
-	document.documentElement.dir = 'ltr';
 
 
 
@@ -392,17 +306,38 @@ const Project: React.FC<Props> = (props) => {
 
 							</Box>
 						</Portal>
-                                             
-                        <Box
-                              display="flex"
-                              justifyContent="center"
-                              alignItems="center"
-                              minHeight="100vh"
-                        >
-                            <button className='button' onClick={deploy}>
-                                Deploy
-                            </button>
-                        </Box>
+                        <div className="logging-container">
+                            <div className="title-bar">
+                                Log Allocation
+                            </div>
+                            <div className="content-container">
+                                <div className="log-container">
+                                <ul>
+                                    {log.map((message, index) => (
+                                    <li key={index}>{message}</li>
+                                    ))}
+                                </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className='center-div-table'>
+                            <Stack>
+                                <SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap='20px' mb='20px'>
+                                        <ComplexTable
+                                        columnsData={columnsDataComplex}
+                                        tableData={entitiesState}
+                                        />
+                                </SimpleGrid>
+                                <button className='button' onClick={deploy}>
+                                    Deploy
+                                </button>
+                                <button className='button' onClick={deploy}>
+                                    Configure
+                                </button>
+                            </Stack>
+                        </div>
+
 
 						<Box>
 							<Footer />
