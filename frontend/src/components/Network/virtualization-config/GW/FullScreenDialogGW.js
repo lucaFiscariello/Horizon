@@ -16,6 +16,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { addEntity } from 'client/opensad-wrapper/clientModel';
 import { configureEntity } from 'client/opensad-wrapper/clientModel';
 import SingleSpotCard from '../SAT/SingleSpotCard';
+import { postNode } from 'client/geometry-costellation/client';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -29,6 +30,7 @@ export default function FullScreenDialogConfigGW(props) {
   //COnfigurazioni opensand
   const [mac, setMac] = React.useState('');
   const [ip, setIP] = React.useState('');
+  const [ipWS, setIPWS] = React.useState('');
 
   const handleMacChange = (event) => {
     setMac(event.target.value);
@@ -38,20 +40,23 @@ export default function FullScreenDialogConfigGW(props) {
     setIP(event.target.value);
   };
 
+  const handleIPWSchange = (event) => {
+    setIPWS(event.target.value);
+  };
+
 
   const handleSave = async () => {
     if(ip && mac){
       await addEntity(props.projectName,props.nameEntity,"Gateway")
       await configureEntity(props.projectName,props.nameEntity,ip,mac)
     }
+
+    if(ipWS){
+      await postNode(0,0,"WS-"+props.nameEntity,"WS",ipWS)
+    }
+
     props.handleClose()
   };
-
-  const handleOnClickAdd = () => {
-  
-  };
-
-
  
   return (
     <div>
@@ -91,12 +96,20 @@ export default function FullScreenDialogConfigGW(props) {
               </Typography>
 
               <Stack spacing={2} style={{ marginTop: '16px' }}>
-                <TextField id="outlined-basic" label="Ip" variant="outlined"  value={ip} onChange={handleIpChange}/>
-                <TextField id="outlined-basic" label="Mac" variant="outlined" value={mac} onChange={handleMacChange} />
+                <TextField id="outlined-basic" label="Ip Gateway" variant="outlined"  value={ip} onChange={handleIpChange}/>
+                <TextField id="outlined-basic" label="Mac Gateway" variant="outlined" value={mac} onChange={handleMacChange} />
+
+                <Typography variant="h6" component="div">
+                  Add Work Station
+                </Typography>
+                <TextField id="outlined-basic" placeholder="10.10.10.2" label="Ip WS" variant="outlined"  value={ipWS} onChange={handleIPWSchange}/>
               </Stack>
-            
+
             </CardContent>
+
+            
           </Card>
+
 
         </div>
 

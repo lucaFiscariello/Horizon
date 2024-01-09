@@ -1,26 +1,12 @@
 import React, { useState } from 'react';
 import {useParams} from 'react-router-dom';
-import {Formik} from 'formik';
-import type {FormikProps, FormikHelpers} from 'formik';
 import {
     columnsDataComplex,
   } from "views/admin/dashboard/variables/columnsData.js";
-import tableDataComplex from "views/admin/dashboard/variables/tableDataComplex.json";
 
-import {
-    deleteXML,
-    getProject,
-    listProjectTemplates,
-    pingEntity,
-    updateProject,
-} from 'opensand/api/index.ts';
 
-    
-import {useSelector, useDispatch} from 'opensand/redux/index.ts';
-import {clearTemplates} from 'opensand/redux/form.ts';
-import {clearModel} from 'opensand/redux/model.ts';
-import {isComponentElement, isListElement, isParameterElement, newItem} from 'opensand/xsd/model.tsx';
-import type {Component, Parameter, List} from 'opensand/xsd/index.ts';
+import {useSelector} from 'opensand/redux/index.ts';
+import xml2js from "xml2js"
 
 import { Portal, Box, useDisclosure,SimpleGrid, Stack } from '@chakra-ui/react';
 import Footer from 'components/footer/FooterAdmin.js';
@@ -29,13 +15,14 @@ import Navbar from 'components/navbar/NavbarAdmin.js';
 import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
-import { useEffect } from 'react';
 import { DriverOsm } from 'client/osm/driverOsm';
 import { create_ns_sat } from 'client/osm-wrapper/client-osm-wrapper';
 import { create_ns_gw_st } from 'client/osm-wrapper/client-osm-wrapper';
 import { create_ns_node } from 'client/osm-wrapper/client-osm-wrapper';
 import { getModel } from 'client/opensad-wrapper/clientModel';
 import ComplexTable from 'views/admin/dashboard/components/ComplexTable';
+import Card from 'components/card/Card';
+import { getWS } from 'client/geometry-costellation/client';
 
 
 const Project: React.FC<Props> = (props) => {
@@ -79,16 +66,29 @@ const Project: React.FC<Props> = (props) => {
 
         appendToLog("List entities: ")
         
-        console.log(entities)
         for(let entity of entities){
             appendToLog("* " +entity.nameEntity)
             entity.name = entity.nameEntity
             entity.status = "Disable"
         }
 
+        let driverOsm = new DriverOsm()
+        await driverOsm.inizialize()
+        let nss = await driverOsm.get_NSs()
+        
+        if(nss.length >0){
+
+            for(let ns of nss)
+                for(let entity of entities)
+                    if(ns.name == entity.name)
+                        entity.status = ns["config-status"]
+                            
+        }
+
         setEntities(entities)
 
     }, []); 
+
  
 	const getActiveRoute = (routes: string | any[],nameProject: undefined | string): any => {
 		let activeRoute = nameProject;
@@ -170,7 +170,7 @@ const Project: React.FC<Props> = (props) => {
         for(let entity of entitiesState){
             if(entity.type == "Satellite"){
 
-                /*
+                
                 let ip = entity.ip
                 let cidr = ipToCidr(ip)
 
@@ -178,90 +178,185 @@ const Project: React.FC<Props> = (props) => {
                 let id = await driverOsm.create_entity(nsd)
                 id = driverOsm.instance_entity(entity.nameEntity,id,"phy-sat")
 
-                await new Promise(r => setTimeout(r, 5000));*/
+                await new Promise(r => setTimeout(r, 5000));
                 appendToLog("Satellite allocation..")
 
             }
 
             if(entity.type == "Gateway"){
 
-                /*
                 let ip = entity.ip
                 let cidr = ipToCidr(ip)
 
-                let nsd = await create_ns_gw_st("Gateway",entity.nameEntity,ip,"10.10.10.0/24",cidr,sat.nameEntity)
-                let id = await driverOsm.create_entity(nsd)
-                id = driverOsm.instance_entity(entity.nameEntity,id,"phy-gw")*/
-                appendToLog("Gateway allocation..")
+                let ws = await getWS(entity.nameEntity)
+
+                if(ws.length>0){
+                    ws = ws[0]
+
+                    let nsd = await create_ns_gw_st("Gateway",entity.nameEntity,ip,ipToCidr(ws.ip),cidr,sat.nameEntity)
+                    let id = await driverOsm.create_entity(nsd)
+                    id = driverOsm.instance_entity(entity.nameEntity,id,"phy-gw")
+                    appendToLog("Gateway allocation..")
+                    
+                    
+                    await new Promise(r => setTimeout(r, 5000));
+
+                    nsd = await create_ns_node(ws.nome,ws.ip, ipToCidr(ws.ip),entity.nameEntity)
+                    id = await driverOsm.create_entity(nsd)
+                    id = driverOsm.instance_entity(ws.nome,id,"generic")
+
+                    appendToLog("Allocation station "+ws.nome)
+
+                }else{
+                    let nsd = await create_ns_gw_st("Gateway",entity.nameEntity,ip,"10.10.10.0/24",cidr,sat.nameEntity)
+                    let id = await driverOsm.create_entity(nsd)
+                    id = driverOsm.instance_entity(entity.nameEntity,id,"phy-gw")
+                    appendToLog("Gateway allocation..")
+                }
+                
             }
 
             if(entity.type == "Terminal"){
 
-                /*
                 let ip = entity.ip
                 let cidr = ipToCidr(ip)
 
-                let nsd = await create_ns_gw_st("Terminal",entity.nameEntity,ip,"10.20.10.0/24",cidr,sat.nameEntity)
-                let id = await driverOsm.create_entity(nsd)
-                id = driverOsm.instance_entity(entity.nameEntity,id,"phy-st")*/
-                appendToLog("Terminal allocation..")
+               
+                let ws = await getWS(entity.nameEntity)
+
+                if(ws.length>0){
+                    ws = ws[0]
+
+                    let nsd = await create_ns_gw_st("Terminal",entity.nameEntity,ip,ipToCidr(ws.ip),cidr,sat.nameEntity)
+                    let id = await driverOsm.create_entity(nsd)
+                    id = driverOsm.instance_entity(entity.nameEntity,id,"phy-st")
+                    appendToLog("Terminal allocation..")
+
+                    await new Promise(r => setTimeout(r, 5000));
+
+                    nsd = await create_ns_node(ws.nome,ws.ip, ipToCidr(ws.ip),entity.nameEntity)
+                    id = await driverOsm.create_entity(nsd)
+                    id = driverOsm.instance_entity(ws.nome,id,"generic")
+
+                    appendToLog("Allocation station "+ws.nome)
+
+                }else{
+
+                    let nsd = await create_ns_gw_st("Terminal",entity.nameEntity,ip,"10.20.10.0/24",cidr,sat.nameEntity)
+                    let id = await driverOsm.create_entity(nsd)
+                    id = driverOsm.instance_entity(entity.nameEntity,id,"phy-st")
+                    appendToLog("Terminal allocation..")
+    
+                }
+
             }
-
-
-
-            
+          
         }
 
         appendToLog("Wait..")
+        await new Promise(r => setTimeout(r, 1000));
+
+        let nss = await driverOsm.get_NSs()
+        let entities = entitiesState.slice()
 
 
-        /*
-        let nsd = await create_ns_sat("Satellite","sat","192.168.0.1","192.168.0.0/24")
-        let id = await driverOsm.create_entity(nsd)
-        id = driverOsm.instance_entity("sat",id,"phy-sat")
-        console.log(id)
+        for(let ns of nss){
+            for(let entity of entities){
+                if(ns.name == entity.name){
+                    entity.status = ns["config-status"]
+                }
+            }
+        }
+        
+        appendToLog("Wait allocation ..")
+        setEntities(entities)
 
-        await new Promise(r => setTimeout(r, 5000));
-
-        nsd = await create_ns_gw_st("Gateway","gw","192.168.0.3","10.10.10.0/24","192.168.0.0/24","sat")
-        id = await driverOsm.create_entity(nsd)
-        id = driverOsm.instance_entity("gw",id,"phy-gw")
-        console.log(id)
-
-        nsd = await create_ns_gw_st("Terminal","st","192.168.0.2","10.20.10.0/24","192.168.0.0/24","sat")
-        id = await driverOsm.create_entity(nsd)
-        id = driverOsm.instance_entity("st",id,"phy-st")
-        console.log(id)
-
-        await new Promise(r => setTimeout(r, 5000));
-
-        nsd = await create_ns_node("node-st","10.20.10.2","10.20.10.0/24","st")
-        id = await driverOsm.create_entity(nsd)
-        id = driverOsm.instance_entity("node-st",id,"generic")
-        console.log(id)
-
-        nsd = await create_ns_node("node-gw","10.10.10.2","10.10.10.0/24","gw")
-        id = await driverOsm.create_entity(nsd)
-        id = driverOsm.instance_entity("node-gw",id,"generic")
-        console.log(id)
-        */
+        
     }
 
+    const configure = async () => {
+        let driverOsm = new DriverOsm()
+        await driverOsm.inizialize()
+
+        appendToLog("Start configuration network ..")
+
+        const builder = new xml2js.Builder();
+          let nss = await driverOsm.get_NSs()
+          let model = await getModel(name)
+          let template_ip_br = "192.168.63."
+          let i = 1
+
+          for (let ns of nss){
+            let entity = model.model.entitiesByName[ns.nsd.id]
+            
+            if(entity){
+
+                const xmlStringinf = builder.buildObject(entity.infrastructure);
+                const xmlStringTop = builder.buildObject(model.model.topology);
+                const xmlStringProf = builder.buildObject(entity.profile);
+                
+                await driverOsm.load_xml(ns._id,"infrastructure.xml",xmlStringinf)
+                await driverOsm.load_xml(ns._id,"topology.xml",xmlStringTop)
+                await driverOsm.load_xml(ns._id,"profile.xml",xmlStringProf)
+                
+                appendToLog("Loading infrastructure.xml, topology.xml, profile.xml in "+ns.nsd.id)
+
+                let type = entity.infrastructure.model.root.entity.entity_type
+                let mac;
+                
+                switch(type){
+
+                case "Satellite" :
+                    mac= entity.infrastructure.model.root.entity.entity_sat.mac_address
+                    break;
+
+                case "Gateway" :
+                    mac = entity.infrastructure.model.root.entity.entity_gw.mac_address
+                    break;
+
+                case "Terminal" :
+                    mac = entity.infrastructure.model.root.entity.entity_st.mac_address
+                    break;
+                } 
+
+                await new Promise(r => setTimeout(r, 20000));
+            
+
+                if(ns.nsd.id.includes("GW")){
+                    await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i,"10.20.10.0/24","192.168.63.3","00:00:00:00:00:03" )
+                    appendToLog("Start opensand in "+ns.nsd.id )
+                    
+                }else if(ns.nsd.id.includes("ST")){
+                    await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i ,"10.10.10.0/24","192.168.63.2","00:00:00:00:00:01")
+                    appendToLog("Start opensand in "+ns.nsd.id )
+
+                }
+                else{
+                    await driverOsm.config_network(ns._id)
+                    appendToLog("Configure Satellite ")
+
+                } 
+            
+            }
+            
+            i = i+1
+          }
+            
+      
+          appendToLog("OK! ")
+
+    }
     function ipToCidr(ip: string) {
-        // Dividi l'indirizzo IP e ottieni gli ottetti
         var octets = ip.split('.');
     
-        // Assicurati che ci siano 4 ottetti
         if (octets.length !== 4) {
             throw new Error('Indirizzo IP non valido');
         }
     
-        // Converti gli ottetti in formato numerico
         var numericOctets = octets.map(function (octet) {
             return parseInt(octet, 10);
         });
     
-        // Ottieni la notazione CIDR per la subnet
         var cidr = numericOctets.slice(0, 3).join('.') + '.0/24';
     
         return cidr;
@@ -306,36 +401,47 @@ const Project: React.FC<Props> = (props) => {
 
 							</Box>
 						</Portal>
-                        <div className="logging-container">
-                            <div className="title-bar">
-                                Log Allocation
-                            </div>
-                            <div className="content-container">
-                                <div className="log-container">
-                                <ul>
-                                    {log.map((message, index) => (
-                                    <li key={index}>{message}</li>
-                                    ))}
-                                </ul>
-                                </div>
-                            </div>
-                        </div>
 
+                        <div className='center-div-log'>
+                                <SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap='20px' mb='20px'>
+                                <Card overflowX={{ sm: "scroll", lg: "hidden" }}>
+                                    <div className="logging-container">
+                                        <div className="title-bar">
+                                            Log Allocation
+                                        </div>
+                                        <div className="content-container">
+                                            <div className="log-container">
+                                            <ul>
+                                                {log.map((message, index) => (
+                                                <li key={index}>{message}</li>
+                                                ))}
+                                            </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                                </SimpleGrid>
+
+                        </div>
+            
+                        
                         <div className='center-div-table'>
-                            <Stack>
                                 <SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap='20px' mb='20px'>
                                         <ComplexTable
                                         columnsData={columnsDataComplex}
                                         tableData={entitiesState}
                                         />
                                 </SimpleGrid>
-                                <button className='button' onClick={deploy}>
+
+                        </div>
+                         
+                        <div className='center-button'>
+                            <button className='button' onClick={deploy}>
                                     Deploy
-                                </button>
-                                <button className='button' onClick={deploy}>
+                            </button>
+                            <button className='button' onClick={configure}>
                                     Configure
-                                </button>
-                            </Stack>
+                            </button>
                         </div>
 
 

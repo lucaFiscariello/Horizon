@@ -56,7 +56,6 @@ export default function ColumnsTable(props) {
 
   return (
     <Card
-      direction='column'
       overflowX={{ sm: "scroll", lg: "hidden" }}>
       <Flex px='25px' justify='center' mb='10px' align='center'>
         <Text
@@ -112,20 +111,20 @@ export default function ColumnsTable(props) {
                           h='24px'
                           me='5px'
                           color={
-                            cell.value === "Approved"
+                            cell.value === "configured"
                               ? "green.500"
-                              : cell.value === "Disable"
+                              : cell.value === "Disable" || cell.value === "terminating" 
                               ? "red.500"
-                              : cell.value === "Error"
+                              : cell.value === "init"
                               ? "orange.500"
                               : null
                           }
                           as={
-                            cell.value === "Approved"
+                            cell.value === "configured"
                               ? MdCheckCircle
-                              : cell.value === "Disable"
+                              : cell.value === "Disable" || cell.value === "terminating" 
                               ? MdCancel
-                              : cell.value === "Error"
+                              : cell.value === "init"
                               ? MdOutlineError
                               : null
                           }

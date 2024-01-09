@@ -24,7 +24,8 @@ def inizialize():
             latitudine FLOAT,
             longitudine FLOAT,
             type TEXT,
-            nome TEXT
+            nome TEXT,
+            ip TEXT
         )
     '''.format(NODE_TABLE))
 
@@ -91,6 +92,28 @@ def get_nodes():
 
     return jsonify({'nodes': results})
 
+@app.route('/geometry/WS/<ground>', methods=['GET'])
+def get_ws(ground):
+
+    conn = sqlite3.connect('geometry.db')
+    cursor = conn.cursor()
+
+    # Esecuzione di una query
+    cursor.execute("SELECT * FROM {} WHERE nome LIKE '%WS%' AND nome LIKE ?".format(NODE_TABLE), ('%{}%'.format(ground),))
+    column_names = [column[0] for column in cursor.description]
+    rows = cursor.fetchall()
+
+    # Crea una lista di dizionari con il nome delle colonne come chiavi
+    results = []
+    for row in rows:
+        result_dict = dict(zip(column_names, row))
+        results.append(result_dict)
+
+    # Chiusura della connessione
+    conn.close()
+
+    return jsonify({'nodes': results})
+
 @app.route('/geometry/nodes/<project>/spots/<nameSpot>', methods=['GET'])
 def get_nodes_inside_spot(project,nameSpot):
     conn = sqlite3.connect('geometry.db')
@@ -122,9 +145,7 @@ def get_nodes_inside_spot(project,nameSpot):
    
 
     return jsonify({"nodes":result})
-
-
-    
+   
 @app.route('/geometry/spots/<project>', methods=['GET'])
 def get_spots(project):
 
@@ -179,12 +200,17 @@ def post_node():
     req = request.get_json()
     name = req.get('name')
     latitudine = req.get('latitudine')
-    latitudine = req.get('latitudine')
+    longitudine = req.get('longitudine')
     typeEntity = req.get('type')
+    ip = req.get('ip')
+
     
-    cursor.execute("INSERT INTO {} (latitudine, longitudine,type,nome) VALUES (?, ?,?,?)".format(NODE_TABLE), (latitudine,longitudine,typeEntity,name ))
+    cursor.execute("INSERT INTO {} (latitudine, longitudine,type,nome,ip) VALUES (?, ?,?,?,?)".format(NODE_TABLE), (latitudine,longitudine,typeEntity,name,ip ))
     conn.commit()
     conn.close()
+
+    return jsonify()
+
 
 @app.route('/geometry/spots', methods=['POST'])
 def post_spot():

@@ -13,11 +13,12 @@ import "assets/css/styleDialog.css"
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import ExpandedContent from './ExpandedContent';
-import { Stack } from '@mui/material';
+import { Checkbox, FormControlLabel, FormGroup, Stack } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { addEntity } from 'client/opensad-wrapper/clientModel';
 import { configureEntity } from 'client/opensad-wrapper/clientModel';
 import { getSpotLocation } from 'client/geometry-costellation/client';
+import { enableCollector as enableCollectorOpensand } from "client/opensad-wrapper/clientModel";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -30,6 +31,7 @@ export default function FullScreenDialogConfigSAT(props) {
   const [mac, setMac] = React.useState('');
   const [ip, setIP] = React.useState('');
   const [spots, setSpots] = React.useState([]);
+  const [enableCollector, setEnableCollector] = React.useState(true);
 
   React.useEffect(async ()  => {
 
@@ -51,6 +53,11 @@ export default function FullScreenDialogConfigSAT(props) {
       await addEntity(props.projectName,props.nameEntity,"Satellite")
       await configureEntity(props.projectName,props.nameEntity,ip,mac)
       }
+
+    if(enableCollector){
+      await enableCollectorOpensand(props.projectName,ip)
+    }
+
     props.handleClose()
   };
 
@@ -111,6 +118,10 @@ export default function FullScreenDialogConfigSAT(props) {
               <Stack spacing={2} style={{ marginTop: '16px' }}>
                 <TextField id="outlined-basic" label="Ip" variant="outlined"  value={ip} onChange={handleIpChange}/>
                 <TextField id="outlined-basic" label="Mac" variant="outlined" value={mac} onChange={handleMacChange} />
+                <FormGroup>
+                  <FormControlLabel control={<Checkbox  checked={enableCollector} onChange={(event) => {setEnableCollector(event.target.checked)}}/>} label="Enable Collector" /> 
+                </FormGroup>
+
              </Stack>
             
             </CardContent>
@@ -135,7 +146,7 @@ export default function FullScreenDialogConfigSAT(props) {
                 <ExpandedContent addSpotToMap={handleAddSpot} handleDeleteSpot={handleDeleteSpot} projectName={props.projectName} title={spot.name} info={spot} satName={props.nameEntity}></ExpandedContent>
               
               ))}
-
+              
             </CardContent>
           </Card>
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import {useParams} from 'react-router-dom';
 
     
-import {columnsDataColumns} from "components/dataTables/variables/columnsData.js";
+import PlayCircleOutlineSharpIcon from '@mui/icons-material/PlayCircleOutlineSharp';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {useDispatch} from 'opensand/redux/index.ts';
 
@@ -14,11 +14,13 @@ import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import routes from 'routes.js';
 
-import NewEntityDialog from './NewEntityDialog.tsx';
 import createTheme from 'opensand/utils/theme.ts';
-import ColumnsTable from "components/dataTables/components/ColumnsTable";
 import MapComponent from 'components/Network/Map.js';
-
+import {
+	Button,
+	Icon,
+	Link,
+  } from "@chakra-ui/react";
 
 const Project: React.FC<Props> = (props) => {
   
@@ -146,9 +148,8 @@ const Project: React.FC<Props> = (props) => {
                         
                         <div className='map'>
                             <MapComponent projectName={name} ></MapComponent>
-                        </div>
-                                      
-                           
+						</div>
+          
 						<Box>
 							<Footer />
 						</Box>
