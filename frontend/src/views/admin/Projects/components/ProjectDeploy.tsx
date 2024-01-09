@@ -185,6 +185,8 @@ const Project: React.FC<Props> = (props) => {
 
             if(entity.type == "Gateway"){
 
+                console.log("gateway..")
+
                 let ip = entity.ip
                 let cidr = ipToCidr(ip)
 
@@ -200,6 +202,8 @@ const Project: React.FC<Props> = (props) => {
                     
                     
                     await new Promise(r => setTimeout(r, 5000));
+
+                    console.log("dopo promise gateway")
 
                     nsd = await create_ns_node(ws.nome,ws.ip, ipToCidr(ws.ip),entity.nameEntity)
                     id = await driverOsm.create_entity(nsd)
@@ -218,6 +222,8 @@ const Project: React.FC<Props> = (props) => {
 
             if(entity.type == "Terminal"){
 
+                console.log("terminal..")
+
                 let ip = entity.ip
                 let cidr = ipToCidr(ip)
 
@@ -233,6 +239,7 @@ const Project: React.FC<Props> = (props) => {
                     appendToLog("Terminal allocation..")
 
                     await new Promise(r => setTimeout(r, 5000));
+                    console.log("dopo terminal..")
 
                     nsd = await create_ns_node(ws.nome,ws.ip, ipToCidr(ws.ip),entity.nameEntity)
                     id = await driverOsm.create_entity(nsd)

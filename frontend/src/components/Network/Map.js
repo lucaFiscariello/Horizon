@@ -108,13 +108,19 @@ const MapComponent =  (props) => {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      <LayerGroup>
 
-        {spots.map((spot) => (
-          <Circle center={[spot.latitudine,spot.longitudine]}  pathOptions={{ fillColor: 'green', color:"green" }} radius={spot.radius} />
-        ))}
-
-      </LayerGroup>
+      {spots.length > 0 && (
+        <LayerGroup>
+          {spots.map((spot) => (
+            <Circle
+              key={spot.id}  // Assicurati di fornire una chiave univoca per ciascun Circle
+              center={[spot.latitudine, spot.longitudine]}
+              pathOptions={{ fillColor: 'green', color: 'green' }}
+              radius={spot.radius}
+            />
+          ))}
+        </LayerGroup>
+      )}
 
       {physicalNodes.map((node) => (
     
