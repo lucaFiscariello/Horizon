@@ -102,15 +102,9 @@ class OSMCharm(CharmBase, InstallProgress):
         shell("ip link add name {} type bridge".format(BR_IFACE))
         shell("ip address add {}/{} dev {}".format(BR_IFACE_IP,"24",BR_IFACE))
         shell("ip link set dev {} master {}".format(TAP_IFACE,BR_IFACE))
+        shell("ip link set dev {} master {}".format(LAN_IFACE,BR_IFACE))
         shell("ip link set {} up".format(BR_IFACE))
         shell("ip link set {} up".format(TAP_IFACE))
-
-        shell("sysctl -w net.ipv4.conf.{}.forwarding=1".format(EMU_IFACE))
-        shell("sysctl -w net.ipv4.conf.{}.forwarding=1".format(BR_IFACE))
-        shell("sysctl -w net.ipv4.conf.{}.forwarding=1".format(LAN_IFACE))
-        shell("sysctl -w net.ipv4.ip_forward=1")
-        shell("ip route replace {} via {} dev {}".format(LAN_NET_OTHER,BR_IFACE_IP_OTHER,BR_IFACE))
-        shell("ip neighbor replace to {} dev {} lladdr {}".format(BR_IFACE_IP_OTHER,BR_IFACE,TAP_MAC_OTHER))
 
 	  
         shell("sleep 5")

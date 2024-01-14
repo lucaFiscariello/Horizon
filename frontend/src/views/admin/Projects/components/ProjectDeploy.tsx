@@ -306,7 +306,7 @@ const Project: React.FC<Props> = (props) => {
                 await driverOsm.load_xml(ns._id,"topology.xml",xmlStringTop)
                 await driverOsm.load_xml(ns._id,"profile.xml",xmlStringProf)
                 
-                appendToLog("Loading infrastructure.xml, topology.xml, profile.xml in "+ns.nsd.id)
+                appendToLog("Loading configuration inside "+ns.nsd.id)
 
                 let type = entity.infrastructure.model.root.entity.entity_type
                 let mac;
@@ -330,11 +330,11 @@ const Project: React.FC<Props> = (props) => {
             
 
                 if(ns.nsd.id.includes("GW")){
-                    await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i,"10.20.10.0/24","192.168.63.3","00:00:00:00:00:03" )
+                    await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i)
                     appendToLog("Start opensand in "+ns.nsd.id )
                     
                 }else if(ns.nsd.id.includes("ST")){
-                    await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i ,"10.10.10.0/24","192.168.63.2","00:00:00:00:00:01")
+                    await driverOsm.config_network(ns._id,"ens4","ens5","opensand_tap",mac,"opensand_br",template_ip_br+i)
                     appendToLog("Start opensand in "+ns.nsd.id )
 
                 }

@@ -91,7 +91,7 @@ export class DriverOsm {
         return response
     }
 
-    async config_network(nsId,EMU_IFACE,LAN_IFACE,TAP_IFACE,TAP_MAC,BR_IFACE,BR_IFACE_IP,LAN_NET_OTHER,BR_IFACE_IP_OTHER,TAP_MAC_OTHER){
+    async config_network(nsId,EMU_IFACE,LAN_IFACE,TAP_IFACE,TAP_MAC,BR_IFACE,BR_IFACE_IP){
       
         let nameAction = "config-net"
         let vnf_index = "vnf1"
@@ -107,9 +107,9 @@ export class DriverOsm {
             configparams.BR_IFACE = BR_IFACE
             configparams.BR_IFACE_IP = BR_IFACE_IP
 
-            configparams.LAN_NET_OTHER = LAN_NET_OTHER
-            configparams.BR_IFACE_IP_OTHER = BR_IFACE_IP_OTHER
-            configparams.TAP_MAC_OTHER = TAP_MAC_OTHER
+            configparams.LAN_NET_OTHER = ""
+            configparams.BR_IFACE_IP_OTHER = ""
+            configparams.TAP_MAC_OTHER = ""
 
         }
 

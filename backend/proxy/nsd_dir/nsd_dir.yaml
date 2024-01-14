@@ -35,8 +35,8 @@ nsd:
                       constituent-cpd-id: vnf-data2-ext
                   virtual-link-profile-id: datanet2
               vnfd-id: ground_component
-      id: ST-slice2
-      name: ST-slice2
+      id: ST-slice
+      name: ST-slice
       sapd:
         - id: nsd_cp_mgmt
           virtual-link-desc: test
@@ -49,7 +49,7 @@ nsd:
         - id: test
           mgmt-network: true
         - id: datanet1
-          vim-network-name: SAT-slice2-datanet1
+          vim-network-name: SAT-slice-datanet1
         - id: datanet2
       vnfd-id:
         - ground_component
