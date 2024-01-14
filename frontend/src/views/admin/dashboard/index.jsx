@@ -19,99 +19,120 @@
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 */
+import * as React from 'react';
+
 
 // Chakra imports
 import {
   Box,
-  Icon,
+  Collapse,
   SimpleGrid,
   useColorModeValue,
 } from "@chakra-ui/react";
 // Assets
-import MiniStatistics from "components/card/MiniStatistics";
-import IconBox from "components/icons/IconBox";
-import {
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import {DownOutlined as ExpandMoreIcon} from '@ant-design/icons';
 
-  MdBarChart,
-} from "react-icons/md";
-import ComplexTable from "views/admin/dashboard/components/ComplexTable";
-import Usage from "views/admin/dashboard/components/Usage";
-import {
-  columnsDataComplex,
-} from "views/admin/dashboard/variables/columnsData";
-import tableDataComplex from "views/admin/dashboard/variables/tableDataComplex.json";
-
-
+import useMediaQuery from '@mui/material/useMediaQuery';
+import {ThemeProvider} from '@mui/material/styles';
+import createTheme from 'opensand/utils/theme.ts';
 
 export default function UserReports() {
   // Chakra Color Mode
   const brandColor = useColorModeValue("brand.500", "white");
   const boxBg = useColorModeValue("secondaryGray.300", "whiteAlpha.100");
-      
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
+  const theme = React.useMemo(() => createTheme(prefersDarkMode), [prefersDarkMode]);
+  const customStyle = {
+    backgroundColor: 'white', // Colore di sfondo personalizzato
+    color: 'black', 
+  };
+
   return (
-    <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
 
-      <SimpleGrid
-        columns={{ base: 1, md: 2, lg: 3, "2xl": 3 }}
-        gap='20px'
-        mb='20px'>
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w='56px'
-              h='56px'
-              bg={boxBg}
-              icon={
-                <Icon w='32px' h='32px' as={MdBarChart} color={brandColor} />
-              }
-            />
-          }
-          name='Virtual Network function'
-          value='5'
-        />
-        <MiniStatistics
-          startContent={
-            <IconBox
-              w='56px'
-              h='56px'
-              bg={boxBg}
-              icon={
-                <Icon w='32px' h='32px' as={MdBarChart} color={brandColor} />
-              }
-            />
-          }
-          name='Virtual machines'
-          value='5'
-        />
-        <MiniStatistics
-            startContent={
-              <IconBox
-                w='56px'
-                h='56px'
-                bg={boxBg}
-                icon={
-                  <Icon w='32px' h='32px' as={MdBarChart} color={brandColor} />
-                }
-              />
-            }
-          name='Project'
-          value='7'
-        />
+    <ThemeProvider theme={theme}>
+
+      <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
+
+      <Accordion >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel3-content"
+            id="panel3-header"
+            style={customStyle}
+          >
+            Satellite
+          </AccordionSummary>
+          <AccordionDetails>
+
+          <iframe
+                title="Grafana Dashboard"
+                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.138:9100&from=now-5m&refresh=5s&kiosk`}
+                width="100%"
+                height="1500px"
+                frameBorder={0}
+            ></iframe>
+
+          </AccordionDetails>
+        </Accordion>
+
+        <Accordion >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel3-content"
+            id="panel3-header"
+            style={customStyle}
+          >
+            Gateway
+          </AccordionSummary>
+          <AccordionDetails>
+
+          <iframe
+                title="Grafana Dashboard"
+                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.187:9100&from=now-5m&kiosk`}
+                width="100%"
+                height="1500px"
+                frameBorder={0}
+            ></iframe>
+
+          </AccordionDetails>
+        </Accordion>
 
 
-      </SimpleGrid>
+        <Accordion >
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="panel3-content"
+            id="panel3-header"
+            style={customStyle}
+          >
+            Terminal
+          </AccordionSummary>
+          <AccordionDetails>
 
-      <SimpleGrid columns={{ base: 1, md: 2, xl: 2 }} gap='20px' mb='20px'>
-        <Usage name_chart = "CPU" />
-        <Usage name_chart = "RAM"/>
-      </SimpleGrid>
+          <iframe
+                title="Grafana Dashboard"
+                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.207:9100&from=now-5m&kiosk`}
+                width="100%"
+                height="1500px"
+                frameBorder={0}
+            ></iframe>
+
+          </AccordionDetails>
+        </Accordion>
+
+
+  
+
+       
     
-      <SimpleGrid columns={{ base: 1, md: 1, xl: 1 }} gap='20px' mb='20px'>
-        <ComplexTable
-          columnsData={columnsDataComplex}
-          tableData={tableDataComplex}
-        />
-      </SimpleGrid>
-    </Box>
+
+      
+
+      </Box>
+    </ThemeProvider> 
+
   );
 }
