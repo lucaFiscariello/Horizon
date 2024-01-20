@@ -1,5 +1,5 @@
 fe2d2a08d0c4d850972a38aad9b370f9	ground_component_vnf/ground_component_vnfd.yaml
-4853a1292bf565979a63c1880ee71e16	ground_component_vnf/cloud_init/cloud-init.dat
+33344a8f2f0f21135f5093a48e9b9a31	ground_component_vnf/cloud_init/cloud-init.dat
 3263f1f4114f3d71ea056ce44a4db56d	ground_component_vnf/charms/opensand-charm/metadata.yaml
 edcd797d6066531a40dd2e43d9ee5812	ground_component_vnf/charms/opensand-charm/actions.yaml
 564be6d5016e3e4e73e8b68858c66183	ground_component_vnf/charms/opensand-charm/README.md

@@ -33,7 +33,7 @@ while True:
     if pkt == None:
         break
 
-    destination_ip = "224.0.0.1"  
+    destination_ip = "233.0.0.1"  
     destination_port = 12345    
     body = bytes(pkt) 
     send_udp_packet(destination_ip, destination_port,body )
