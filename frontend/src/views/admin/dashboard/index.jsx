@@ -69,7 +69,7 @@ export default function UserReports() {
 
           <iframe
                 title="Grafana Dashboard"
-                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.138:9100&from=now-5m&refresh=5s&kiosk`}
+                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.137:9100&from=now-5m&refresh=5s&kiosk`}
                 width="100%"
                 height="1500px"
                 frameBorder={0}
@@ -91,7 +91,7 @@ export default function UserReports() {
 
           <iframe
                 title="Grafana Dashboard"
-                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.187:9100&from=now-5m&kiosk`}
+                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.186:9100&from=now-5m&kiosk`}
                 width="100%"
                 height="1500px"
                 frameBorder={0}
@@ -114,7 +114,7 @@ export default function UserReports() {
 
           <iframe
                 title="Grafana Dashboard"
-                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.207:9100&from=now-5m&kiosk`}
+                src={`http://192.168.123.150:3000/d/rYdddlPWk/node-exporter-full?orgId=1&theme=light&var-node=192.168.123.206:9100&from=now-5m&kiosk`}
                 width="100%"
                 height="1500px"
                 frameBorder={0}
