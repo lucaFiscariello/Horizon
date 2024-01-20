@@ -8,7 +8,7 @@ sleep 1
 NAME_DEMON_SCMROUTE="opensand"                  # You can choose any name
 IPV4_MCAST_GROUPS_JOIN="233.0.0.1"              # Multicast groups to join
 IPV4_MCAST_GROUPS_SUBNET="233.0.0.0/8"          # Multicast Net to join 
-IPV4_ST_BR="192.168.63.3"                      #IP associate to opensand_br
+IPV4_ST_BR=$(ip a | grep opensand_br | awk '/inet/ {print $2}')                      #IP associate to opensand_br
 
 # Activate multicast functions in the Linux kernel and start demon
 sysctl -w net.ipv4.icmp_echo_ignore_broadcasts=0
