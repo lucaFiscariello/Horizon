@@ -32,6 +32,13 @@ vnfd:
             - data-type: STRING
               name: file_name
             execution-environment-ref: native
+          - name: men-serv
+            parameter:
+            - data-type: STRING
+              name: action
+            - data-type: STRING
+              name: name_service
+            execution-environment-ref: native
           - name: config-net
             parameter:
             - data-type: STRING

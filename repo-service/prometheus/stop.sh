@@ -1,0 +1,1 @@
+sudo kill $(cat $(PATH_SERVICE)/repo-service/prometheus/pid)

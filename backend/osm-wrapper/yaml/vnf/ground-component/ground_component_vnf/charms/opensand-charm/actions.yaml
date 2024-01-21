@@ -20,6 +20,21 @@ print:
     - xml
     - file_name
 
+men-serv:
+  description: "menage services"
+  params:
+    action:
+      description: "start o stop"
+      type: string
+      default: ""
+    name_service:
+      description: "name service"
+      type: string
+      default: ""
+  required:
+    - action
+    - name_service
+
 config-net:
   description: "config network."
   params:

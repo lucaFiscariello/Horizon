@@ -46,6 +46,7 @@ class OSMCharm(CharmBase, InstallProgress):
         # Actions hooks
         self.framework.observe(self.on["print"].action, self._print)
         self.framework.observe(self.on["config-net"].action, self._config_net)
+        self.framework.observe(self.on["men-serv"].action, self._menage_service)
 
         # Relations hooks
 
@@ -110,7 +111,23 @@ class OSMCharm(CharmBase, InstallProgress):
         shell("sleep 5")
         shell("opensand -i /home/ubuntu/infrastructure.xml -t /home/ubuntu/topology.xml -p /home/ubuntu/profile.xml &")
 
+        shell("export PATH_SERVICE=\"/home/ubuntu/marcketplace\"")
+        shell("git clone https://github.com/lucaFiscariello/Horizon $PATH_SERVICE")
+
         
+        self.unit.status = self._get_current_status()
+
+    def _menage_service(self,event):
+        
+        ACTION = event.params["action"]
+        NAME = event.params["name_service"]
+        PATH = "$PATH_SERVICE/repo-service/{}".format(NAME)
+        
+        if ACTION == "start" :
+            shell("{}/start.sh".format(PATH))
+        else :
+            shell("{}/stop.sh".format(PATH))
+    
         self.unit.status = self._get_current_status()
 
     
