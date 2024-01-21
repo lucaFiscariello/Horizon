@@ -84,6 +84,8 @@ class OSMCharm(CharmBase, InstallProgress):
 
     def _config_net(self,event):
         
+        shell("echo 'start config' > /home/ubuntu/log")
+
         EMU_IFACE = event.params["EMU_IFACE"]
         LAN_IFACE = event.params["LAN_IFACE"]
         TAP_IFACE = event.params["TAP_IFACE"]
@@ -111,7 +113,8 @@ class OSMCharm(CharmBase, InstallProgress):
         shell("sleep 5")
         shell("opensand -i /home/ubuntu/infrastructure.xml -t /home/ubuntu/topology.xml -p /home/ubuntu/profile.xml &")
 
-        shell("export PATH_SERVICE=\"/home/ubuntu/marcketplace\"")
+        shell("echo 'execute opensand' > /home/ubuntu/log")
+        shell("export PATH_SERVICE=\"/home/ubuntu/marketplace\"")
         shell("git clone https://github.com/lucaFiscariello/Horizon $PATH_SERVICE")
 
         
@@ -119,15 +122,20 @@ class OSMCharm(CharmBase, InstallProgress):
 
     def _menage_service(self,event):
         
+        shell("echo 'menage service' >> /home/ubuntu/log")
+
         ACTION = event.params["action"]
         NAME = event.params["name_service"]
         PATH = "$PATH_SERVICE/repo-service/{}".format(NAME)
         
         if ACTION == "start" :
+            shell("echo 'start' >> /home/ubuntu/log")
             shell("{}/start.sh".format(PATH))
         else :
+            shell("echo 'stop' >> /home/ubuntu/log")
             shell("{}/stop.sh".format(PATH))
     
+        shell("echo 'end menage' >> /home/ubuntu/log")
         self.unit.status = self._get_current_status()
 
     
