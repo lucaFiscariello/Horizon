@@ -91,6 +91,18 @@ export class DriverOsm {
         return response
     }
 
+    async menage_service(nsId,action,name_service){
+        let nameAction = "men-serv"
+        let vnf_index = "vnf1"
+
+        let configparams = new Object()
+        configparams.action = action
+        configparams.name_service = name_service
+
+        let response = await post_action(this.token,nameAction,nsId,vnf_index,configparams)
+        return response
+    }
+
     async config_network(nsId,EMU_IFACE,LAN_IFACE,TAP_IFACE,TAP_MAC,BR_IFACE,BR_IFACE_IP){
       
         let nameAction = "config-net"
