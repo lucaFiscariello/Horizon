@@ -1,1 +1,1 @@
-sudo kill $(cat $PATH_SERVICE/repo-service/sender-flute/pid)
+sudo kill $(cat /home/ubuntu/marketplace/repo-service/sender-flute/pid)

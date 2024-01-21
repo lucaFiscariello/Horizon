@@ -1,7 +1,7 @@
-$PATH_SERVICE/repo-service/sender-flute/multicast.sh
-$PATH_SERVICE/repo-service/sender-flute/multicast.sh
-sudo apt-get update
-sudo apt-get install python3-pip
+/home/ubuntu/marketplace/repo-service/sender-flute/multicast.sh
+/home/ubuntu/marketplace/repo-service/sender-flute/multicast.sh
+sudo apt-get update -y
+sudo apt-get install python3-pip -y 
 pip install flute-alc
-python3 $PATH_SERVICE/repo-service/sender-flute/app.py & 
-echo $! > $PATH_SERVICE/repo-service/sender-flute/pid 
+python3 /home/ubuntu/marketplace/repo-service/sender-flute/app.py & 
+echo $! > /home/ubuntu/marketplace/repo-service/sender-flute/pid 
