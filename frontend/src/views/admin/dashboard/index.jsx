@@ -124,13 +124,6 @@ export default function UserReports() {
         </Accordion>
 
 
-  
-
-       
-    
-
-      
-
       </Box>
     </ThemeProvider> 
 

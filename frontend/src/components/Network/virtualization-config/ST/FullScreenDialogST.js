@@ -83,11 +83,38 @@ export default function FullScreenDialogConfigST(props) {
               <Stack spacing={2} style={{ marginTop: '16px' }}>
                 <TextField id="outlined-basic" label="Ip" variant="outlined"  value={ip} onChange={handleIpChange}/>
                 <TextField id="outlined-basic" label="Mac" variant="outlined" value={mac} onChange={handleMacChange} />
+            
+
+                <Typography variant="h6" component="div">
+                  Add Work Station
+                </Typography>
+                <TextField id="outlined-basic" placeholder="10.10.10.2" label="Ip WS" variant="outlined"  />
+                <TextField id="outlined-basic" placeholder="10.10.10.3" label="Ip WS" variant="outlined"  />
+                <TextField id="outlined-basic" placeholder="10.10.10.4" label="Ip WS" variant="outlined"  />
+
+            
              </Stack>
+
+           
             
             </CardContent>
           </Card>
 
+          <Card className="section-white">
+            <CardContent>
+              <Typography variant="h6" component="div">
+                Emulation
+              </Typography>
+
+              <Stack spacing={2} style={{ marginTop: '16px' }}>
+                <TextField id="outlined-basic" label="Up link attenuation" variant="outlined"  value={ip} onChange={handleIpChange}/>
+                <TextField id="outlined-basic" label="Down link attenuation" variant="outlined" value={mac} onChange={handleMacChange} />
+                <TextField id="outlined-basic" label="Costant delay" variant="outlined" value={mac} onChange={handleMacChange} />
+                <TextField id="outlined-basic" label="DAMA algoritm" variant="outlined" value={mac} onChange={handleMacChange} defaultValue="Legacy" />
+              </Stack>
+
+            </CardContent>
+          </Card>
         </div>
 
 

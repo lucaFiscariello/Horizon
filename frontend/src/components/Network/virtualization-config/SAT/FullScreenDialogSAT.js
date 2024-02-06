@@ -19,6 +19,8 @@ import { addEntity } from 'client/opensad-wrapper/clientModel';
 import { configureEntity } from 'client/opensad-wrapper/clientModel';
 import { getSpotLocation } from 'client/geometry-costellation/client';
 import { enableCollector as enableCollectorOpensand } from "client/opensad-wrapper/clientModel";
+import { getModel } from 'client/opensad-wrapper/clientModel';
+import DataTable from './Table';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -38,6 +40,8 @@ export default function FullScreenDialogConfigSAT(props) {
     let spots = await getSpotLocation(props.projectName)
     setSpots(spots)
 
+    let res =await  getModel(props.projectName)
+    console.log(res.model.topology.model.root.wave_forms.dvb_rcs2.item)
   }, []);
 
   const handleMacChange = (event) => {
@@ -147,6 +151,35 @@ export default function FullScreenDialogConfigSAT(props) {
               
               ))}
               
+            </CardContent>
+          </Card>
+
+          <Card className="section-white">
+            <CardContent>
+            <Stack spacing={2} style={{ marginTop: '16px' }}>
+              <Typography variant="h5" component="div">
+                Modulation Up link
+              </Typography>
+
+              <DataTable projectName={props.projectName}></DataTable>
+              <TextField id="outlined-basic" label="Symbol rate" variant="outlined"/>
+              
+            </Stack>
+            </CardContent>
+          </Card>
+
+
+          <Card className="section-white">
+            <CardContent>
+            <Stack spacing={2} style={{ marginTop: '16px' }}>
+              <Typography variant="h5" component="div">
+                Modulation Down link
+              </Typography>
+
+              <DataTable projectName={props.projectName}></DataTable>
+              <TextField id="outlined-basic" label="Symbol rate" variant="outlined"/>
+
+            </Stack>
             </CardContent>
           </Card>
 

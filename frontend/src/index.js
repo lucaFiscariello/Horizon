@@ -11,6 +11,7 @@ import {Provider} from 'react-redux';
 import store from 'opensand/redux/index.ts';
 import Project from 'views/admin/Projects/components/ProjectModification.tsx';
 import ProjectDeploy from 'views/admin/Projects/components/ProjectDeploy.tsx';
+import ProjectService from 'views/admin/Projects/components/ProjectService.tsx';
 
 
 
@@ -27,6 +28,7 @@ function App() {
 									<Route path={`/admin`} component={AdminLayout} />
 									<Route path={`/project/:id`} component={Project} />
 									<Route path={`/deploy/:id`} component={ProjectDeploy} />
+									<Route path={`/service/:id`} component={ProjectService} />
 									<Redirect from='/' to='/admin' />
 								</Switch>
 							</HashRouter>

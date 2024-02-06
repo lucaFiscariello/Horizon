@@ -40,6 +40,13 @@
   margin-top:150px;
 }
 
+.center-div-service{
+  margin-left: 30px;
+  margin-right: 30px;
+  margin-top:120px;
+  height: 600px;
+}
+
 
 .center-div{
   display: flex;

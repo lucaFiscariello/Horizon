@@ -15,9 +15,10 @@ import Card from "components/card/Card.js";
 import PlayCircleOutlineSharpIcon from '@mui/icons-material/PlayCircleOutlineSharp';
 import React from "react"
 import DeleteIcon from '@mui/icons-material/Delete';
+import HandymanIcon from '@mui/icons-material/Handyman';
 
 export default function Project(props) {
-  const { title, ranking, link, image,linkdeploy, ...rest } = props;
+  const { title, ranking, link, image,linkService,linkdeploy, ...rest } = props;
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
   const textColorSecondary = "gray.400";
@@ -52,13 +53,25 @@ export default function Project(props) {
             </Link>
           </Text>
         </Box>
+
+        
         <Link
           href={linkdeploy}
+          me='16px'
+          ms='875px'
+          >
+          <Button>
+            <Icon as={PlayCircleOutlineSharpIcon} color='secondaryGray.500' h='18px' w='18px' />
+          </Button>
+        </Link>
+
+        <Link
+          href={linkService}
           me='16px'
           ms='auto'
           p='0px !important'>
           <Button>
-            <Icon as={PlayCircleOutlineSharpIcon} color='secondaryGray.500' h='18px' w='18px' />
+            <Icon as={HandymanIcon} color='secondaryGray.500' h='18px' w='18px' />
           </Button>
         </Link>
 

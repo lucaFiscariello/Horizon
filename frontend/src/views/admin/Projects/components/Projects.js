@@ -58,6 +58,7 @@ export default function Projects(props) {
   
   let project = "#/project/"
   let projectDeploy = "#/deploy/"
+  let projectService = "#/service/"
 
 
   const projectsCards = projects.map((p, i) => (
@@ -68,6 +69,7 @@ export default function Projects(props) {
         ranking={i}
         link= {project.concat(p)}
         linkdeploy= {projectDeploy.concat(p)}
+        linkService = {projectService.concat(p)}
         title= {p}
         onDelete={setProjectToDelete}
         project={p}
