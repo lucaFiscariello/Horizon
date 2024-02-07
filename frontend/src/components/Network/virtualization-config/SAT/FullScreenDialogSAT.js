@@ -21,6 +21,10 @@ import { getSpotLocation } from 'client/geometry-costellation/client';
 import { enableCollector as enableCollectorOpensand } from "client/opensad-wrapper/clientModel";
 import { getModel } from 'client/opensad-wrapper/clientModel';
 import DataTable from './Table';
+import { configureModulationUP } from 'client/opensad-wrapper/clientModel';
+import { configureModulationDown } from 'client/opensad-wrapper/clientModel';
+import { configureSymbolRateDown } from 'client/opensad-wrapper/clientModel';
+import { configureSymbolRateUP } from 'client/opensad-wrapper/clientModel';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
@@ -32,6 +36,10 @@ export default function FullScreenDialogConfigSAT(props) {
   const nameEntity = props.nameEntity
   const [mac, setMac] = React.useState('');
   const [ip, setIP] = React.useState('');
+  const [rateDown, setRateDown] = React.useState('');
+  const [rateUP, setRateUP] = React.useState('');
+  const [waveDown, setWaveDown] = React.useState('');
+  const [waveUP, setWaveUP] = React.useState('');
   const [spots, setSpots] = React.useState([]);
   const [enableCollector, setEnableCollector] = React.useState(true);
 
@@ -41,7 +49,6 @@ export default function FullScreenDialogConfigSAT(props) {
     setSpots(spots)
 
     let res =await  getModel(props.projectName)
-    console.log(res.model.topology.model.root.frequency_plan.spots.item.forward_band.item.wave_form)
   }, []);
 
   const handleMacChange = (event) => {
@@ -50,6 +57,22 @@ export default function FullScreenDialogConfigSAT(props) {
 
   const handleIpChange = (event) => {
     setIP(event.target.value);
+  };
+
+  const handleRateDown = (event) => {
+    setRateDown(event.target.value);
+  };
+
+  const handleRateUP = (event) => {
+    setRateUP(event.target.value);
+  };
+
+  const handleWaveDown = (wave) => {
+    setWaveDown(wave);
+  };
+
+  const handleWaveUP = (wave) => {
+    setWaveUP(wave);
   };
 
   const handleSave = async () => {
@@ -61,6 +84,18 @@ export default function FullScreenDialogConfigSAT(props) {
     if(enableCollector){
       await enableCollectorOpensand(props.projectName,ip)
     }
+
+    if(waveUP)
+      await configureModulationUP(props.projectName,waveUP)
+
+    if(waveDown)
+      await configureModulationDown(props.projectName,waveDown)
+
+    if(rateDown)
+      await configureSymbolRateDown(props.projectName,rateDown)
+
+    if(rateUP)
+      await configureSymbolRateUP(props.projectName,rateUP)
 
     props.handleClose()
   };
@@ -161,8 +196,8 @@ export default function FullScreenDialogConfigSAT(props) {
                 Modulation Up link
               </Typography>
 
-              <DataTable projectName={props.projectName}></DataTable>
-              <TextField id="outlined-basic" label="Symbol rate" variant="outlined"/>
+              <DataTable projectName={props.projectName} handeWave={handleWaveUP}></DataTable>
+              <TextField id="outlined-basic" label="Symbol rate" variant="outlined" value={rateUP} onChange={handleRateUP}/>
               
             </Stack>
             </CardContent>
@@ -176,8 +211,8 @@ export default function FullScreenDialogConfigSAT(props) {
                 Modulation Down link
               </Typography>
 
-              <DataTable projectName={props.projectName}></DataTable>
-              <TextField id="outlined-basic" label="Symbol rate" variant="outlined"/>
+              <DataTable projectName={props.projectName} handeWave={handleWaveDown}></DataTable>
+              <TextField id="outlined-basic" label="Symbol rate" variant="outlined" value={rateDown} onChange={handleRateDown} />
 
             </Stack>
             </CardContent>

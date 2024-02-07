@@ -128,5 +128,6 @@ export class DriverOsm {
 
         return await post_action(this.token,nameAction,nsId,vnf_index,configparams)
     }
+
        
 }

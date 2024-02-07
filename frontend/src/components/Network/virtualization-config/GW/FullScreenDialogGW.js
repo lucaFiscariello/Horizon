@@ -119,10 +119,10 @@ export default function FullScreenDialogConfigGW(props) {
               </Typography>
 
               <Stack spacing={2} style={{ marginTop: '16px' }}>
-                <TextField id="outlined-basic" label="Up link attenuation" variant="outlined"  value={ip} onChange={handleIpChange}/>
-                <TextField id="outlined-basic" label="Down link attenuation" variant="outlined" value={mac} onChange={handleMacChange} />
-                <TextField id="outlined-basic" label="Costant delay" variant="outlined" value={mac} onChange={handleMacChange} />
-                <TextField id="outlined-basic" label="DAMA algoritm" variant="outlined" value={mac} onChange={handleMacChange} defaultValue="Legacy" />
+                <TextField id="outlined-basic" label="Up link attenuation" variant="outlined"  />
+                <TextField id="outlined-basic" label="Down link attenuation" variant="outlined" />
+                <TextField id="outlined-basic" label="Costant delay" variant="outlined" value={mac}  />
+                <TextField id="outlined-basic" label="DAMA algoritm" variant="outlined" value={mac} defaultValue="Legacy" />
               </Stack>
 
             </CardContent>

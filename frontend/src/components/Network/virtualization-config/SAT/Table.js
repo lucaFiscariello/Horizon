@@ -26,7 +26,9 @@ const columns = [
 export default function DataTable(props) {
 
     const [items, setItems] = React.useState([]);
-
+    const handleSelectionChange = (selection) => {
+      props.handeWave(selection.id)
+    };
 
     React.useEffect(async ()  => {
 
@@ -46,6 +48,7 @@ export default function DataTable(props) {
             },
         }}
         checkboxSelection
+        onCellClick={handleSelectionChange}
       />
     </div>
   );

@@ -96,6 +96,7 @@ export default function Overview() {
           //await modifyEntity("test","sat","192.0.0.1","00:00:00:00:00:02")
 
           //await addPhysicalEntity("test","gw","Gateway")
+          let project = "Slie2"
           await addEntity("test","gw","Gateway")
           await configureEntity("test","gw","192.168.0.3","00:00:00:00:00:01")
 
