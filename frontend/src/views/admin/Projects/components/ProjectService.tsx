@@ -225,25 +225,157 @@ const Project: React.FC<Props> = (props) => {
                                     >
                                         Gateway
                                     </AccordionSummary>
-                                    <AccordionDetails>
 
-                                        <Divider textAlign="right">Server Flute</Divider>
+                                    	<AccordionDetails>
+											<Accordion >
+												<AccordionSummary
+												expandIcon={<ExpandMoreIcon />}
+												aria-controls="panel3-content"
+												id="panel3-header"
+												style={customStyle}
+												>
+													Server Flute
+												</AccordionSummary>
+												<AccordionDetails>
+												<Stack spacing={2} style={{ marginTop: '20px' }}>
+													<TextField id="outlined-basic" label="Ip multicast" variant="outlined" />
+													<TextField id="outlined-basic" label="Url file" variant="outlined" />
+													<TextField id="outlined-basic" label="OTI" variant="outlined" />
+													<TextField id="outlined-basic" label="TSI" variant="outlined" />
 
-                                        <Divider textAlign="right">Client Flute</Divider>
+													<button className='button' >
+														Start
+													</button>
+													<button className='button' >
+														Stop
+													</button>
+												</Stack>
+										</AccordionDetails>
+										</Accordion>
 
-                                        <Divider textAlign="right">MQTT Publischer</Divider>
 
-                                        <Divider textAlign="right">MQTT Client</Divider>
+										<Accordion>
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											Client Flute
+										</AccordionSummary>
+										<AccordionDetails>										
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Ip multicast" variant="outlined" />
+											<TextField id="outlined-basic" label="Port" variant="outlined" />
+											<TextField id="outlined-basic" label="TSI" variant="outlined" />
+											<TextField id="outlined-basic" label="Buffer dimention" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
 
-                                        <Divider textAlign="right">Quic Client</Divider>
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											MQTT Publischer
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Topic" variant="outlined" />
+											<TextField id="outlined-basic" label="Broken Adress" variant="outlined" />
+											<TextField id="outlined-basic" label="Frequency" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
 
-                                        <Divider textAlign="right">MQTT Client</Divider>
 
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											MQTT Subscriber
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Topic" variant="outlined" />
+											<TextField id="outlined-basic" label="Broken Adress" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
+
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											Quic Client
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Server IP" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
+										
+
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											Quic Server
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Server IP" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
                                     </AccordionDetails>
                                     </Accordion>
 
 
-                                    <Accordion >
+									<Accordion defaultExpanded={true}>
                                     <AccordionSummary
                                         expandIcon={<ExpandMoreIcon />}
                                         aria-controls="panel3-content"
@@ -252,9 +384,152 @@ const Project: React.FC<Props> = (props) => {
                                     >
                                         Terminal
                                     </AccordionSummary>
-                                    <AccordionDetails>
+
+                                    	<AccordionDetails>
+											<Accordion >
+												<AccordionSummary
+												expandIcon={<ExpandMoreIcon />}
+												aria-controls="panel3-content"
+												id="panel3-header"
+												style={customStyle}
+												>
+													Server Flute
+												</AccordionSummary>
+												<AccordionDetails>
+												<Stack spacing={2} style={{ marginTop: '20px' }}>
+													<TextField id="outlined-basic" label="Ip multicast" variant="outlined" />
+													<TextField id="outlined-basic" label="Url file" variant="outlined" />
+													<TextField id="outlined-basic" label="OTI" variant="outlined" />
+													<TextField id="outlined-basic" label="TSI" variant="outlined" />
+
+													<button className='button' >
+														Start
+													</button>
+													<button className='button' >
+														Stop
+													</button>
+												</Stack>
+										</AccordionDetails>
+										</Accordion>
 
 
+										<Accordion>
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											Client Flute
+										</AccordionSummary>
+										<AccordionDetails>										
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Ip multicast" variant="outlined" />
+											<TextField id="outlined-basic" label="Port" variant="outlined" />
+											<TextField id="outlined-basic" label="TSI" variant="outlined" />
+											<TextField id="outlined-basic" label="Buffer dimention" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
+
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											MQTT Publischer
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Topic" variant="outlined" />
+											<TextField id="outlined-basic" label="Broken Adress" variant="outlined" />
+											<TextField id="outlined-basic" label="Frequency" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
+
+
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											MQTT Subscriber
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Topic" variant="outlined" />
+											<TextField id="outlined-basic" label="Broken Adress" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
+
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											Quic Client
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Server IP" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
+										
+
+										<Accordion >
+										<AccordionSummary
+                                        expandIcon={<ExpandMoreIcon />}
+                                        aria-controls="panel3-content"
+                                        id="panel3-header"
+                                        style={customStyle}
+										>
+											Quic Server
+										</AccordionSummary>
+										<AccordionDetails>	
+										<Stack spacing={2} style={{ marginTop: '20px' }}>
+											<TextField id="outlined-basic" label="Server IP" variant="outlined" />
+											<button className='button' >
+												Start
+											</button>
+											<button className='button' >
+												Stop
+											</button>
+										</Stack>
+										</AccordionDetails>
+										</Accordion>
                                     </AccordionDetails>
                                     </Accordion>
 

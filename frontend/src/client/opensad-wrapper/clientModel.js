@@ -77,6 +77,66 @@ export async function modifyEntity(project,nameEntity,ip,mac){
 
 }
 
+export async function configureSymbolRateDown(project,rate){
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+project+"/rateDown/"+rate,options_profile)
+  return response;
+
+}
+
+export async function configureSymbolRateUP(project,rate){
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+project+"/rateUp/"+rate,options_profile)
+  return response;
+
+}
+
+export async function configureModulationUP(project,wave){
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+project+"/modulationUP/"+wave,options_profile)
+  return response;
+
+}
+
+export async function configureModulationDown(project,wave){
+
+  const options_profile = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      "Accept": "application/json",
+    },
+  };
+
+  let response = await fetch("/model/project/"+project+"/modulationDOWN/"+wave,options_profile)
+  return response;
+
+}
+
 export async function addPhysicalEntity(nameProject,nameNode,typeNode){
 
   let body = new Object()

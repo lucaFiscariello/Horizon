@@ -96,8 +96,9 @@
   margin-bottom: 5px; /* Aggiunge spazio tra i bottoni */
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s; /* Aggiunge un'animazione di transizione */
-  margin-right: 10px
-
+  margin-right: 10px;
+  width: 100px;
+  
 }
 
 .button:hover {

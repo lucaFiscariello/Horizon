@@ -899,7 +899,27 @@ class ModelNetwork {
         }
     }
 
+    async setSymbolRateUP(rate){
+        this.topology.model.root.frequency_plan.spots.item.forward_band.item.symbol_rate = rate
+        await this.updateXml()
+    }
+
+    async setSymbolRateDOWN(rate){   
+        this.topology.model.root.frequency_plan.spots.item.return_band.item.symbol_rate = rate
+        await this.updateXml()
+    }
+
+    async setModulationUP(wave_form){
+        this.topology.model.root.frequency_plan.spots.item.forward_band.item.wave_form = wave_form
+        await this.updateXml()
+    }
+
+    async setModulationDOWN(wave_form){   
+        this.topology.model.root.frequency_plan.spots.item.return_band.item.wave_form = wave_form
+        await this.updateXml()
+    }
 }
+
 
 /**
  * Funzionalità che serve per verificare se un oggetto è una lista

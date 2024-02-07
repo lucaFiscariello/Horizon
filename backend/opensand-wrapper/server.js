@@ -51,6 +51,42 @@ app.post('/model/project/:id/entity/:nameEntity/modify',async (req, res) => {
 
 });
 
+app.post('/model/project/:id/rateDown/:rate',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.setSymbolRateDOWN(req.params.rate)    
+    return res.json(modelNetwork)
+
+});
+
+app.post('/model/project/:id/rateUP/:rate',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.setSymbolRateUP(req.params.rate)    
+    return res.json(modelNetwork)
+
+});
+
+app.post('/model/project/:id/modulationUP/:wave',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.setModulationUP(req.params.wave)    
+    return res.json(modelNetwork)
+
+});
+
+app.post('/model/project/:id/modulationDOWN/:wave',async (req, res) => {
+
+    let modelNetwork = new ModelNetwork(req.params.id)
+    await modelNetwork.loadModel()
+    await modelNetwork.setModulationDOWN(req.params.wave)    
+    return res.json(modelNetwork)
+
+});
+
 app.post('/model/project/:id/entity/physical',async (req, res) => {
 
     let network = new ModelNetwork(req.params.id)

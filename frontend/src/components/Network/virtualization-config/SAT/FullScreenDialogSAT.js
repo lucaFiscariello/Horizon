@@ -41,7 +41,7 @@ export default function FullScreenDialogConfigSAT(props) {
     setSpots(spots)
 
     let res =await  getModel(props.projectName)
-    console.log(res.model.topology.model.root.wave_forms.dvb_rcs2.item)
+    console.log(res.model.topology.model.root.frequency_plan.spots.item.forward_band.item.wave_form)
   }, []);
 
   const handleMacChange = (event) => {

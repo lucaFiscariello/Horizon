@@ -51,6 +51,10 @@ import Projects from "views/admin/Projects/components/Projects";
 import { create_ns_node } from "client/osm-wrapper/client-osm-wrapper";
 import { enableCollector } from "client/opensad-wrapper/clientModel";
 import MapComponent from "components/Network/Map";
+import { configureSymbolRateUP } from "client/opensad-wrapper/clientModel";
+import { configureSymbolRateDown } from "client/opensad-wrapper/clientModel";
+import { configureModulationDown } from "client/opensad-wrapper/clientModel";
+import { configureModulationUP } from "client/opensad-wrapper/clientModel";
 // Assets
 
 
@@ -112,7 +116,11 @@ export default function Overview() {
           //await addRoute("test","gw2","st")
 
           await enableCollector("test","192.168.0.1")
+          await configureSymbolRateUP("test",1)
+          await configureSymbolRateDown("test",1)
 
+          await configureModulationDown("test",0)
+          await configureModulationUP("test",0)
           
           let node = await getPhysicalNode("test")
           //let link = await getPhysicalLinks("test")
