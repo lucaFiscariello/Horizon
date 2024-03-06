@@ -58,7 +58,7 @@ export default function Project(props) {
         <Link
           href={linkdeploy}
           me='16px'
-          ms='875px'
+          ms='1020px'
           >
           <Button>
             <Icon as={PlayCircleOutlineSharpIcon} color='secondaryGray.500' h='18px' w='18px' />

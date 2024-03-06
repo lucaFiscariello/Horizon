@@ -35,8 +35,8 @@ const Project: React.FC<Props> = (props) => {
 	const { onOpen } = useDisclosure();
 	document.documentElement.dir = 'ltr';
 
-	let gwIP = name.includes("2") ? "192.168.123.27" :"192.168.123.77"
-	let stIP = name.includes("2") ? "192.168.123.18" :"192.168.123.57"
+	let gwIP = name.includes("1") ? "192.168.123.27" :"192.168.123.77"
+	let stIP = name.includes("1") ? "192.168.123.18" :"192.168.123.57"
 
 
  

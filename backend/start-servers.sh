@@ -1,6 +1,6 @@
-gnome-terminal -- bash -c " cd geometry-costellation && python3 server.py ; read -p "
-gnome-terminal -- bash -c "  ./opensand-wrapper/start-opensand-server.sh ; read -p "
-gnome-terminal -- bash -c "cd opensand-wrapper && node server.js ; read -p "
-gnome-terminal -- bash -c "cd osm-wrapper/server && python3 server.py ; read -p "
-gnome-terminal -- bash -c "cd proxy && node server.js ; read -p "
+cd backend/geometry-costellation && python3 server.py 
+./backend/opensand-wrapper/start-opensand-server.sh 
+cd backend/opensand-wrapper && node server.js
+cd backend/osm-wrapper/server && python3 server.py 
+cd backend/proxy && node server.js 
 
